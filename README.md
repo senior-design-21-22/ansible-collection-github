@@ -1,2 +1,2 @@
-# ansible-collection-github
-Ansible Collection for GitHub
+# Ansible Collection for GitHub
+The OHIO IT collection of Ansible modules for GitHub.
