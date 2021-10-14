@@ -1,0 +1,13 @@
+---
+# tasks file for repository_info
+- name: Generate GitHub repository infomation
+  repository_information:
+    token: "{{ github_token }}"
+    organization_name: "{{ org_name }}"
+  register: demo_greeting
+
+- name: store result
+  copy:
+    content: "{{ demo_greeting.fact }}\n"
+    dest: /Users/bradleygolski/Desktop/ansibleOutput.txt
+  become: yes
