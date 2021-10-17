@@ -5,9 +5,9 @@ The collection includes a variety of Ansible modules to help automate the manage
 ---
 ## Version Compatibility
 Tested against:
-  Ansible Version >=2.11
-  Python >=3.8
-  PyGitHub >=1.55
+  ```Ansible Version >=2.11```
+  ```Python >=3.8```
+  ```PyGitHub >=1.55```
 ## Installation
 Install this collection via [Ansible Galaxy](https://galaxy.ansible.com/ohioit/github):
 ```bash
