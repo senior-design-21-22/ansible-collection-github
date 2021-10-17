@@ -6,9 +6,9 @@ name: ansible-test
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [ development ]
   pull_request:
-    branches: [ main ]
+    branches: [ development ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -22,20 +22,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Perform integration testing with ansible-test
-        uses: ansible-community/ansible-test-gh-action@release/v1
-        with:
-          ansible-core-version: stable-2.11
-          pre-test-cmd: echo This runs before the ansible-test invocation
-          python-version: 3.9
-          target-python-version: 3.9
-          testing-type: integration
-          test-deps: ansible.netcommon
-      - name: Perform sanity testing with ansible-test
-        uses: ansible-community/ansible-test-gh-action@release/v1
-        with:
-          ansible-core-version: stable-2.11
-          testing-type: sanity
       - name: Perform unit testing with ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
@@ -47,3 +33,19 @@ jobs:
           test-deps: >-
             ansible.netcommon
             ansible.utils
+      - name: Perform sanity testing with ansible-test
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: stable-2.11
+          testing-type: sanity
+      - name: Perform integration testing with ansible-test
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: stable-2.11
+          pre-test-cmd: echo This runs before the ansible-test invocation
+          python-version: 3.9
+          target-python-version: 3.9
+          testing-type: integration
+          test-deps: ansible.netcommon
+      
+      
