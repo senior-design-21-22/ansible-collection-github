@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  tasks:
+    - name: "List GitHub repositories within org"
+      import_role:
+        name: ohioit.github.repository_info
+      vars:
+        github_token: "token"
+        org_name: "organization_name"
+      register: result
+
+    - name: print result
+      debug:
+        var: result
