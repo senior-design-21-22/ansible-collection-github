@@ -6,7 +6,7 @@
         name: ohioit.github.repository_info
       vars:
         github_token: "token"
-        org_name: "senior-design-21-22"
+        org_name: "organization_name"
       register: result
 
     - name: print result
