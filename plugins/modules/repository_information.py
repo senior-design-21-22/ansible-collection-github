@@ -26,22 +26,42 @@ options:
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
+    - Tyler Zwolenik (@TylerZwolenik)
 '''
 
-# EXAMPLES = '''
-# # Pass in an organization name and github API token
-# - name: returns information about 
-#   repository_info:
-#     organization: "ohioit"
-#     github_token: "12345"
-# '''
+EXAMPLES = '''
+# Pass in an organization name and github API token
+- name: returns information about 
+  repository_info:
+    organization: "ohioit"
+    github_token: "12345"
+'''
 
-# RETURN = '''
-# fact:
-#   description: 
-#   type: 
-#   sample: 
-# '''
+RETURN = '''
+repo ("repo name"):
+
+    "owner":            owner name as string,
+
+    "description":      description as string,
+
+    "private":          repo status (bool: true or false),
+
+    "is_template":      if it is template (bool: true or false),
+
+    "archived":         archived status of repository (bool: true or false),
+
+    "language":         language that the repo is using (as string),
+
+    "visibility":       for other users ("private" or "public"),
+
+    "url":              url for repo (as string),
+
+    "default_branch":   branch that repo defaults to (as string),
+
+    "hooks_url":        url for hooks (as string),
+
+    "clone_url":        url for cloning (as string)
+'''
 
 import json
 from github import Github
@@ -49,8 +69,8 @@ from ansible.module_utils.basic import AnsibleModule
 
 def run_module():
     module_args = dict(
-        token=dict(type='str', default='John Doe'),
-        organization_name=dict(type='str', default='default'),
+        token=dict(type='str', default='No Token Provided.'),
+        organization_name=dict(type='str', default='No Organization Name Provided.'),
     )
 
     module = AnsibleModule(
@@ -66,7 +86,10 @@ def run_module():
     g = Github(module.params['token'])
 
     output = {"repos": {}}
+
+    #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
+    
     for repo in g.get_organization(org_name).get_repos():
         output["repos"][repo.name] = {
             "owner": repo.owner.login,
@@ -86,10 +109,8 @@ def run_module():
 
     module.exit_json(**output)
 
-
 def main():
     run_module()
-
 
 if __name__ == '__main__':
     main()
