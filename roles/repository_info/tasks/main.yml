@@ -1,7 +1,0 @@
----
-# tasks file for repository_info
-- name: Generate GitHub repository infomation
-  repository_information:
-    token: "{{ github_token }}"
-    organization_name: "{{ org_name }}"
-  register: result
