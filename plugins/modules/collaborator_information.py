@@ -175,7 +175,7 @@ def run_module():
         fact=''
     )
     # token usage retrieved from module's variables from playbook
-    g = Github('token', base_url='https://github.ohio.edu/api/v3')
+    g = Github('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', base_url='https://github.ohio.edu/api/v3')
     org_name = "SSEP"
 
     repo_list = ["testing-repo-private", "testing-repo-internal", "testing-repo-public"]
@@ -197,88 +197,14 @@ def run_module():
     #     if(len(target_repos) > 0):# needed from ansible (list)
     #         add_collaborators(g, target_repos, collaborators_to_add, org_name)
 
-<<<<<<< HEAD
-    output = list()
-    for repo in repo_list:
-
-        dict_repo = dict()
-        dict_output = dict()
-        collaborators = g.get_repo(repo).get_collaborators()
-        for collaborator in collaborators:
-            dict_output['login'] = collaborator.login
-            dict_output['id'] = collaborator.id
-            dict_output['node_id'] = collaborator.node_id
-            dict_output['avatar_url'] = collaborator.avatar_url
-            dict_output['gravatar_id'] = collaborator.gravatar_id
-            dict_output['url'] = collaborator.url
-            dict_output['html_url'] = collaborator.html_url
-            dict_output['followers_url'] = collaborator.followers_url
-            dict_output['following_url'] = collaborator.following_url
-            dict_output['gists_url'] = collaborator.gists_url
-            dict_output['starred_url'] = collaborator.starred_url
-            dict_output['subscriptions_url'] = collaborator.subscriptions_url
-            dict_output['organizations_url'] = collaborator.organizations_url
-            dict_output['repos_url'] = collaborator.repos_url
-            dict_output['events_url'] = collaborator.events_url
-            dict_output['received_events_url'] = collaborator.received_events_url
-            dict_output['type'] = collaborator.type
-            dict_output['site_admin'] = collaborator.site_admin
-            dict_output['permissions'] = collaborator.permissions
-
-        dict_repo[repo] = dict_output
-        output.append(dict_repo)
-
-    # needed from ansible (list of dict [name, permission])
-    if(len(collaborators_to_add) > 0):
-        if(len(target_repos) > 0):# needed from ansible (list)
-            add_collaberators(g, target_repos, collaborators_to_add)
-        else:
-            add_collaberators(g, repo_list, collaborators_to_add)
-
-    if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
-        if(len(target_repos) > 0):# needed from ansible (list)
-            del_collaberators(g, target_repos, collaborators_to_remove)
-        else:
-            del_collaberators(g, repo_list, collaborators_to_remove)
-=======
     # if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
     #     if(len(target_repos) > 0):# needed from ansible (list)
     #         del_collaborators(g, target_repos, collaborators_to_remove, org_name)
 
     print(check_permissions(g, target_repos, perms_check, "admin", org_name))
     change_collaborator_permissions(g, target_repos, perms_check, "pull", org_name)
->>>>>>> c3693be ( added module functionality)
     
     print(get_collaborators(g, repo_list))
-
-    output = list()
-    for repo in repo_list:
-        dict_repo = dict()
-        dict_output = dict()
-        collaborators = g.get_repo(repo).get_collaborators()
-        for collaborator in collaborators:
-            dict_output['login'] = collaborator.login
-            dict_output['id'] = collaborator.id
-            # dict_output['node_id'] = collaborator.node_id
-            # dict_output['avatar_url'] = collaborator.avatar_url
-            # dict_output['gravatar_id'] = collaborator.gravatar_id
-            # dict_output['url'] = collaborator.url
-            # dict_output['html_url'] = collaborator.html_url
-            # dict_output['followers_url'] = collaborator.followers_url
-            # dict_output['following_url'] = collaborator.following_url
-            # dict_output['gists_url'] = collaborator.gists_url
-            # dict_output['starred_url'] = collaborator.starred_url
-            # dict_output['subscriptions_url'] = collaborator.subscriptions_url
-            # dict_output['organizations_url'] = collaborator.organizations_url
-            # dict_output['repos_url'] = collaborator.repos_url
-            # dict_output['events_url'] = collaborator.events_url
-            # dict_output['received_events_url'] = collaborator.received_events_url
-            dict_output['type'] = collaborator.type
-            dict_output['site_admin'] = collaborator.site_admin
-            dict_output['permissions'] = collaborator.permissions
-
-        dict_repo[repo] = dict_output
-        output.append(dict_repo)
 
     if module.check_mode:
         return result
