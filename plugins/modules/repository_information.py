@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 
 from __future__ import absolute_import, division, print_function
