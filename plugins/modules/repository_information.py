@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -63,9 +65,7 @@ repo ("repo name"):
     "clone_url":        url for cloning (as string)
 '''
 
-import json
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
+
 
 def run_module():
     module_args = dict(
@@ -83,14 +83,14 @@ def run_module():
         fact=''
     )
     #token usage retrieved from module's variables from playbook
-    g = Github(module.params['token'])
+    ghub = Github(module.params['token'])
 
     output = {"repos": {}}
 
     #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
-    
-    for repo in g.get_organization(org_name).get_repos():
+
+    for repo in ghub.get_organization(org_name).get_repos():
         output["repos"][repo.name] = {
             "owner": repo.owner.login,
             "description": repo.description,
@@ -102,8 +102,9 @@ def run_module():
             "url": repo.url,
             "default_branch": repo.default_branch,
             "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url
+            "clone_url": repo.clone_url,
             }
+
     if module.check_mode:
         return result
 
