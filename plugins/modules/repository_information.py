@@ -149,9 +149,6 @@ repos.<ELEMENT INDEX>.is_template:
     returned: only if organization contains a repository and is not a part of an enterprise account
 '''
 
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
-
 
 def run_module():
     module_args = dict(
