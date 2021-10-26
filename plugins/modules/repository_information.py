@@ -167,6 +167,8 @@ def run_module():
         changed=False,
         fact=''
     )
+    # token usage retrieved from module's variables from playbook
+    ghub = Github(module.params['token'])
 
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
