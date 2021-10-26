@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -73,9 +75,7 @@ RETURN = '''
     ]
 '''
 
-import json
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
+
 
 def run_module():
     module_args = dict(
@@ -93,29 +93,28 @@ def run_module():
         fact=''
     )
     #token usage retrieved from module's variables from playbook
-    g = Github(module.params['token'])
+    ghub = Github(module.params['token'])
 
     output = []
 
     #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
-    
-    for repo in g.get_organization(org_name).get_repos():
-        current_repo_dict = {
-                               "repo": repo.name,
-                               "owner": repo.owner.login,
-                                "description": repo.description,
-                                "private": repo.private,
-                                "is_template": repo.raw_data["is_template"],
-                                "archived": repo.archived,
-                                "language": repo.language,
-                                "visibility": repo.raw_data["visibility"],
-                                "url": repo.url,
-                                "default_branch": repo.default_branch,
-                                "hooks_url": repo.hooks_url,
-                                "clone_url": repo.clone_url
-                            }
-        output.append(current_repo_dict)
+
+    for repo in ghub.get_organization(org_name).get_repos():
+        output["repos"][repo.name] = {
+            "owner": repo.owner.login,
+            "description": repo.description,
+            "private": repo.private,
+            "is_template": repo.raw_data["is_template"],
+            "archived": repo.archived,
+            "language": repo.language,
+            "visibility": repo.raw_data["visibility"],
+            "url": repo.url,
+            "default_branch": repo.default_branch,
+            "hooks_url": repo.hooks_url,
+            "clone_url": repo.clone_url,
+            }
+
     if module.check_mode:
         return result
 
