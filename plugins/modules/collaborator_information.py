@@ -2,6 +2,10 @@
 
 from ansible.module_utils.basic import AnsibleModule
 from github import Github
+<<<<<<< HEAD
+=======
+
+>>>>>>> c3693be ( added module functionality)
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -93,7 +97,10 @@ def add_collaborators(g, repos, to_add, org_name):
             if (p not in colab_list):
                 r.add_to_collaborators(p, permission=to_add[p])
                 print("adding " + p + " to " + repo + " with Permission "  + to_add[p])
+<<<<<<< HEAD
 
+=======
+>>>>>>> c3693be ( added module functionality)
 
 def check_permissions(g, repos, user, permission_level, org_name):
     status = False
@@ -102,6 +109,25 @@ def check_permissions(g, repos, user, permission_level, org_name):
         status = (r.get_collaborator_permission(user) == permission_level)
     return status
         
+
+<<<<<<< HEAD
+def del_collaborators(g, repos, to_remove, org_name):
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            if(collaborator.login in to_remove):
+                r.remove_from_collaborators(collaborator.login)
+                print("removing " + str(collaborator) + " from " + repo)
+=======
+def check_permissions(g, repos, user, permission_level, org_name):
+    status = False
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        status = (r.get_collaborator_permission(user) == permission_level)
+    return status
+        
+>>>>>>> c3693be ( added module functionality)
 
 def del_collaborators(g, repos, to_remove, org_name):
     for repo in repos:
@@ -112,7 +138,10 @@ def del_collaborators(g, repos, to_remove, org_name):
                 r.remove_from_collaborators(collaborator.login)
                 print("removing " + str(collaborator) + " from " + repo)
 
+<<<<<<< HEAD
+=======
 
+>>>>>>> c3693be ( added module functionality)
 def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
     for repo in repos:
         r = g.get_repo(org_name + "/" + repo)
@@ -122,9 +151,15 @@ def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
             if (user == collaborator.login and permssion_level != r.get_collaborator_permission(user)):
                 print("changing " + user + " in " + repo + " from Permission " + r.get_collaborator_permission(user) + " to "  + permssion_level)
                 r.add_to_collaborators(user, permission=permssion_level)
+<<<<<<< HEAD
 
 def get_collaborators(g, repo_list):
 
+=======
+
+def get_collaborators(g, repo_list):
+
+>>>>>>> c3693be ( added module functionality)
     output = dict()
     for repo in repo_list:
         dict_repo = list()
@@ -175,7 +210,7 @@ def run_module():
         fact=''
     )
     # token usage retrieved from module's variables from playbook
-    g = Github('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', base_url='https://github.ohio.edu/api/v3')
+    g = Github('token', base_url='https://github.ohio.edu/api/v3')
     org_name = "SSEP"
 
     repo_list = ["testing-repo-private", "testing-repo-internal", "testing-repo-public"]
@@ -205,6 +240,22 @@ def run_module():
     change_collaborator_permissions(g, target_repos, perms_check, "pull", org_name)
     
     print(get_collaborators(g, repo_list))
+
+    # needed from ansible (list of dict [name, permission])
+    if(len(collaborators_to_add) > 0):
+        if(len(target_repos) > 0):# needed from ansible (list)
+            add_collaberators(g, target_repos, collaborators_to_add)
+        else:
+            add_collaberators(g, repo_list, collaborators_to_add)
+
+    if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
+        if(len(target_repos) > 0):# needed from ansible (list)
+            del_collaberators(g, target_repos, collaborators_to_remove)
+        else:
+            del_collaberators(g, repo_list, collaborators_to_remove)
+    
+    print(get_collaborators(g, repo_list))
+
 
     if module.check_mode:
         return result
