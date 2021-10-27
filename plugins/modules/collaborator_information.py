@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
+<<<<<<< HEAD
 from ansible.module_utils.basic import AnsibleModule
 from github import Github
 import json
+=======
+>>>>>>> collaborator-list-module
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -34,7 +37,7 @@ author:
 
 EXAMPLES = '''
 # Pass in an github API token and organization name
-- name: returns information about
+- name: returns information about 
   repository_info:
     github_token: "12345"
     organization: "ohioit"
@@ -130,7 +133,6 @@ def run_module():
 
     output = list()
     for repo in repo_list:
-
         dict_repo = dict()
         dict_output = dict()
         collaborators = g.get_repo(repo).get_collaborators()
