@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+from ansible.module_utils.basic import AnsibleModule
+from github import Github
+import json
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -31,7 +34,7 @@ author:
 
 EXAMPLES = '''
 # Pass in an github API token and organization name
-- name: returns information about 
+- name: returns information about
   repository_info:
     github_token: "12345"
     organization: "ohioit"
@@ -79,9 +82,28 @@ repo ("repo name"):
     "permissions":          url for hooks (as string),
 '''
 
-import json
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
+
+def add_collaberators(repos, collaberators,):
+    for repo in repos:
+        for collaberator in collaberators:
+            repo.add_to_collaborators(
+                collaberator, permisson=collaberators[collaberator])
+
+
+def del_collaberators(repos, collaberators):
+    for repo in repos:
+        for collaberator in collaberators:
+            repo.remove_from_collaborators(collaberator)
+
+
+def change_collaberator_permissions(g, repos, collaberators):
+    for repo in repos:
+        for collaberator in collaberators:
+            if repo.has_in_collaborators(collaberator):
+                #maybe needs to be removed before need to test this
+                add_collaberators(repo, collaberator)
+
+
 
 def run_module():
     module_args = dict(
@@ -98,15 +120,17 @@ def run_module():
         changed=False,
         fact=''
     )
-    #token usage retrieved from module's variables from playbook
+    # token usage retrieved from module's variables from playbook
     g = Github(module.params['token'])
     org_name = module.params['organization_name']
 
+    repo_list = []
     for repo in g.get_organization(org_name).get_repos():
         repo_list.append(repo.full_name)
 
     output = list()
     for repo in repo_list:
+
         dict_repo = dict()
         dict_output = dict()
         collaborators = g.get_repo(repo).get_collaborators()
@@ -133,6 +157,20 @@ def run_module():
 
         dict_repo[repo] = dict_output
         output.append(dict_repo)
+
+    # needed from ansible (list of dict [name, permission])
+    if(len(collaborators_to_add) > 0):
+        if(len(target_repos) > 0):# needed from ansible (list)
+            add_collaberators(g, target_repos, collaborators_to_add)
+        else:
+            add_collaberators(g, repo_list, collaborators_to_add)
+
+    if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
+        if(len(target_repos) > 0):# needed from ansible (list)
+            del_collaberators(g, target_repos, collaborators_to_remove)
+        else:
+            del_collaberators(g, repo_list, collaborators_to_remove)
+    
 
     if module.check_mode:
         return result
