@@ -18,6 +18,11 @@ options:
             - GitHub API token used to retrieve information about repositories a user has access to
         required: true
         type: str
+    enterprise_url:
+        description:
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
+        required: false
+        type: str
     organization_name:
         description:
           - The organization that the information is within the scope of.
@@ -30,11 +35,19 @@ author:
 '''
 
 EXAMPLES = '''
-# Pass in an organization name and github API token
+# Pass in an organization name and GitHub API token
 - name: returns information about 
   repository_info:
-    organization: "ohioit"
+    organization: "senior-design-21-22"
     github_token: "12345"
+
+
+# Pass in an organization name, GitHub API token
+- name: returns information about 
+  repository_info:
+    organization: "SSEP"
+    github_token: "12345"
+    enterprise_url: "<ENTERPRISE_URL>"
 '''
 
 RETURN = '''
@@ -63,7 +76,6 @@ repo ("repo name"):
     "clone_url":        url for cloning (as string)
 '''
 
-import json
 from github import Github
 from ansible.module_utils.basic import AnsibleModule
 
@@ -71,6 +83,7 @@ def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
         organization_name=dict(type='str', default='No Organization Name Provided.'),
+        enterprise_url=dict(type='str', default=''),
     )
 
     module = AnsibleModule(
@@ -83,7 +96,11 @@ def run_module():
         fact=''
     )
     #token usage retrieved from module's variables from playbook
-    g = Github(module.params['token'])
+
+    if(module.params['enterprise_url'] == ''):
+        g = Github(module.params['token'])
+    else:
+        g = Github(module.params['token'], base_url=module.params['enterprise_url'])
 
     output = {"repos": {}}
 
@@ -91,19 +108,32 @@ def run_module():
     org_name = module.params['organization_name']
     
     for repo in g.get_organization(org_name).get_repos():
-        output["repos"][repo.name] = {
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "is_template": repo.raw_data["is_template"],
-            "archived": repo.archived,
-            "language": repo.language,
-            "visibility": repo.raw_data["visibility"],
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url
-            }
+        if len(module.params["enterprise_url"]) == 0:
+            output["repos"][repo.name] = {
+                "owner": repo.owner.login,
+                "description": repo.description,
+                "private": repo.private,
+                "archived": repo.archived,
+                "language": repo.language,
+                "url": repo.url,
+                "default_branch": repo.default_branch,
+                "hooks_url": repo.hooks_url,
+                "clone_url": repo.clone_url,
+                "visibility": repo.raw_data["visibility"],
+                "is_template": repo.raw_data["is_template"]
+                }
+        else: 
+            output["repos"][repo.name] = {
+                "owner": repo.owner.login,
+                "description": repo.description,
+                "private": repo.private,
+                "archived": repo.archived,
+                "language": repo.language,
+                "url": repo.url,
+                "default_branch": repo.default_branch,
+                "hooks_url": repo.hooks_url,
+                "clone_url": repo.clone_url
+                }
     if module.check_mode:
         return result
 
