@@ -51,29 +51,39 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-repo ("repo name"):
+    [
+        {
+            "repo":             name of repository
 
-    "owner":            owner name as string,
+            "owner":            owner name as string,
 
-    "description":      description as string,
+            "description":      description as string,
 
-    "private":          repo status (bool: true or false),
+            "private":          repo status (bool: true or false),
 
-    "is_template":      if it is template (bool: true or false),
+            "is_template":      if it is template (bool: true or false),
 
-    "archived":         archived status of repository (bool: true or false),
+            "archived":         archived status of repository (bool: true or false),
 
-    "language":         language that the repo is using (as string),
+            "language":         language that the repo is using (as string),
 
-    "visibility":       for other users ("private" or "public"),
+            "visibility":       for other users ("private" or "public"),
 
-    "url":              url for repo (as string),
+            "url":              url for repo (as string),
 
-    "default_branch":   branch that repo defaults to (as string),
+            "default_branch":   branch that repo defaults to (as string),
 
-    "hooks_url":        url for hooks (as string),
+            "hooks_url":        url for hooks (as string),
 
-    "clone_url":        url for cloning (as string)
+            "clone_url":        url for cloning (as string)
+        }
+        {
+            ...
+        }
+        {
+            ...
+        }
+    ]
 '''
 
 from github import Github
@@ -102,14 +112,14 @@ def run_module():
     else:
         g = Github(module.params['token'], base_url=module.params['enterprise_url'])
 
-    output = {"repos": {}}
+    output = []
 
     #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
     
     for repo in g.get_organization(org_name).get_repos():
         if len(module.params["enterprise_url"]) == 0:
-            output["repos"][repo.name] = {
+            current_repo_dict = {
                 "owner": repo.owner.login,
                 "description": repo.description,
                 "private": repo.private,
@@ -122,8 +132,8 @@ def run_module():
                 "visibility": repo.raw_data["visibility"],
                 "is_template": repo.raw_data["is_template"]
                 }
-        else: 
-            output["repos"][repo.name] = {
+        else:
+            current_repo_dict = {
                 "owner": repo.owner.login,
                 "description": repo.description,
                 "private": repo.private,
@@ -134,10 +144,13 @@ def run_module():
                 "hooks_url": repo.hooks_url,
                 "clone_url": repo.clone_url
                 }
+        output.append(current_repo_dict)
     if module.check_mode:
         return result
 
-    module.exit_json(**output)
+    module.exit_json(repos=output) #PUTS RESULT INTO result.repos
+
+
 
 def main():
     run_module()
