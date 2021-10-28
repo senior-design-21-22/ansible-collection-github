@@ -1,11 +1,8 @@
 #!/usr/bin/python
 
-<<<<<<< HEAD
 from ansible.module_utils.basic import AnsibleModule
 from github import Github
-import json
-=======
->>>>>>> collaborator-list-module
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -86,26 +83,81 @@ repo ("repo name"):
 '''
 
 
-def add_collaberators(repos, collaberators,):
+def add_collaborators(g, repos, to_add, org_name):
     for repo in repos:
-        for collaberator in collaberators:
-            repo.add_to_collaborators(
-                collaberator, permisson=collaberators[collaberator])
+        r = g.get_repo(org_name + "/" + repo)
+        colab_list = []
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+                colab_list.append(collaborator.login)
+        for p in to_add:
+            if (p not in colab_list):
+                r.add_to_collaborators(p, permission=to_add[p])
+                print("adding " + p + " to " + repo + " with Permission "  + to_add[p])
 
 
-def del_collaberators(repos, collaberators):
+def check_permissions(g, repos, user, permission_level, org_name):
+    status = False
     for repo in repos:
-        for collaberator in collaberators:
-            repo.remove_from_collaborators(collaberator)
+        r = g.get_repo(org_name + "/" + repo)
+        status = (r.get_collaborator_permission(user) == permission_level)
+    return status
+        
 
-
-def change_collaberator_permissions(g, repos, collaberators):
+def del_collaborators(g, repos, to_remove, org_name):
     for repo in repos:
-        for collaberator in collaberators:
-            if repo.has_in_collaborators(collaberator):
-                #maybe needs to be removed before need to test this
-                add_collaberators(repo, collaberator)
+        r = g.get_repo(org_name + "/" + repo)
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            if(collaborator.login in to_remove):
+                r.remove_from_collaborators(collaborator.login)
+                print("removing " + str(collaborator) + " from " + repo)
 
+
+def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        colab_list = []
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            if (user == collaborator.login and permssion_level != r.get_collaborator_permission(user)):
+                print("changing " + user + " in " + repo + " from Permission " + r.get_collaborator_permission(user) + " to "  + permssion_level)
+                r.add_to_collaborators(user, permission=permssion_level)
+
+def get_collaborators(g, repo_list):
+
+    output = dict()
+    for repo in repo_list:
+        dict_repo = list()
+        collab_output = dict()
+        collaborators = g.get_repo(repo).get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+             
+            collab_output['login'] = collaborator.login
+            collab_output['id'] = collaborator.id
+            # collab_output['node_id'] = collaborator.node_id
+            # collab_output['avatar_url'] = collaborator.avatar_url
+            # collab_output['gravatar_id'] = collaborator.gravatar_id
+            # collab_output['url'] = collaborator.url
+            # collab_output['html_url'] = collaborator.html_url
+            # collab_output['followers_url'] = collaborator.followers_url
+            # collab_output['following_url'] = collaborator.following_url
+            # collab_output['gists_url'] = collaborator.gists_url
+            # collab_output['starred_url'] = collaborator.starred_url
+            # collab_output['subscriptions_url'] = collaborator.subscriptions_url
+            # collab_output['organizations_url'] = collaborator.organizations_url
+            # collab_output['repos_url'] = collaborator.repos_url
+            # collab_output['events_url'] = collaborator.events_url
+            # collab_output['received_events_url'] = collaborator.received_events_url
+            collab_output['type'] = collaborator.type
+            collab_output['site_admin'] = collaborator.site_admin
+            collab_output['permissions'] = collaborator.permissions
+
+            dict_repo.append(collab_output.copy())
+
+        output[repo] = dict_repo.copy()
+
+    return output
 
 
 def run_module():
@@ -124,55 +176,37 @@ def run_module():
         fact=''
     )
     # token usage retrieved from module's variables from playbook
-    g = Github(module.params['token'])
-    org_name = module.params['organization_name']
+    g = Github('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', base_url='https://github.ohio.edu/api/v3')
+    org_name = "SSEP"
 
-    repo_list = []
-    for repo in g.get_organization(org_name).get_repos():
-        repo_list.append(repo.full_name)
+    repo_list = ["testing-repo-private", "testing-repo-internal", "testing-repo-public"]
+    collaborators_to_remove = ["je652917"]
+    target_repos = ["testing-repo-private"]
+    collaborators_to_add = {"je652917":"admin"}
+    perms_check = "je652917"
 
-    output = list()
-    for repo in repo_list:
-        dict_repo = dict()
-        dict_output = dict()
-        collaborators = g.get_repo(repo).get_collaborators()
-        for collaborator in collaborators:
-            dict_output['login'] = collaborator.login
-            dict_output['id'] = collaborator.id
-            dict_output['node_id'] = collaborator.node_id
-            dict_output['avatar_url'] = collaborator.avatar_url
-            dict_output['gravatar_id'] = collaborator.gravatar_id
-            dict_output['url'] = collaborator.url
-            dict_output['html_url'] = collaborator.html_url
-            dict_output['followers_url'] = collaborator.followers_url
-            dict_output['following_url'] = collaborator.following_url
-            dict_output['gists_url'] = collaborator.gists_url
-            dict_output['starred_url'] = collaborator.starred_url
-            dict_output['subscriptions_url'] = collaborator.subscriptions_url
-            dict_output['organizations_url'] = collaborator.organizations_url
-            dict_output['repos_url'] = collaborator.repos_url
-            dict_output['events_url'] = collaborator.events_url
-            dict_output['received_events_url'] = collaborator.received_events_url
-            dict_output['type'] = collaborator.type
-            dict_output['site_admin'] = collaborator.site_admin
-            dict_output['permissions'] = collaborator.permissions
-
-        dict_repo[repo] = dict_output
-        output.append(dict_repo)
-
-    # needed from ansible (list of dict [name, permission])
-    if(len(collaborators_to_add) > 0):
-        if(len(target_repos) > 0):# needed from ansible (list)
-            add_collaberators(g, target_repos, collaborators_to_add)
-        else:
-            add_collaberators(g, repo_list, collaborators_to_add)
-
-    if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
-        if(len(target_repos) > 0):# needed from ansible (list)
-            del_collaberators(g, target_repos, collaborators_to_remove)
-        else:
-            del_collaberators(g, repo_list, collaborators_to_remove)
+    if len(repo_list):
+        for i in range(len(repo_list)):
+            repo_list[i] = org_name + "/" + repo_list[i]
     
+    output = get_collaborators(g, repo_list)
+
+    print(output)
+   
+    #needed from ansible (list of dict [name, permission])
+    # if(len(collaborators_to_add) > 0):
+    #     if(len(target_repos) > 0):# needed from ansible (list)
+    #         add_collaborators(g, target_repos, collaborators_to_add, org_name)
+
+    # if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
+    #     if(len(target_repos) > 0):# needed from ansible (list)
+    #         del_collaborators(g, target_repos, collaborators_to_remove, org_name)
+
+    print(check_permissions(g, target_repos, perms_check, "admin", org_name))
+    change_collaborator_permissions(g, target_repos, perms_check, "pull", org_name)
+    
+    print(get_collaborators(g, repo_list))
+
 
     if module.check_mode:
         return result
