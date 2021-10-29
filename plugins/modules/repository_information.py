@@ -40,29 +40,39 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-repo ("repo name"):
+    [
+        {
+            "repo":             name of repository
 
-    "owner":            owner name as string,
+            "owner":            owner name as string,
 
-    "description":      description as string,
+            "description":      description as string,
 
-    "private":          repo status (bool: true or false),
+            "private":          repo status (bool: true or false),
 
-    "is_template":      if it is template (bool: true or false),
+            "is_template":      if it is template (bool: true or false),
 
-    "archived":         archived status of repository (bool: true or false),
+            "archived":         archived status of repository (bool: true or false),
 
-    "language":         language that the repo is using (as string),
+            "language":         language that the repo is using (as string),
 
-    "visibility":       for other users ("private" or "public"),
+            "visibility":       for other users ("private" or "public"),
 
-    "url":              url for repo (as string),
+            "url":              url for repo (as string),
 
-    "default_branch":   branch that repo defaults to (as string),
+            "default_branch":   branch that repo defaults to (as string),
 
-    "hooks_url":        url for hooks (as string),
+            "hooks_url":        url for hooks (as string),
 
-    "clone_url":        url for cloning (as string)
+            "clone_url":        url for cloning (as string)
+        }
+        {
+            ...
+        }
+        {
+            ...
+        }
+    ]
 '''
 
 
@@ -85,7 +95,7 @@ def run_module():
     #token usage retrieved from module's variables from playbook
     ghub = Github(module.params['token'])
 
-    output = {"repos": {}}
+    output = []
 
     #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
@@ -108,7 +118,9 @@ def run_module():
     if module.check_mode:
         return result
 
-    module.exit_json(**output)
+    module.exit_json(repos=output) #PUTS RESULT INTO result.repos
+
+
 
 def main():
     run_module()
