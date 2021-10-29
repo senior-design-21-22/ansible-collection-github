@@ -111,14 +111,6 @@ def del_collaborators(g, repos, to_remove, org_name):
                 r.remove_from_collaborators(collaborator.login)
                 print("removing " + str(collaborator) + " from " + repo)
 
-def del_collaborators(g, repos, to_remove, org_name):
-    for repo in repos:
-        r = g.get_repo(org_name + "/" + repo)
-        collaborators = r.get_collaborators(affiliation="direct")
-        for collaborator in collaborators:
-            if(collaborator.login in to_remove):
-                r.remove_from_collaborators(collaborator.login)
-                print("removing " + str(collaborator) + " from " + repo)
 
 def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
     for repo in repos:
@@ -211,23 +203,7 @@ def run_module():
     change_collaborator_permissions(g, target_repos, perms_check, "pull", org_name)
     
     print(get_collaborators(g, repo_list))
-
-    # needed from ansible (list of dict [name, permission])
-    if(len(collaborators_to_add) > 0):
-        if(len(target_repos) > 0):# needed from ansible (list)
-            add_collaberators(g, target_repos, collaborators_to_add)
-        else:
-            add_collaberators(g, repo_list, collaborators_to_add)
-
-    if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
-        if(len(target_repos) > 0):# needed from ansible (list)
-            del_collaberators(g, target_repos, collaborators_to_remove)
-        else:
-            del_collaberators(g, repo_list, collaborators_to_remove)
     
-    print(get_collaborators(g, repo_list))
-
-
     if module.check_mode:
         return result
 
