@@ -69,45 +69,28 @@ EXAMPLES = '''
 '''
 
 RETURN = '''
-repo ("repo name"):
+    {
+        repo ("repo name"):
+        [
+            {
+                "login":                owner name as string,
 
-    "login":                owner name as string,
+                "id":                   description as int,
 
-    "id":                   description as string,
+                "type":                 user type as string
 
-    "node_id":              repo status (bool: true or false),
+                "site_admin":           site admin access as boolean,
 
-    "avatar_url":           if it is template (bool: true or false),
-
-    "gravatar_id":          archived status of repository (bool: true or false),
-
-    "url":                  language that the repo is using (as string),
-
-    "html_url":             for other users ("private" or "public"),
-
-    "followers_url":        url for repo (as string),
-
-    "following_url":        branch that repo defaults to (as string),
-
-    "gists_url":            url for hooks (as string),
-
-    "starred_url":          url for cloning (as string)
-
-    "subscriptions_url":    branch that repo defaults to (as string),
-
-    "organizations_url":    url for hooks (as string),
-
-    "repos_url":            url for cloning (as string)
-
-    "events_url":           branch that repo defaults to (as string),
-
-    "received_events_url":  url for hooks (as string),
-
-    "type":                 url for cloning (as string)
-
-    "site_admins":          branch that repo defaults to (as string),
-
-    "permissions":          url for hooks (as string),
+                "permissions":          user permissions as Permissions dictionary
+            },
+            {
+                ...
+            }
+        ]
+    },
+    {
+        ...
+    }
 '''
 
 
