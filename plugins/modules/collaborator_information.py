@@ -125,6 +125,88 @@ repos.<ELEMENT INDEX>.is_template:
 '''
 
 
+def add_collaborators(g, repos, to_add, org_name):
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        colab_list = []
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            colab_list.append(collaborator.login)
+        for p in to_add:
+            if (p not in colab_list):
+                r.add_to_collaborators(p, permission=to_add[p])
+                print("adding " + p + " to " + repo +
+                      " with Permission " + to_add[p])
+
+
+def check_permissions(g, repos, user, permission_level, org_name):
+    status = True
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        if(r.get_collaborator_permission(user) != permission_level):
+            status = False
+    return status
+
+
+def del_collaborators(g, repos, to_remove, org_name):
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            if(collaborator.login in to_remove):
+                r.remove_from_collaborators(collaborator.login)
+                print("removing " + str(collaborator) + " from " + repo)
+
+
+def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
+    for repo in repos:
+        r = g.get_repo(org_name + "/" + repo)
+        colab_list = []
+        collaborators = r.get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+            if (user == collaborator.login and permssion_level != r.get_collaborator_permission(user)):
+                print("changing " + user + " in " + repo + " from Permission " +
+                      r.get_collaborator_permission(user) + " to " + permssion_level)
+                r.add_to_collaborators(user, permission=permssion_level)
+
+
+def get_collaborators(g, repo_list):
+
+    output = dict()
+    for repo in repo_list:
+        dict_repo = list()
+        collab_output = dict()
+        collaborators = g.get_repo(
+            repo).get_collaborators(affiliation="direct")
+        for collaborator in collaborators:
+
+            collab_output['login'] = collaborator.login
+            collab_output['id'] = collaborator.id
+            # collab_output['node_id'] = collaborator.node_id
+            # collab_output['avatar_url'] = collaborator.avatar_url
+            # collab_output['gravatar_id'] = collaborator.gravatar_id
+            # collab_output['url'] = collaborator.url
+            # collab_output['html_url'] = collaborator.html_url
+            # collab_output['followers_url'] = collaborator.followers_url
+            # collab_output['following_url'] = collaborator.following_url
+            # collab_output['gists_url'] = collaborator.gists_url
+            # collab_output['starred_url'] = collaborator.starred_url
+            # collab_output['subscriptions_url'] = collaborator.subscriptions_url
+            # collab_output['organizations_url'] = collaborator.organizations_url
+            # collab_output['repos_url'] = collaborator.repos_url
+            # collab_output['events_url'] = collaborator.events_url
+            # collab_output['received_events_url'] = collaborator.received_events_url
+            collab_output['type'] = collaborator.type
+            collab_output['site_admin'] = collaborator.site_admin
+            collab_output['permissions'] = collaborator.permissions
+
+            dict_repo.append(collab_output.copy())
+
+        output[repo] = dict_repo.copy()
+
+    return output
+
+
 def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
