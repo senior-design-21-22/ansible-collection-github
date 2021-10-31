@@ -95,10 +95,11 @@ def add_collaborators(g, repos, to_add, org_name):
                 print("adding " + p + " to " + repo + " with Permission "  + to_add[p])
 
 def check_permissions(g, repos, user, permission_level, org_name):
-    status = False
+    status = True
     for repo in repos:
         r = g.get_repo(org_name + "/" + repo)
-        status = (r.get_collaborator_permission(user) == permission_level)
+        if(r.get_collaborator_permission(user) != permission_level):
+            status = False
     return status
         
 
