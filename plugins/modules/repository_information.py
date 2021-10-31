@@ -1,6 +1,4 @@
 #!/usr/bin/python
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -20,6 +18,11 @@ options:
             - GitHub API token used to retrieve information about repositories a user has access to
         required: true
         type: str
+    enterprise_url:
+        description:
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
+        required: false
+        type: str
     organization_name:
         description:
           - The organization that the information is within the scope of.
@@ -32,11 +35,19 @@ author:
 '''
 
 EXAMPLES = '''
-# Pass in an organization name and github API token
+# Pass in an organization name and GitHub API token
 - name: returns information about 
   repository_info:
-    organization: "ohioit"
+    organization: "senior-design-21-22"
     github_token: "12345"
+
+
+# Pass in an organization name, GitHub API token
+- name: returns information about 
+  repository_info:
+    organization: "SSEP"
+    github_token: "12345"
+    enterprise_url: "<ENTERPRISE_URL>"
 '''
 
 RETURN = '''
@@ -75,12 +86,14 @@ RETURN = '''
     ]
 '''
 
-
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
         organization_name=dict(type='str', default='No Organization Name Provided.'),
+        enterprise_url=dict(type='str', default=''),
     )
 
     module = AnsibleModule(
@@ -93,28 +106,45 @@ def run_module():
         fact=''
     )
     #token usage retrieved from module's variables from playbook
-    ghub = Github(module.params['token'])
+
+    if(module.params['enterprise_url'] == ''):
+        g = Github(module.params['token'])
+    else:
+        g = Github(module.params['token'], base_url=module.params['enterprise_url'])
 
     output = []
 
     #organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
-
-    for repo in ghub.get_organization(org_name).get_repos():
-        output["repos"][repo.name] = {
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "is_template": repo.raw_data["is_template"],
-            "archived": repo.archived,
-            "language": repo.language,
-            "visibility": repo.raw_data["visibility"],
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url,
-            }
-
+    
+    for repo in g.get_organization(org_name).get_repos():
+        if len(module.params["enterprise_url"]) == 0:
+            current_repo_dict = {
+                "owner": repo.owner.login,
+                "description": repo.description,
+                "private": repo.private,
+                "archived": repo.archived,
+                "language": repo.language,
+                "url": repo.url,
+                "default_branch": repo.default_branch,
+                "hooks_url": repo.hooks_url,
+                "clone_url": repo.clone_url,
+                "visibility": repo.raw_data["visibility"],
+                "is_template": repo.raw_data["is_template"]
+                }
+        else:
+            current_repo_dict = {
+                "owner": repo.owner.login,
+                "description": repo.description,
+                "private": repo.private,
+                "archived": repo.archived,
+                "language": repo.language,
+                "url": repo.url,
+                "default_branch": repo.default_branch,
+                "hooks_url": repo.hooks_url,
+                "clone_url": repo.clone_url
+                }
+        output.append(current_repo_dict)
     if module.check_mode:
         return result
 
