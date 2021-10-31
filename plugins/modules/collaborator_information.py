@@ -116,11 +116,12 @@ def add_collaborators(g, repos, to_add):
                 r.add_to_collaborators(p, permission=to_add[p])
 
 def check_permissions(g, repos, user_to_check):
-    status = False
+    status = True
     for repo in repos:
         r = g.get_repo(repo)
         for user in user_to_check.items():
-            status = (r.get_collaborator_permission(user[0]) == user[1])
+            if(r.get_collaborator_permission(user[0]) != user[1]):
+                status = False
     return status
         
 
