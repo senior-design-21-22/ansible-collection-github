@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
+
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
-
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -13,8 +13,10 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
+
 module: collaborator_information
 short_description: A module that manages collaborators on repositories
+
   - "A module that fetches information about collaborators in repositories that a GitHub user has access to inside an organization."
 options:
     token:
@@ -22,11 +24,13 @@ options:
             - GitHub API token used to retrieve information about collaborators in repositories a user has access to
         required: true
         type: str
+
     enterprise_url:
         description:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
         required: false
         type: str
+
     organization_name:
         description:
           - The organization that the information is within the scope of.
@@ -47,6 +51,7 @@ options:
           - The list of collaborators that will be removed to the list of repos.
         required: false
         type: str
+
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
@@ -55,7 +60,9 @@ author:
 
 EXAMPLES = '''
 # Pass in an github API token and organization name
+
 - name: returns information about 
+
   repository_info:
     github_token: "12345"
     organization: "ohioit"
@@ -133,6 +140,7 @@ def del_collaborators(g, repos, to_remove):
             if(collaborator.login in to_remove):
                 r.remove_from_collaborators(collaborator.login)
 
+
 def change_collaborator_permissions(g, repos, to_change):
     for repo in repos:
         r = g.get_repo(repo)
@@ -143,6 +151,7 @@ def change_collaborator_permissions(g, repos, to_change):
         for p in to_change:
             if (p in collaborator_list):
                 r.add_to_collaborators(p, permission=to_change[p])
+
 
 def get_collaborators(g, repo_list):
 
@@ -179,6 +188,7 @@ def get_collaborators(g, repo_list):
                 })
             collab_output['permissions'] = permissions
 
+
             dict_repo.append(collab_output.copy())
 
         output[repo] = dict_repo.copy()
@@ -196,6 +206,7 @@ def run_module():
         check_collaborator=dict(type='dict'),
         collaborators_to_change=dict(type='dict'),
         collaborators_to_remove=dict(type='list', elements='str'),
+
     )
 
     module = AnsibleModule(
@@ -207,6 +218,7 @@ def run_module():
         changed=False,
         fact=''
     )
+
     # token usage retrieved from module's variables from playbook
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
@@ -233,6 +245,7 @@ def run_module():
 
 
     output = get_collaborators(g,  module.params['repos'])
+
 
     if module.check_mode:
         return result
