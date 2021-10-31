@@ -51,6 +51,16 @@ options:
           - The list of collaborators that will be removed to the list of repos.
         required: false
         type: str
+    check_collaborator:
+        description:
+          - The list of collaborators to check their permissions
+         required: false
+         type: str
+    collaborators_to_change:
+        description:
+          - The list of collaborators to change permissions
+         required: false
+         type: str
 
 author:
     - Jacob Eicher (@jacobeicher)
