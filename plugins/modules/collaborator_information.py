@@ -33,6 +33,32 @@ options:
           - The organization that the information is within the scope of.
         required: true
         type: str
+    repos:
+        description:
+          - The list of repositories that will be managed.
+        required: true
+        type: str
+    collaborators_to_add:
+        description:
+          - The list of collaborators that will be added to the list of repos.
+        required: false
+        type: str
+    collaborators_to_remove:
+        description:
+          - The list of collaborators that will be removed to the list of repos.
+        required: false
+        type: str
+    check_collaborator:
+        description:
+          - The list of collaborators to check their permissions
+         required: false
+         type: str
+    collaborators_to_change:
+        description:
+          - The list of collaborators to change permissions
+         required: false
+         type: str
+
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
