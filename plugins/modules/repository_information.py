@@ -53,7 +53,9 @@ EXAMPLES = '''
 RETURN = '''
     [
         {
-            "repo":             name of repository
+            "name":             name of repository
+
+            "full_name":        full name of repository
 
             "owner":            owner name as string,
 
@@ -120,6 +122,8 @@ def run_module():
     for repo in g.get_organization(org_name).get_repos():
         if len(module.params["enterprise_url"]) == 0:
             current_repo_dict = {
+                "name" : repo.name,
+                "full_name": repo.full_name,
                 "owner": repo.owner.login,
                 "description": repo.description,
                 "private": repo.private,
@@ -134,6 +138,8 @@ def run_module():
                 }
         else:
             current_repo_dict = {
+                "name" : repo.name,
+                "full_name": repo.full_name,
                 "owner": repo.owner.login,
                 "description": repo.description,
                 "private": repo.private,
