@@ -15,7 +15,7 @@ description:
 options:
     token:
         description:
-            - GitHub API token used to retrieve information about repositories a user has access to
+            - GitHub API token used to retrieve information about repositories to which a user has access to
         required: true
         type: str
     enterprise_url:
@@ -25,13 +25,14 @@ options:
         type: str
     organization_name:
         description:
-          - The organization that the information is within the scope of.
+          - The organization in which the query will be run.
         required: true
         type: str
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
     - Tyler Zwolenik (@TylerZwolenik)
+    - Nolan Khounborinn (@Khounborinn)
 '''
 
 EXAMPLES = '''
@@ -42,7 +43,7 @@ EXAMPLES = '''
     github_token: "12345"
 
 
-# Pass in an organization name, GitHub API token
+# Pass in an organization name, GitHub API token and enterprise URL
 - name: returns information about 
   repository_info:
     organization: "SSEP"
@@ -53,13 +54,13 @@ EXAMPLES = '''
 RETURN = '''
     [
         {
-            "name":             name of repository
+            "name":             name of repository (as string),
 
-            "full_name":        full name of repository
+            "full_name":        full name of repository (as string),
 
-            "owner":            owner name as string,
+            "owner":            owner name (as string),
 
-            "description":      description as string,
+            "description":      description (as string),
 
             "private":          repo status (bool: true or false),
 
@@ -73,15 +74,15 @@ RETURN = '''
 
             "url":              url for repo (as string),
 
-            "default_branch":   branch that repo defaults to (as string),
+            "default_branch":   default branch of the repo (as string),
 
             "hooks_url":        url for hooks (as string),
 
             "clone_url":        url for cloning (as string)
-        }
+        },
         {
             ...
-        }
+        },
         {
             ...
         }
@@ -120,24 +121,7 @@ def run_module():
     org_name = module.params['organization_name']
     
     for repo in g.get_organization(org_name).get_repos():
-        if len(module.params["enterprise_url"]) == 0:
-            current_repo_dict = {
-                "name" : repo.name,
-                "full_name": repo.full_name,
-                "owner": repo.owner.login,
-                "description": repo.description,
-                "private": repo.private,
-                "archived": repo.archived,
-                "language": repo.language,
-                "url": repo.url,
-                "default_branch": repo.default_branch,
-                "hooks_url": repo.hooks_url,
-                "clone_url": repo.clone_url,
-                "visibility": repo.raw_data["visibility"],
-                "is_template": repo.raw_data["is_template"]
-                }
-        else:
-            current_repo_dict = {
+        current_repo_dict = {
                 "name" : repo.name,
                 "full_name": repo.full_name,
                 "owner": repo.owner.login,
@@ -150,11 +134,16 @@ def run_module():
                 "hooks_url": repo.hooks_url,
                 "clone_url": repo.clone_url
                 }
+        if len(module.params["enterprise_url"]) == 0:
+            current_repo_dict["visibility"] = repo.raw_data["visibility"]
+            current_repo_dict["is_template"]= repo.raw_data["is_template"]
+                
+        
         output.append(current_repo_dict)
     if module.check_mode:
         return result
 
-    module.exit_json(repos=output) #PUTS RESULT INTO result.repos
+    module.exit_json(repos=output) 
 
 
 

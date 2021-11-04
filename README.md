@@ -40,7 +40,7 @@ pip install PyGithub
 ### Repository Information (From organization)
 
 ```
-  - name: "List GitHub repositories within org"
+  - name: "List GitHub repositories within an organization"
       import_role:
         name: ohioit.github.repository_info
       vars:
