@@ -108,7 +108,7 @@ def run_module():
         changed=False,
         fact=''
     )
-    #token usage retrieved from module's variables from playbook
+    
 
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
@@ -117,7 +117,7 @@ def run_module():
 
     output = []
 
-    #organization name retrieved from module's variables from playbook
+    
     org_name = module.params['organization_name']
     
     for repo in g.get_organization(org_name).get_repos():
