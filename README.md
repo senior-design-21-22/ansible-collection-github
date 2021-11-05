@@ -40,12 +40,18 @@ pip install PyGithub
 ### Repository Information (From organization)
 
 ```
-  - name: "List GitHub repositories within an organization"
-      import_role:
-        name: ohioit.github.repository_info
-      vars:
-        github_token: "token"
-        org_name: "organization_name"
+  - name: "List GitHub repositories within a non-enterprise organization"
+    ohioit.github.repository_information:
+      token: "[token]"
+      organization_name: "[org name]"
+    register: result
+
+  - name: "List GitHub repositories within an enterprise organization"
+    ohioit.github.repository_information:
+      token: "[token]"
+      organization_name: "[org name]"
+      enterprise_url: "https://github.ohio.edu/your/url/here/"
+    register: result    
 ```
 
 ###### _**NOTE**: Tokens should be encrypted and only decrypted at runtime_
@@ -57,7 +63,7 @@ Testing has been made available using the [ansible-test](https://docs.ansible.co
 The tests are runnable using the following commands:
 
 ```bash
-ansible-test unit
+ansible-test units --python 3.[YOUR PYTHON VERSION] --venv
 ansible-test sanity
-ansible-test integration
+ansible-playbook integration test.yaml
 ```
