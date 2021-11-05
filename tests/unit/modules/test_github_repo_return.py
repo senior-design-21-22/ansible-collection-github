@@ -116,7 +116,7 @@ class TestMyModule(unittest.TestCase):
     def test_pass_get_organization_returns_correct_output(self):
         test = Organization()
         test.get_organization('Good Organization Name')
-        
+
         assert test.organization_dict == {'Org_name': 'organization1', 'repos': [{'name': 'repo1', 'url': 'github.com/repo1'}, {'name': 'repo2', 'url': 'github.com/repo2'}, {'name': 'repo3', 'url': 'github.com/repo3'}]}
 
     def test_fail_get_organization_with_bad_organization_name(self):
@@ -138,3 +138,4 @@ class TestMyModule(unittest.TestCase):
         test.get_repos()
 
         assert test.name_list != [{'name': 'repo1', 'url': 'github.com/repo1'}, {'name': 'repo2', 'url': 'github.com/repo2'}, {'name': 'repo3', 'url': 'github.com/repo3'}]
+
