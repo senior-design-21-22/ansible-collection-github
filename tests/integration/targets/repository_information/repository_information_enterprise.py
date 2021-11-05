@@ -23,4 +23,5 @@ if __name__ == '__main__':
         TestAPIConnection.ENTERPRISE_URL = sys.argv.pop()
         TestAPIConnection.ORGANIZATION_NAME = sys.argv.pop()
         TestAPIConnection.API_KEY = sys.argv.pop()
+        
     unittest.main()
