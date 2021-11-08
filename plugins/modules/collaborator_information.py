@@ -64,6 +64,7 @@ options:
 
 author:
     - Jacob Eicher (@jacobeicher)
+    - Tyler Zwolenik (@TylerZwolenik)
     - Bradley Golski (@bgolski)
     - Nolan Khounborin (@Khounborinn)
 '''
@@ -112,8 +113,7 @@ def add_collaborators(g, repos, to_add):
         for collaborator in collaborators:
                 collaborator_list.append(collaborator.login)
         for p in to_add:
-            if (p not in collaborator_list):
-                r.add_to_collaborators(p, permission=to_add[p])
+            r.add_to_collaborators(p, permission=to_add[p])
 
 def check_permissions(g, repos, user_to_check):
     status = True
@@ -212,18 +212,23 @@ def run_module():
         fact=''
     )
 
+    valid_permissions = ["push", "pull", "admin"]
+
     # token usage retrieved from module's variables from playbook
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
         g = Github(module.params['token'], base_url=module.params['enterprise_url'])
 
-
     if len(module.params['repos']):
         for i in range(len(module.params['repos'])):
             module.params['repos'][i] = module.params['organization_name'] + "/" + module.params['repos'][i]
 
     if(module.params['collaborators_to_add']):
+        for permission in module.params['collaborators_to_add']:
+            if module.params['collaborators_to_add'][permission].lower() not in valid_permissions:
+                module.exit_json(changed=False, failed=True, msg="Invalid permission: " + module.params['collaborators_to_add'][permission] + ". Permissions must be 'push' 'pull' or 'admin'")
+
         if len(module.params['collaborators_to_add']) and len(module.params['repos']):
             add_collaborators(g, module.params['repos'], module.params['collaborators_to_add'])
 
@@ -234,7 +239,7 @@ def run_module():
         check_permissions(g, module.params['repos'], module.params['check_collaborator'])
 
     if(module.params['collaborators_to_change'] and len(module.params['repos'])):
-        check_permissions(g, module.params['repos'], module.params['collaborators_to_change'])
+        change_collaborator_permissions(g, module.params['repos'], module.params['collaborators_to_change'])
 
 
     output = get_collaborators(g,  module.params['repos'])
