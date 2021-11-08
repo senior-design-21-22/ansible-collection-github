@@ -1,0 +1,44 @@
+- name: Include the vars/args.yaml
+  include_vars:
+    file: vars/testing.yaml
+    name: included_one_file
+
+- name: Check to see arguments are defined
+  assert:
+    that:
+      - "included_one_file['token'] == 'token' "
+      - "included_one_file['organization_name'] == 'organization name' "
+      - "included_one_file['enterprise_organization_name'] == 'enterprise organization name' "
+      - "included_one_file['enterprise_token'] == 'enterprise token' "
+      - "included_one_file['enterprise_url'] == 'enterprise url' "
+
+# Uncomment the next 3 lines for local testing
+# - name: Include the vars/args.yaml
+#   include_vars:
+#     file: vars/args.yaml
+
+- name: "Integration testing collaborator information module"
+  script: ./scripts/{{ item }}.py "{{ token }}" "{{ organization_name }}"
+  loop:
+    - collaborator_information_regular
+  args:
+    executable: Python3
+  register: result
+  changed_when: False
+
+- assert:
+    that:
+      result.changed is false
+
+- name: "Integration testing collaborator information module enterprise"
+  script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}"
+  loop:
+    - collaborator_information_enterprise
+  args:
+    executable: Python3
+  register: result
+  changed_when: False
+
+- assert:
+    that:
+      result.changed is false
