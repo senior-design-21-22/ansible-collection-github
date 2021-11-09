@@ -53,7 +53,7 @@ def get_enterprise_url(self, *args, required=False):
         return 'github.enterprise.com'
     else:
         if required:
-            fail_json(msg='%r not found !' % arg)
+            fail_json(msg='%r not found !' % args[1])
         else:
             return 'Invalid enterprise url'
 
@@ -64,14 +64,21 @@ class Organization:
 
     def get_organization(self, org_name):
         if org_name == 'Good Organization Name':
-            self.organization_dict = {"Org_name": 'organization1',
-                                      "repos": [
-                                          {'name': 'repo1',
-                                              'url': "github.com/repo1"},
-                                          {'name': 'repo2',
-                                              'url': "github.com/repo2"},
-                                          {'name': 'repo3', 'url': "github.com/repo3"}
-                                      ]}
+            self.organization_dict = {
+                "Org_name": 'organization1',
+                "repos": [
+                    {
+                        'name': 'repo1',
+                        'url': "github.com/repo1"
+                    },
+                    {
+                        'name': 'repo2',
+                        'url': "github.com/repo2"
+                    },
+                    {
+                        'name': 'repo3',
+                        'url': "github.com/repo3"
+                    }]}
             return self.organization_dict
         else:
             return 'Bad Org Name'
@@ -126,26 +133,28 @@ class TestMyModule(unittest.TestCase):
     def test_pass_get_organization_returns_correct_output(self):
         test = Organization()
         test.get_organization('Good Organization Name')
-        assert test.organization_dict == {'Org_name': 'organization1', 'repos': [
-                                        {'name': 'repo1', 'url': 'github.com/repo1'}, 
-                                        {'name': 'repo2', 'url': 'github.com/repo2'}, 
-                                        {'name': 'repo3', 'url': 'github.com/repo3'}]}
+        assert test.organization_dict == {
+                'Org_name': 'organization1', 'repos': [
+                {'name': 'repo1', 'url': 'github.com/repo1'},
+                {'name': 'repo2', 'url': 'github.com/repo2'},
+                {'name': 'repo3', 'url': 'github.com/repo3'}]}
 
     def test_fail_get_organization_with_bad_organization_name(self):
         test = Organization()
         test.get_organization('Bad Organization Name')
-        assert test.organization_dict != {'Org_name': 'organization1', 'repos': [
-                                        {'name': 'repo1', 'url': 'github.com/repo1'}, 
-                                        {'name': 'repo2', 'url': 'github.com/repo2'}, 
-                                        {'name': 'repo3', 'url': 'github.com/repo3'}]}
+        assert test.organization_dict != {
+                'Org_name': 'organization1', 'repos': [
+                {'name': 'repo1', 'url': 'github.com/repo1'},
+                {'name': 'repo2', 'url': 'github.com/repo2'},
+                {'name': 'repo3', 'url': 'github.com/repo3'}]}
 
     def test_pass_get_repos_returns_correct_output(self):
         test = Organization()
         test.get_organization('Good Organization Name')
         test.get_repos()
         assert test.name_list == [
-                                {'name': 'repo1', 'url': 'github.com/repo1'}, 
-                                {'name': 'repo2', 'url': 'github.com/repo2'}, 
+                                {'name': 'repo1', 'url': 'github.com/repo1'},
+                                {'name': 'repo2', 'url': 'github.com/repo2'},
                                 {'name': 'repo3', 'url': 'github.com/repo3'}]
 
     def test_fail_get_repos_returns_incorrect_output(self):

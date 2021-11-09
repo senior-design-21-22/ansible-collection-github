@@ -13,16 +13,20 @@ DOCUMENTATION = '''
 module: repository_info
 short_description: A module that returns information about GitHub repositories
 description:
-  - "A module that fetches information about repositories that a GitHub user has access to inside an organization."
+  - "A module that fetches information about repositories 
+        that a GitHub user has access to inside an organization."
+
 options:
     token:
         description:
-            - GitHub API token used to retrieve information about repositories to which a user has access to
+            - GitHub API token used to retrieve information 
+                about repositories to which a user has access to
         required: true
         type: str
     enterprise_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
+            - If using a token from a GitHub Enterprise account,
+                the user must pass an enterprise URL
         required: false
         type: str
     organization_name:
@@ -95,7 +99,8 @@ RETURN = '''
 def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
-        organization_name=dict(type='str', default='No Organization Name Provided.'),
+        organization_name=dict(
+            type='str', default='No Organization Name Provided.'),
         enterprise_url=dict(type='str', default=''),
     )
 
@@ -112,7 +117,8 @@ def run_module():
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
-        g = Github(module.params['token'], base_url=module.params['enterprise_url'])
+        g = Github(module.params['token'],
+                   base_url=module.params['enterprise_url'])
 
     output = []
 
@@ -120,28 +126,28 @@ def run_module():
 
     for repo in g.get_organization(org_name).get_repos():
         current_repo_dict = {
-                "name" : repo.name,
-                "full_name": repo.full_name,
-                "owner": repo.owner.login,
-                "description": repo.description,
-                "private": repo.private,
-                "archived": repo.archived,
-                "language": repo.language,
-                "url": repo.url,
-                "default_branch": repo.default_branch,
-                "hooks_url": repo.hooks_url,
-                "clone_url": repo.clone_url
-                }
+            "name": repo.name,
+            "full_name": repo.full_name,
+            "owner": repo.owner.login,
+            "description": repo.description,
+            "private": repo.private,
+            "archived": repo.archived,
+            "language": repo.language,
+            "url": repo.url,
+            "default_branch": repo.default_branch,
+            "hooks_url": repo.hooks_url,
+            "clone_url": repo.clone_url
+        }
         if len(module.params["enterprise_url"]) == 0:
             current_repo_dict["visibility"] = repo.raw_data["visibility"]
             current_repo_dict["is_template"] = repo.raw_data["is_template"]
-
 
         output.append(current_repo_dict)
     if module.check_mode:
         return result
 
     module.exit_json(repos=output)
+
 
 def main():
     run_module()
