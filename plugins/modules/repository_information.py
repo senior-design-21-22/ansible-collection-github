@@ -1,4 +1,6 @@
 #!/usr/bin/python
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -37,14 +39,14 @@ author:
 
 EXAMPLES = '''
 # Pass in an organization name and GitHub API token
-- name: returns information about 
+- name: returns information about
   repository_info:
     organization: "senior-design-21-22"
     github_token: "12345"
 
 
 # Pass in an organization name, GitHub API token and enterprise URL
-- name: returns information about 
+- name: returns information about
   repository_info:
     organization: "SSEP"
     github_token: "12345"
@@ -89,8 +91,6 @@ RETURN = '''
     ]
 '''
 
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
 
 def run_module():
     module_args = dict(
@@ -108,7 +108,6 @@ def run_module():
         changed=False,
         fact=''
     )
-    
 
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
@@ -117,9 +116,8 @@ def run_module():
 
     output = []
 
-    
     org_name = module.params['organization_name']
-    
+
     for repo in g.get_organization(org_name).get_repos():
         current_repo_dict = {
                 "name" : repo.name,
@@ -136,19 +134,18 @@ def run_module():
                 }
         if len(module.params["enterprise_url"]) == 0:
             current_repo_dict["visibility"] = repo.raw_data["visibility"]
-            current_repo_dict["is_template"]= repo.raw_data["is_template"]
-                
-        
+            current_repo_dict["is_template"] = repo.raw_data["is_template"]
+
+
         output.append(current_repo_dict)
     if module.check_mode:
         return result
 
-    module.exit_json(repos=output) 
-
-
+    module.exit_json(repos=output)
 
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()

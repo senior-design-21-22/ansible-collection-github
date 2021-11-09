@@ -2,10 +2,12 @@ import unittest
 from github import Github
 import sys
 
+
 class TestAPIConnection(unittest.TestCase):
     API_KEY = 'token'
     ORGANIZATION_NAME = 'Organzation Name'
     ENTERPRISE_URL = 'Enterprise Url'
+
 
     def test_check_to_see_repo_returns_correctly_enterprise(self):
         g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
@@ -17,6 +19,7 @@ class TestAPIConnection(unittest.TestCase):
 
         self.assertEqual(['testing-repo-private', 'testing-repo-internal', 'testing-repo-public'], output)
         self.assertEqual(type(output), list)
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 2:
