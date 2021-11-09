@@ -16,9 +16,9 @@ class TestAPIConnection(unittest.TestCase):
             output.append(repo.name)
 
         self.assertEqual(['testing-repo-private',
-                        'testing-repo-internal',
-                        'testing-repo-public'],
-                        output)
+                         'testing-repo-internal',
+                         'testing-repo-public'],
+                         output)
         self.assertEqual(type(output), list)
 
 

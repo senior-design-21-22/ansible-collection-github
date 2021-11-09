@@ -6,7 +6,7 @@ import sys
 class TestAPIConnection(unittest.TestCase):
     API_KEY = 'token'
     ORGANIZATION_NAME = 'Organzation Name'
-    
+
     def test_check_to_see_repo_returns_correctly_regular(self):
         g = Github(self.API_KEY)
         output = []

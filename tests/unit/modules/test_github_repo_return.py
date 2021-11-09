@@ -1,36 +1,40 @@
 import unittest
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from ansible.module_utils import basic
-from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import to_bytes
 
 
 def set_module_args(args):
     """prepare arguments so that they will be picked up during module creation"""
-    args = json.dumps({'ANSIBLE_MODULE_ARGS': args})
+    args = json.dumps(
+        {'ANSIBLE_MODULE_ARGS': args})
     basic._ANSIBLE_ARGS = to_bytes(args)
 
 
 class AnsibleExitJson(Exception):
-    """Exception class to be raised by module.exit_json and caught by the test case"""
+    """Exception class to be raised by 
+        module.exit_json and caught by the test case"""
     pass
 
 
 class AnsibleFailJson(Exception):
-    """Exception class to be raised by module.fail_json and caught by the test case"""
+    """Exception class to be raised by
+        module.fail_json and caught by the test case"""
     pass
 
 
 def exit_json(*args, **kwargs):
-    """function to patch over exit_json; package return data into an exception"""
+    """function to patch over exit_json;
+        package return data into an exception"""
     if 'changed' not in kwargs:
         kwargs['changed'] = False
     raise AnsibleExitJson(kwargs)
 
 
 def fail_json(*args, **kwargs):
-    """function to patch over fail_json; package return data into an exception"""
+    """function to patch over fail_json;
+        package return data into an exception"""
     kwargs['failed'] = True
     raise AnsibleFailJson(kwargs)
 
@@ -112,11 +116,13 @@ class TestMyModule(unittest.TestCase):
         self.assertRaises(AnsibleExitJson)
 
     def test_pass_api_call(self):
-        assert get_github_api_call(self, arg='token', required=True) == 'token'
+        assert get_github_api_call(
+            self, arg='token', required=True) == 'token'
 
     def test_pass_enterprise_url_entered_correctly(self):
         assert get_enterprise_url(
-            self, 'token', 'github.enterprise.com', required=False) == 'github.enterprise.com'
+            self, 'token', 'github.enterprise.com', 
+            required=False) == 'github.enterprise.com'
 
     def test_pass_enterprise_url_entered_as_empty(self):
         assert get_enterprise_url(
@@ -128,13 +134,14 @@ class TestMyModule(unittest.TestCase):
 
     def test_fail_enterprise_url_entered_correctly(self):
         assert get_enterprise_url(
-            self, 'token', 'github.enterprise.net', required=False) != 'github.enterprise.com'
+            self, 'token', 'github.enterprise.net', 
+            required=False) != 'github.enterprise.com'
 
     def test_pass_get_organization_returns_correct_output(self):
         test = Organization()
         test.get_organization('Good Organization Name')
         assert test.organization_dict == {
-                'Org_name': 'organization1', 'repos': [
+            'Org_name': 'organization1', 'repos': [
                 {'name': 'repo1', 'url': 'github.com/repo1'},
                 {'name': 'repo2', 'url': 'github.com/repo2'},
                 {'name': 'repo3', 'url': 'github.com/repo3'}]}
@@ -143,7 +150,7 @@ class TestMyModule(unittest.TestCase):
         test = Organization()
         test.get_organization('Bad Organization Name')
         assert test.organization_dict != {
-                'Org_name': 'organization1', 'repos': [
+            'Org_name': 'organization1', 'repos': [
                 {'name': 'repo1', 'url': 'github.com/repo1'},
                 {'name': 'repo2', 'url': 'github.com/repo2'},
                 {'name': 'repo3', 'url': 'github.com/repo3'}]}
@@ -153,9 +160,9 @@ class TestMyModule(unittest.TestCase):
         test.get_organization('Good Organization Name')
         test.get_repos()
         assert test.name_list == [
-                                {'name': 'repo1', 'url': 'github.com/repo1'},
-                                {'name': 'repo2', 'url': 'github.com/repo2'},
-                                {'name': 'repo3', 'url': 'github.com/repo3'}]
+            {'name': 'repo1', 'url': 'github.com/repo1'},
+            {'name': 'repo2', 'url': 'github.com/repo2'},
+            {'name': 'repo3', 'url': 'github.com/repo3'}]
 
     def test_fail_get_repos_returns_incorrect_output(self):
         test = Organization()
