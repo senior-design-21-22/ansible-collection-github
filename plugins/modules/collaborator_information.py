@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-
-import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
@@ -173,12 +171,12 @@ def get_collaborators(g, repo_list):
             # collab_output['received_events_url'] = collaborator.received_events_url
             collab_output['type'] = collaborator.type
             collab_output['site_admin'] = collaborator.site_admin
-            permissions = json.dumps({
+            permissions = {
                 'triage': collaborator.permissions.triage,
                 'push': collaborator.permissions.push,
                 'pull': collaborator.permissions.pull,
                 'admin': collaborator.permissions.admin
-                })
+                }
             collab_output['permissions'] = permissions
 
 
