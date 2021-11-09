@@ -13,13 +13,13 @@ DOCUMENTATION = '''
 module: repository_info
 short_description: A module that returns information about GitHub repositories
 description:
-  - "A module that fetches information about repositories 
+  - "A module that fetches information about repositories
         that a GitHub user has access to inside an organization."
 
 options:
     token:
         description:
-            - GitHub API token used to retrieve information 
+            - GitHub API token used to retrieve information
                 about repositories to which a user has access to
         required: true
         type: str

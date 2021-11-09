@@ -6,14 +6,15 @@ from ansible.module_utils.common.text.converters import to_bytes
 
 
 def set_module_args(args):
-    """prepare arguments so that they will be picked up during module creation"""
+    """prepare arguments so that they will 
+        be picked up during module creation"""
     args = json.dumps(
         {'ANSIBLE_MODULE_ARGS': args})
     basic._ANSIBLE_ARGS = to_bytes(args)
 
 
 class AnsibleExitJson(Exception):
-    """Exception class to be raised by 
+    """Exception class to be raised by
         module.exit_json and caught by the test case"""
     pass
 
@@ -121,7 +122,7 @@ class TestMyModule(unittest.TestCase):
 
     def test_pass_enterprise_url_entered_correctly(self):
         assert get_enterprise_url(
-            self, 'token', 'github.enterprise.com', 
+            self, 'token', 'github.enterprise.com',
             required=False) == 'github.enterprise.com'
 
     def test_pass_enterprise_url_entered_as_empty(self):
@@ -134,7 +135,7 @@ class TestMyModule(unittest.TestCase):
 
     def test_fail_enterprise_url_entered_correctly(self):
         assert get_enterprise_url(
-            self, 'token', 'github.enterprise.net', 
+            self, 'token', 'github.enterprise.net',
             required=False) != 'github.enterprise.com'
 
     def test_pass_get_organization_returns_correct_output(self):
