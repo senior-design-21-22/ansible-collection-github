@@ -109,4 +109,5 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         TestCollaboratorRepository.ORGANIZATION_NAME = sys.argv.pop()
         TestCollaboratorRepository.API_KEY = sys.argv.pop()
+        
     unittest.main()

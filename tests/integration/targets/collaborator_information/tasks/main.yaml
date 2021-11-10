@@ -13,9 +13,9 @@
       - "included_one_file['enterprise_url'] == 'enterprise url' "
 
 # Uncomment the next 3 lines for local testing
-# - name: Include the vars/args.yaml
-#   include_vars:
-#     file: vars/args.yaml
+- name: Include the vars/args.yaml
+  include_vars:
+    file: vars/args.yaml
 
 - name: "Integration testing collaborator information module"
   script: ./scripts/{{ item }}.py "{{ token }}" "{{ organization_name }}"
@@ -31,7 +31,7 @@
       result.changed is false
 
 - name: "Integration testing collaborator information module enterprise"
-  script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}"
+  script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}" "{{ user }}"
   loop:
     - collaborator_information_enterprise
   args:
