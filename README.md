@@ -42,15 +42,15 @@ pip install PyGithub
 ```
   - name: "List GitHub repositories within a non-enterprise organization"
     ohioit.github.repository_information:
-      token: "[token]"
-      organization_name: "[org name]"
+      token: "<API TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
     register: result
 
   - name: "List GitHub repositories within an enterprise organization"
     ohioit.github.repository_information:
-      token: "[token]"
-      organization_name: "[org name]"
-      enterprise_url: "https://github.ohio.edu/your/url/here/"
+      token: "<TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
     register: result    
 ```
 
@@ -63,7 +63,7 @@ Testing has been made available using the [ansible-test](https://docs.ansible.co
 The tests are runnable using the following commands:
 
 ```bash
-ansible-test units --python 3.[YOUR PYTHON VERSION] --venv
+ansible-test units --python 3.<YOUR PYTHON VERSION> --venv
 ansible-test sanity
 ansible-playbook integration test.yaml
 ```
