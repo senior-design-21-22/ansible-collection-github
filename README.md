@@ -41,8 +41,6 @@ pip install PyGithub
 
 ```
   - name: "List GitHub repositories within an organization"
-      import_role:
-        name: ohioit.github.repository_info
       vars:
         github_token: "token"
         org_name: "organization_name"
