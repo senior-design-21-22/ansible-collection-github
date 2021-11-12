@@ -8,9 +8,9 @@
     that:
       - "included_one_file['token'] == 'token' "
       - "included_one_file['organization_name'] == 'organization name' "
-      - "included_one_file['enterprise_organization_name'] == 'enterprise organization name' "
-      - "included_one_file['enterprise_token'] == 'enterprise token' "
-      - "included_one_file['enterprise_url'] == 'enterprise url' "
+      # - "included_one_file['enterprise_organization_name'] == 'enterprise organization name' "
+      # - "included_one_file['enterprise_token'] == 'enterprise token' "
+      # - "included_one_file['enterprise_url'] == 'enterprise url' "
 
 # Uncomment the next 3 lines for local testing
 - name: Include the vars/args.yaml
@@ -30,15 +30,15 @@
     that:
       result.changed is false
 
-- name: "Integration testing collaborator information module enterprise"
-  script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}" "{{ user }}"
-  loop:
-    - collaborator_information_enterprise
-  args:
-    executable: Python3
-  register: result
-  changed_when: False
+# - name: "Integration testing collaborator information module enterprise"
+#   script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}" "{{ user }}"
+#   loop:
+#     - collaborator_information_enterprise
+#   args:
+#     executable: Python3
+#   register: result
+#   changed_when: False
 
-- assert:
-    that:
-      result.changed is false
+# - assert:
+#     that:
+#       result.changed is false
