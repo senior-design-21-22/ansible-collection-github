@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
-        with:
-          path: ansible_collections/ohioit/github/collaborator_information
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
