@@ -4,9 +4,9 @@ name: ansible-test
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push or pull request events but only for the this branch
   push:
-    branches: [ development ]
+    branches: [ fix-testing-workflow ]
   pull_request:
     branches: [ development ]
 
@@ -24,8 +24,6 @@ jobs:
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
-        with:
-          path: ansible_collections/ohioit/github/collaborator_information
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
@@ -37,8 +35,8 @@ jobs:
 
       - name: Configure integration test run
         env:
-          TOKEN: $
-          ORGANIZATION_URL: $
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ORGANIZATION_NAME: senior-design-21-22
         run: |
           ./tests/utils/render.sh \
             tests/integration/targets/collaborator_information/vars/args.yaml.template \
