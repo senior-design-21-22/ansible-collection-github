@@ -37,8 +37,8 @@ jobs:
 
       - name: Configure integration test run
         env:
-          TOKEN: $
-          ORGANIZATION_URL: $
+          TOKEN: ${{ secrets.TOKEN }}
+          ORGANIZATION_URL: ${{ secrets.ORGANIZATION_URL }}
         run: |
           ./tests/utils/render.sh \
             tests/integration/targets/collaborator_information/vars/args.yaml.template \
