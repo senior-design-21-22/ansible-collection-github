@@ -38,7 +38,7 @@ jobs:
       - name: Configure integration test run
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORGANIZATION_URL: ${{ secrets.ORGANIZATION_URL }}
+          ORGANIZATION_URL: senior-design-21-22
         run: |
           ./tests/utils/render.sh \
             tests/integration/targets/collaborator_information/vars/args.yaml.template \
