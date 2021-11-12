@@ -17,14 +17,12 @@
   include_vars:
     file: vars/args.yaml
 
-# - name: "Integration testing collaborator information module"
-#   script: ./scripts/{{ item }}.py "{{ token }}" "{{ organization_name }}"
-#   loop:
-#     - collaborator_information_regular
-#   args:
-#     executable: Python3
-#   register: result
-#   changed_when: False
+- name: "Integration testing collaborator information module"
+  script: ./scripts/collaborator_information_regular.py "{{ token }}" "{{ organization_name }}"
+  args:
+    executable: Python3
+  register: result
+  changed_when: False
 
 # - assert:
 #     that:
