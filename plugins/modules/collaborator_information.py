@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import collections
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
@@ -188,6 +189,7 @@ def get_collaborators(g, repo_list):
 
 
 def run_module():
+    changed = True
     module_args = dict(
         token=dict(type='str', default='John Doe'),
         organization_name=dict(type='str', default='default'),
@@ -222,6 +224,8 @@ def run_module():
         for i in range(len(module.params['repos'])):
             module.params['repos'][i] = module.params['organization_name'] + "/" + module.params['repos'][i]
 
+    current_collaborators = get_collaborators(g,  module.params['repos'])
+
     if(module.params['collaborators_to_add']):
         for permission in module.params['collaborators_to_add']:
             if module.params['collaborators_to_add'][permission].lower() not in valid_permissions:
@@ -229,6 +233,9 @@ def run_module():
 
         if len(module.params['collaborators_to_add']) and len(module.params['repos']):
             add_collaborators(g, module.params['repos'], module.params['collaborators_to_add'])
+            
+                
+
 
     if(module.params['collaborators_to_remove'] and len(module.params['repos'])):
         del_collaborators(g, module.params['repos'], module.params['collaborators_to_remove'])
@@ -241,12 +248,13 @@ def run_module():
 
 
     output = get_collaborators(g,  module.params['repos'])
-
+    if collections.Counter(current_collaborators) == collections.Counter(output):
+        changed = False
 
     if module.check_mode:
         return result
 
-    module.exit_json(changed=True, msg=output)
+    module.exit_json(changed=changed, msg=output)
 
 
 def main():
