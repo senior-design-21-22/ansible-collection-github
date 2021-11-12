@@ -24,16 +24,25 @@ Requirements
 - Regular Github token
 - Enterprise Github token
 - Organization name
+- Directory ``/tests/integration/vars/args.yaml`` needs to be populated with:
+
+.. code-block:: yaml
+
+   ---
+   token: "[regular_github_token]"
+   organization_name: "[regular_github_name]"
+   enterprise_token: "[enterprise_github_token]"
+   enterprise_organization_name: "[enterprise_organization_name]"
+   enterprise_url: "[enterprise_url]"
 
 
 Running Integration Tests
 ----------
-- As of now, running the integration tests takes the same arguements needed to run the complete module
-#. Filling out the required fields of the playbook in ``/tests/integration/integration_test.yaml``
+
+.. note::
+As of now, running the integration tests takes the same arguments needed to run the complete module
+   
 #. Locally running the playbook with the command ``ansible-playbook integration_test.yaml``
-
-
-
 
 
 Status
