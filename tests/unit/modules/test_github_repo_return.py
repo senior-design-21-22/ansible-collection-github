@@ -169,7 +169,9 @@ class TestMyModule(unittest.TestCase):
         test = Organization()
         test.get_organization('Bad Organization Name')
         test.get_repos()
+
         assert test.name_list != [
             {'name': 'repo1', 'url': 'github.com/repo1'},
             {'name': 'repo2', 'url': 'github.com/repo2'},
             {'name': 'repo3', 'url': 'github.com/repo3'}]
+

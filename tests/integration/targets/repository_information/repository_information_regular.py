@@ -22,4 +22,6 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         TestAPIConnection.ORGANIZATION_NAME = sys.argv.pop()
         TestAPIConnection.API_KEY = sys.argv.pop()
+
     unittest.main()
+    
