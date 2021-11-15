@@ -19,8 +19,10 @@
 
 - name: "Integration testing collaborator information module"
   script: ./scripts/collaborator_information_regular.py "{{ token }}" "{{ organization_name }}"
+  vars:   
+    ansible_python_interpreter: /usr/bin/python3
   args:
-    executable: Python
+    executable: Python3
   register: result
   changed_when: False
 
