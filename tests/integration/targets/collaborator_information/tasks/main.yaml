@@ -20,7 +20,7 @@
 - name: "Integration testing collaborator information module"
   script: ./scripts/collaborator_information_regular.py "{{ token }}" "{{ organization_name }}"
   args:
-    executable: Python3
+    executable: Python
   register: result
   changed_when: False
 
