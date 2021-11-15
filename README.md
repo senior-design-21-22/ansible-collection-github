@@ -33,12 +33,12 @@ pip install PyGithub
 
 | Name                                                                                                                                             | Description                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [repository_info](https://github.com/senior-design-21-22/ansible-collection-github/blob/repo-information-module/docs/repository_information.rst) | Output repositories along with vital information from an (user specified) organization |
+| [repository_information](https://github.com/senior-design-21-22/ansible-collection-github/blob/repo-information-module/docs/repository_information.rst) | Output repositories along with vital information from an (user specified) organization |
 
 ## Usage
 
 ### Repository Information (From organization)
-
+```
   - name: "List GitHub repositories within a non-enterprise organization"
     ohioit.github.repository_information:
       token: "<API TOKEN>"
@@ -51,13 +51,13 @@ pip install PyGithub
       organization_name: "<ORGANIZATION NAME>"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
     register: result    
-
+```
 
 ###### _**NOTE**: Tokens should be encrypted and only decrypted at runtime_
 
 ## Testing with 'ansible-test'
 
-Testing has been made available using the [ansible-test](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html). These tests include [unit](https://github.com/senior-design-21-22/ansible-collection-github/tree/repo-information-module/tests/unit), [sanity](https://github.com/senior-design-21-22/ansible-collection-github/tree/repo-information-module/unit/sanity), integration.
+Testing has been made available using the [ansible-test](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html). These tests include [unit](https://github.com/senior-design-21-22/ansible-collection-github/tree/repo-information-module/tests/unit), [sanity](https://github.com/senior-design-21-22/ansible-collection-github/tree/repo-information-module/unit/sanity), [integration](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/integration_testing.rst).
 
 The tests are runnable using the following commands:
 
