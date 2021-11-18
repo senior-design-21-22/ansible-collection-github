@@ -19,8 +19,8 @@
     
 - assert:
     that:
-      - "{{ token }}" is defined
-      - "{{ organization_name }}" is defined
+      - "'{{ token }}' is defined"
+      - "'{{ organization_name }}' is defined"
 
 # - name: Listing collaborators from GitHub account
 #   ohioit.github.collaborator_information:
