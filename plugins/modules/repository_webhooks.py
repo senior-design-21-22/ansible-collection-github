@@ -1,5 +1,9 @@
 #!/usr/bin/python
 
+from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+import json
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -14,7 +18,7 @@ short_description: A module that returns information about GitHub repositories
 
 description:
   - "A module that fetches information about repositories that a GitHub user has access to inside an organization."
-  
+
 options:
     token:
         description:
@@ -31,7 +35,7 @@ options:
           - The organization in which the query will be run.
         required: true
         type: str
-        
+
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
@@ -41,14 +45,14 @@ author:
 
 EXAMPLES = '''
 # Pass in an organization name and GitHub API token
-- name: returns information about 
+- name: returns information about
   repository_webhooks:
     organization: "senior-design-21-22"
     github_token: "12345"
 
 
 # Pass in an organization name, GitHub API token and enterprise URL
-- name: returns information about 
+- name: returns information about
   repository_info:
     organization: "SSEP"
     github_token: "12345"
@@ -60,19 +64,16 @@ webhooks:
     description: List contains dictionaries of webhooks and their information.
     type: list
     returned: if GitHub API token connects
-    
+
 repos.<ELEMENT INDEX>:
     description: Dictionary contains keys and values of a repository's information.
     type: dict
     returned: only if at least one repo is contained within organization
 
 '''
-import json
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
-def get_webhooks(g,repo_list):
+
+
+def get_webhooks(g, repo_list):
     hooks = []
     for repo in repo_list:
         for current_hook in g.get_repo(repo).get_hooks():
@@ -84,16 +85,31 @@ def get_webhooks(g,repo_list):
                 "active": current_hook.active,
                 "test_url": current_hook.test_url,
                 "ping_url": current_hook.ping_url
-            
-        }
+
+            }
         hooks.append(current_hook_dict)
     output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1:]]
 
     return output
+
+
+def create_webhook(g, repo_list, org, events, host, endpoint):
+
+    config = {
+        "url": "http://%s/%s" % (host, endpoint),
+        "content_type": "json"
+    }
+
+    for repo_name in repo_list:
+        repo = g.get_repo("%s/%s" % (org, repo_name))
+        repo.create_hook("web", config, events, active=True)
+
+
 def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
-        organization_name=dict(type='str', default='No Organization Name Provided.'),
+        organization_name=dict(
+            type='str', default='No Organization Name Provided.'),
         enterprise_url=dict(type='str', default=''),
         repos=dict(type='list', elements='str')
     )
@@ -110,22 +126,24 @@ def run_module():
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
-        g = Github(module.params['token'], base_url=module.params['enterprise_url'])
-        
+        g = Github(module.params['token'],
+                   base_url=module.params['enterprise_url'])
+
     if len(module.params['repos']):
         for i in range(len(module.params['repos'])):
-            module.params['repos'][i] = module.params['organization_name'] + "/" + module.params['repos'][i]
-        
-    output=get_webhooks(g,module.params['repos'])
+            module.params['repos'][i] = module.params['organization_name'] + \
+                "/" + module.params['repos'][i]
+
+    output = get_webhooks(g, module.params['repos'])
     if module.check_mode:
         return result
 
     module.exit_json(webhooks=output)
 
 
-
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()
