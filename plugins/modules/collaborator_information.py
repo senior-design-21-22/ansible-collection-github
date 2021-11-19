@@ -14,9 +14,12 @@ DOCUMENTATION = '''
 ---
 
 module: collaborator_information
+
 short_description: A module that manages collaborators on repositories
 
-  - "A module that fetches information about collaborators in repositories that a GitHub user has access to inside an organization."
+description:
+  - "A module that fetches information about collaborators in repositories that a GitHub user provides that are inside of an organization."
+  
 options:
     token:
         description:
@@ -26,40 +29,50 @@ options:
 
     enterprise_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL. This URL should be in the format of "https://github.<ENTERPRISE DOMAIN>/api/v3".
         required: false
+        default: null
         type: str
 
     organization_name:
         description:
-          - The organization that the information is within the scope of.
+            - The organization that the information is within the scope of.
         required: true
         type: str
+
     repos:
         description:
-          - The list of repositories that will be managed.
+            - The list of repositories that will be managed.
         required: true
         type: str
+
     collaborators_to_add:
         description:
-          - The list of collaborators that will be added to the list of repos.
+            - The list of collaborators that will be added to the list of repos.
         required: false
+        default: null
         type: str
+
     collaborators_to_remove:
         description:
-          - The list of collaborators that will be removed to the list of repos.
+            - The list of collaborators that will be removed to the list of repos.
         required: false
+        default: null
         type: str
+
     check_collaborator:
         description:
-          - The list of collaborators to check their permissions
-         required: false
-         type: str
+            - The list of collaborators to check their permissions
+        required: false
+        default: null
+        type: str
+
     collaborators_to_change:
         description:
-          - The list of collaborators to change permissions
-         required: false
-         type: str
+            - The list of collaborators to change permissions
+        required: false
+        default: null
+        type: str
 
 author:
     - Jacob Eicher (@jacobeicher)
@@ -71,36 +84,116 @@ author:
 EXAMPLES = '''
 # Pass in an github API token and organization name
 
-- name: returns information about 
+- name: "Listing collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
 
-  repository_info:
-    github_token: "12345"
-    organization: "ohioit"
+- name: "Adding collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+      collaborators_to_add:
+        <GITHUB USERNAME>: "push"
+        <ANOTHER GITHUB USERNAME>: "pull"
+
+- name: "Change permissions of collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+      collaborators_to_change:
+        <GITHUB USERNAME>: "admin"
+        <ANOTHER GITHUB USERNAME>: "triage"
+
+- name: "Remove permissions of collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+        collaborators_to_remove:
+          - "<GITHUB USERNAME>"
+          - "<ANOTHER GITHUB USERNAME>"
 '''
 
 RETURN = '''
-    {
-        repo ("repo name"):
-        [
-            {
-                "login":                owner name as string,
+collaborators:
+    description: Dictionary contains all names of repositories requested and their collaborators. 
+    type: dict
+    returned: if GitHub API token connects
+    
+collaborators['<ORG NAME>/<REPO NAME>']:
+    description: List contains dicts of each collaborator's information (that are in that repository).
+    type: list
+    returned: if at least one collaborator is within repository
 
-                "id":                   description as int,
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>:
+    description: This index provides access to a dictionary containing information about a single collaborator.
+    type: dict
+    returned: if at least one collaborator is within repository
 
-                "type":                 user type as string
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.id:
+    description: Collaborator's id number.
+    type: int
+    returned: only if at least one collaborator is contained within repository
 
-                "site_admin":           site admin access as boolean,
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.login:
+    description: Collaborator's login. This is their GitHub username.
+    type: str
+    returned: only if at least one collaborator is contained within repository
 
-                "permissions":          user permissions as Permissions dictionary
-            },
-            {
-                ...
-            }
-        ]
-    },
-    {
-        ...
-    }
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions:
+    description: Dictionary of statuses of permissions including admin, pull, push, and triage.
+    type: dict
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.admin:
+    description: Will return true if admin rights are given to collaborator. Read, clone, push, and add collaborators permissions to repository.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+    
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.push:
+    description: Will return true if push rights are given to collaborator. Read, clone, and push to repository.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+    
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.pull:
+    description: Will return true if pull rights are given to collaborator. Read and clone repository.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+    
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.triage:
+    description: Will return true if triage rights are given to collaborator. Users with the triage role can request reviews on pull requests, mark issues and pull requests as duplicates, and add or remove milestones on issues and pull requests. NO WRITE ACCESS.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.site_admin:
+    description: Will return true if collaborator is a site admin. This permission gives the collaborator the ability to manage users, organizations, and repositories.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
+    description: This will return what type of collaborator the user is. 
+    type: str
+    returned: only if at least one collaborator is contained within repository
 '''
 
 
@@ -254,7 +347,7 @@ def run_module():
     if module.check_mode:
         return result
 
-    module.exit_json(changed=changed, msg=output)
+    module.exit_json(changed=changed, collaborators=output)
 
 
 def main():
