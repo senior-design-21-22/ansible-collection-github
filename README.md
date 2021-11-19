@@ -63,9 +63,9 @@ pip install PyGithub
         organization_name: "<ORGANIZATION NAME>"
         enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
         repos:
-          - "[repo 1]"
-          - "[repo 2]"
-          - "[repo 3]"
+          - "<REPO 1>"
+          - "<REPO 2>"
+          - "<REPO 3>"
         collaborators_to_add:
           <GITHUB USERNAME>: "<triage, pull, push or admin>"
         check_collaborator:
