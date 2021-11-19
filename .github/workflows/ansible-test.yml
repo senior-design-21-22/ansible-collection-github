@@ -21,14 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ohioit/ansible-collection-github
+        working-directory: ansible_collections/ohioit/ansible-collection-github
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
         with:
-          path: ohioit/ansible-collection-github
+          path: ansible_collections/ohioit/ansible-collection-github
 
       - name: Set up Python 3.7
         uses: actions/setup-python@v2
