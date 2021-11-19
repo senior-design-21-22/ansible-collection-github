@@ -1,19 +1,19 @@
 ---
-# - name: Include the vars/args.yaml
-#   include_vars:
-#     file: vars/testing.yaml
-#     name: included_one_file
+- name: Include the vars/args.yaml
+  include_vars:
+    file: vars/testing.yaml
+    name: included_one_file
 
-# - name: Check to see arguments are defined
-#   assert:
-#     that:
-#       - "included_one_file['token'] == 'token' "
-#       - "included_one_file['organization_name'] == 'organization name' "
+- name: Check to see arguments are defined
+  assert:
+    that:
+      - "included_one_file['token'] == 'token' "
+      - "included_one_file['organization_name'] == 'organization name' "
 
-# - assert:
-#     that:
-#       - "'{{ token }}' is defined"
-#       - "'{{ organization_name }}' is defined"
+- assert:
+    that:
+      - "'{{ token }}' is defined"
+      - "'{{ organization_name }}' is defined"
 
 - name: Run this command
   ohioit.ansible-collection-github.collaborator_information:
@@ -23,10 +23,9 @@
       - "ansible-collection-github"
   register: result
 
-
-# - assert:
-#     that:
-#       result.changed is false
+- assert:
+    that:
+      result.changed is false
 
 # - name: "Integration testing collaborator information module enterprise"
 #   script: ./scripts/{{ item }}.py "{{ enterprise_token }}" "{{ enterprise_organization_name }}" "{{ enterprise_url }}" "{{ user }}"
