@@ -9,7 +9,7 @@ description: Collection of modules for managing GitHub repository settings
 license_file: LICENSE
 tags:
   - github
-repository: https://github.com/ohioit/ansible-collection-github
+repository: https://github.com/senior-design-21-22/ansible-collection-github
 documentation: https://github.com/ohioit/ansible-collection-github/blob/main/README.md
 homepage: https://github.com/ohioit/ansible-collection-github
 issues: https://github.com/ohioit/ansible-collection-github/issues
