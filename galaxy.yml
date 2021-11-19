@@ -1,5 +1,5 @@
 namespace: ohioit
-name: ansible-collection-github
+name: github
 version: 0.0.1
 readme: README.md
 authors:
