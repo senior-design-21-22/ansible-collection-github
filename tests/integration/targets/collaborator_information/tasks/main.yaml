@@ -23,7 +23,7 @@
       - "'{{ organization_name }}' is defined"
 
 - name: Listing collaborators from GitHub account
-  ansible_collections/ohioit/ansible-collection-github.collaborator_information:
+  ansible_collections.ohioit.ansible-collection-github.collaborator_information:
     token: "{{ token }}"
     organization_name: "senior-design-21-22"
     repos:
