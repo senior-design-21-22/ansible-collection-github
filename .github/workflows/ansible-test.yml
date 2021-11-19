@@ -45,7 +45,7 @@ jobs:
         run: |
           ./tests/utils/render.sh \
             tests/integration/integration_config.yaml.template \
-            > tests/integration/integration_config.yaml
+            > tests/integration/integration_config.yml
             
 #       - name: Install the ansible collection
 #         run: ansible-galaxy collection install . --force
