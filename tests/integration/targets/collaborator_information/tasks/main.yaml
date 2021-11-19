@@ -11,11 +11,6 @@
       # - "included_one_file['enterprise_organization_name'] == 'enterprise organization name' "
       # - "included_one_file['enterprise_token'] == 'enterprise token' "
       # - "included_one_file['enterprise_url'] == 'enterprise url' "
-
-# Uncomment the next 3 lines for local testing
-- name: Include the vars/args.yaml
-  include_vars:
-    file: vars/args.yaml
     
 - assert:
     that:
