@@ -46,7 +46,10 @@ jobs:
           ./tests/utils/render.sh \
             tests/integration/integration_config.yaml.template \
             > tests/integration/integration_config.yaml
-
+            
+      - name: Install the ansible collection
+        run: ansible-galaxy collection install . --force
+   
       - name: Run the integration tests
         run: ansible-test integration --python 3.7
 
