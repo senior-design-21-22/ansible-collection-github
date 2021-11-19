@@ -16,7 +16,7 @@
       - "'{{ organization_name }}' is defined"
 
 - name: Run this command
-  ohioit.github.collaborator_information:
+  ohioit.ansible-collection-github.collaborator_information:
     token: "{{ token }}"
     organization_name: "{{ organization_name }}"
     repos:
