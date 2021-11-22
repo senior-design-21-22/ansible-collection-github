@@ -1,10 +1,4 @@
 #!/usr/bin/python
-
-
-import json
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -102,7 +96,10 @@ RETURN = '''
         ...
     }
 '''
-
+import json
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+from github import Github
 
 def add_collaborators(g, repos, to_add):         
     for repo in repos:
