@@ -1,21 +1,14 @@
-
-
 name: ansible-test
 
-# Controls when the workflow will run
 on: [push, pull_request]
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ansible_collections/ohioit/github
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Clone the repo
         uses: actions/checkout@v2
@@ -41,27 +34,21 @@ jobs:
           ./tests/utils/render.sh \
             tests/integration/integration_config.yaml.template \
             > tests/integration/integration_config.yml
-            
-#       - name: Install the ansible collection
-#         run: ansible-galaxy collection install . --force
    
       - name: Run the integration tests
-        run: ansible-test integration --python 3.7
+        run: ansible-test integration --python 3.8
 
-      # - name: Perform sanity testing with ansible-test
-      #   uses: ansible-community/ansible-test-gh-action@release/v1
-      #   with:
-      #     ansible-core-version: stable-2.11
-      #     testing-type: sanity
+      - name: Perform sanity testing with ansible-test on module files
+        run: ansible-test sanity --python 3.8 plugins/modules/*
           
-      # - name: Perform unit testing with ansible-test
-      #   uses: ansible-community/ansible-test-gh-action@release/v1
-      #   with:
-      #     ansible-core-version: stable-2.11
-      #     pre-test-cmd: echo This runs before the ansible-test invocation
-      #     python-version: 3.9
-      #     target-python-version: 3.9
-      #     testing-type: units
-      #     test-deps: >-
-      #       ansible.netcommon
-      #       ansible.utils
+      - name: Perform unit testing with ansible-test
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: stable-2.11
+          pre-test-cmd: echo This runs before the ansible-test invocation
+          python-version: 3.8
+          target-python-version: 3.8
+          testing-type: units
+          test-deps: >-
+            ansible.netcommon
+            ansible.utils
