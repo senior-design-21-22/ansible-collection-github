@@ -1,6 +1,9 @@
 #!/usr/bin/python
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
+
+
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -37,7 +40,7 @@ options:
           - The organization in which the query will be run.
         required: true
         type: str
-        
+
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
@@ -66,7 +69,7 @@ repos:
     description: List contains dictionaries of repositories and their information.
     type: list
     returned: if GitHub API token connects
-    
+
 repos.<ELEMENT INDEX>:
     description: Dictionary contains keys and values of a repository's information.
     type: dict
@@ -81,7 +84,7 @@ repos.<ELEMENT INDEX>.full_name:
     description: Repository path name starting from organization.
     type: str
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.owner:
     description: Name of organization that owns the repository.
     type: str
@@ -91,29 +94,29 @@ repos.<ELEMENT INDEX>.description:
     description: Description of the repository. This field will be null unless previously set.
     type: str
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.private:
     description: Status whether the repository is private or public.
     type: bool
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.archived:
     description: Status of whether the repository is archived or not.
     type: bool
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.language:
     description: Repository language. This can be any language listed in 'https://github.com/github/linguist/blob/master/lib/linguist/languages.yml'.
     type: str
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.url:
     description: URL for repository. The provided URL is the route used for the GitHub API to be connected to Ansible.
                 Non-enterprise URLs will be structured as 'https://api.github.com/repos/<ORGANIZATION NAME>/<REPO NAME>'.
                 Enterprise URLs are structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
     type: str
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.default_branch:
     description: The branch that GitHub displays when anyone visits your repository.
     type: str
@@ -122,27 +125,30 @@ repos.<ELEMENT INDEX>.default_branch:
 repos.<ELEMENT INDEX>.hooks_url:
     description: URL location where hooks are located within the repository when connected to the GitHub API.
                 Non-enterprise URLs should be structured as 'https://api.github.com/repos/<ORGANIZATION NAME>/<REPO NAME>/hooks'.
-                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>/hooks'. 
+                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>/hooks'.
     type: str
     returned: only if organization contains a repository
 
 repos.<ELEMENT INDEX>.clone_url:
-    description: URL location where repository will be accessible to be cloned. 
+    description: URL location where repository will be accessible to be cloned.
                 Non-enterprise URLs should be structured as 'https://github.com/<ORGANIZATION NAME>/<REPO NAME>.git'.
-                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/<ORGANIZATION NAME>/<REPO NAME>.git'. 
+                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/<ORGANIZATION NAME>/<REPO NAME>.git'.
     type: str
     returned: only if organization contains a repository
-    
+
 repos.<ELEMENT INDEX>.visibility:
-    description: The repository visibility status will be 'public', 'internal', or 'private'. 
+    description: The repository visibility status will be 'public', 'internal', or 'private'.
     type: str
     returned: only if organization contains a repository and is not a part of an enterprise account
-    
+
 repos.<ELEMENT INDEX>.is_template:
-    description: The repository template status will true or false. 
+    description: The repository template status will true or false.
     type: bool
     returned: only if organization contains a repository and is not a part of an enterprise account
 '''
+
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 
 def run_module():
