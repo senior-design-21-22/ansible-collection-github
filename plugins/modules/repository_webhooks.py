@@ -1,10 +1,7 @@
 #!/usr/bin/python
 
-from github import Github
-from ansible.module_utils.common.text.converters import jsonify
-from ansible.module_utils.basic import AnsibleModule
-import json
-import collections
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -29,7 +26,8 @@ options:
         type: str
     enterprise_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL. This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
+              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
         required: false
         type: str
     organization_name:
@@ -73,6 +71,12 @@ repos.<ELEMENT INDEX>:
     returned: only if at least one repo is contained within organization
 
 '''
+
+from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+import json
+import collections
 
 
 def get_webhooks(g, repo_list):
@@ -195,13 +199,13 @@ def run_module():
 
     initial = get_webhooks(g, module.params['repos'])
 
-
     if len(module.params['host']) and len(module.params['endpoint']):
         for event in module.params['events']:
             if event not in valid_events:
                 module.exit_json(changed=False, err="Invalid event name")
         if module.params['content_type'] in valid_content_types:
-            create_webhook(g, module.params['repos'], module.params['organization_name'], module.params['events'], module.params['host'], module.params['endpoint'])
+            create_webhook(g, module.params['repos'], module.params['organization_name'],
+                           module.params['events'], module.params['host'], module.params['endpoint'])
 
     output = get_webhooks(g, module.params['repos'])
 

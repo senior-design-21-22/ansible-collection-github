@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -36,14 +39,14 @@ author:
 
 EXAMPLES = '''
 # Pass in an organization name and GitHub API token
-- name: returns information about 
+- name: returns information about
   repository_info:
     organization: "senior-design-21-22"
     github_token: "12345"
 
 
 # Pass in an organization name, GitHub API token
-- name: returns information about 
+- name: returns information about
   repository_info:
     organization: "SSEP"
     github_token: "12345"
@@ -91,6 +94,7 @@ RETURN = '''
 from github import Github
 from ansible.module_utils.basic import AnsibleModule
 
+
 def run_module():
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
@@ -107,7 +111,7 @@ def run_module():
         changed=False,
         fact=''
     )
-    #token usage retrieved from module's variables from playbook
+    # token usage retrieved from module's variables from playbook
 
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
@@ -116,13 +120,13 @@ def run_module():
 
     output = []
 
-    #organization name retrieved from module's variables from playbook
+    # organization name retrieved from module's variables from playbook
     org_name = module.params['organization_name']
-    
+
     for repo in g.get_organization(org_name).get_repos():
         if len(module.params["enterprise_url"]) == 0:
             current_repo_dict = {
-                "name" : repo.name,
+                "name": repo.name,
                 "full_name": repo.full_name,
                 "owner": repo.owner.login,
                 "description": repo.description,
@@ -135,10 +139,10 @@ def run_module():
                 "clone_url": repo.clone_url,
                 "visibility": repo.raw_data["visibility"],
                 "is_template": repo.raw_data["is_template"]
-                }
+            }
         else:
             current_repo_dict = {
-                "name" : repo.name,
+                "name": repo.name,
                 "full_name": repo.full_name,
                 "owner": repo.owner.login,
                 "description": repo.description,
@@ -149,17 +153,17 @@ def run_module():
                 "default_branch": repo.default_branch,
                 "hooks_url": repo.hooks_url,
                 "clone_url": repo.clone_url
-                }
+            }
         output.append(current_repo_dict)
     if module.check_mode:
         return result
 
-    module.exit_json(repos=output) #PUTS RESULT INTO result.repos
-
+    module.exit_json(repos=output)  # PUTS RESULT INTO result.repos
 
 
 def main():
     run_module()
+
 
 if __name__ == '__main__':
     main()
