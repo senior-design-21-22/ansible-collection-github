@@ -2,8 +2,6 @@
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-from github import Github
-
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -200,6 +198,8 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
+from github import Github
+import collections
 
 
 def add_collaborators(g, repos, to_add):
