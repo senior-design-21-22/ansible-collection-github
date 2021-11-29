@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import, division, print_function
-from ansible.module_utils.common.text.converters import jsonify
-import json
-from ansible.module_utils.basic import AnsibleModule
+import collections
 from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+import json
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
@@ -15,191 +16,239 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: repository_info
-short_description: A module that returns information about GitHub repositories
+
+module: collaborator_information
+
+short_description: A module that manages collaborators on repositories
+
 description:
-  - "A module that fetches information about repositories that a GitHub user has access to inside an organization."
+  - "A module that fetches information about collaborators in repositories that a GitHub user provides that are inside of an organization."
+
 options:
     token:
         description:
-            - GitHub API token used to retrieve information about repositories a user has access to
+            - GitHub API token used to retrieve information about collaborators in repositories a user has access to
         required: true
         type: str
+
     enterprise_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
+              This URL should be in the format of "https://github.<ENTERPRISE DOMAIN>/api/v3".
         required: false
+        default: null
         type: str
+
     organization_name:
         description:
-          - The organization that the information is within the scope of.
+            - The organization that the information is within the scope of.
         required: true
         type: str
+
     repos:
         description:
-          - The list of repositories that will be managed.
+            - The list of repositories that will be managed.
         required: true
         type: str
+
     collaborators_to_add:
         description:
-          - The list of collaborators that will be added to the list of repos.
+            - The list of collaborators that will be added to the list of repos.
         required: false
+        default: null
         type: str
+
     collaborators_to_remove:
         description:
-          - The list of collaborators that will be removed to the list of repos.
+            - The list of collaborators that will be removed to the list of repos.
         required: false
+        default: null
         type: str
+
     check_collaborator:
         description:
-          - The list of collaborators to check their permissions
-         required: false
-         type: str
+            - The list of collaborators to check their permissions
+        required: false
+        default: null
+        type: str
+
     collaborators_to_change:
         description:
-          - The list of collaborators to change permissions
-         required: false
-         type: str
+            - The list of collaborators to change permissions
+        required: false
+        default: null
+        type: str
 
 author:
     - Jacob Eicher (@jacobeicher)
-    - Bradley Golski (@bgolski)
     - Tyler Zwolenik (@TylerZwolenik)
+    - Bradley Golski (@bgolski)
+    - Nolan Khounborin (@Khounborinn)
 '''
 
 EXAMPLES = '''
-# Pass in an organization name and GitHub API token
-- name: returns information about
-  repository_info:
-    organization: "senior-design-21-22"
-    github_token: "12345"
+# Pass in an github API token and organization name
 
+- name: "Listing collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
 
-# Pass in an organization name, GitHub API token
-- name: returns information about
-  repository_info:
-    organization: "SSEP"
-    github_token: "12345"
-    enterprise_url: "<ENTERPRISE_URL>"
+- name: "Adding collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+      collaborators_to_add:
+        <GITHUB USERNAME>: "push"
+        <ANOTHER GITHUB USERNAME>: "pull"
+
+- name: "Change permissions of collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+      collaborators_to_change:
+        <GITHUB USERNAME>: "admin"
+        <ANOTHER GITHUB USERNAME>: "triage"
+
+- name: "Remove permissions of collaborators from enterprise GitHub account"
+    ohioit.github.collaborator_information:
+      token: "12345"
+      organization_name: "SSEP"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+        collaborators_to_remove:
+          - "<GITHUB USERNAME>"
+          - "<ANOTHER GITHUB USERNAME>"
 '''
 
 RETURN = '''
-repos:
-    description: List contains dictionaries of repositories and their information.
-    type: list
-    returned: if GitHub API token connects
-repos.<ELEMENT INDEX>:
-    description: Dictionary contains keys and values of a repository's information.
+collaborators:
+    description: Dictionary contains all names of repositories requested and their collaborators.
     type: dict
-    returned: only if at least one repo is contained within organization
-repos.<ELEMENT INDEX>.name:
-    description: Repository's name.
+    returned: if GitHub API token connects
+
+collaborators['<ORG NAME>/<REPO NAME>']:
+    description: List contains dicts of each collaborator's information (that are in that repository).
+    type: list
+    returned: if at least one collaborator is within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>:
+    description: This index provides access to a dictionary containing information about a single collaborator.
+    type: dict
+    returned: if at least one collaborator is within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.id:
+    description: Collaborator's id number.
+    type: int
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.login:
+    description: Collaborator's login. This is their GitHub username.
     type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.full_name:
-    description: Repository path name starting from organization.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.owner:
-    description: Name of organization that owns the repository.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.description:
-    description: Description of the repository. This field will be null unless previously set.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.private:
-    description: Status whether the repository is private or public.
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions:
+    description: Dictionary of statuses of permissions including admin, pull, push, and triage.
+    type: dict
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.admin:
+    description: Will return true if admin rights are given to collaborator. Read, clone, push, and add collaborators permissions to repository.
     type: bool
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.archived:
-    description: Status of whether the repository is archived or not.
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.push:
+    description: Will return true if push rights are given to collaborator. Read, clone, and push to repository.
     type: bool
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.language:
-    description: Repository language. This can be any language listed in 'https://github.com/github/linguist/blob/master/lib/linguist/languages.yml'.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.url:
-    description: URL for repository. The provided URL is the route used for the GitHub API to be connected to Ansible.
-                Non-enterprise URLs will be structured as 'https://api.github.com/repos/<ORGANIZATION NAME>/<REPO NAME>'.
-                Enterprise URLs are structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.default_branch:
-    description: The branch that GitHub displays when anyone visits your repository.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.hooks_url:
-    description: URL location where hooks are located within the repository when connected to the GitHub API.
-                Non-enterprise URLs should be structured as 'https://api.github.com/repos/<ORGANIZATION NAME>/<REPO NAME>/hooks'.
-                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>/hooks'.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.clone_url:
-    description: URL location where repository will be accessible to be cloned.
-                Non-enterprise URLs should be structured as 'https://github.com/<ORGANIZATION NAME>/<REPO NAME>.git'.
-                Enterprise URLs should be structured as 'https://github.<ENTERPRISE DOMAIN>/<ORGANIZATION NAME>/<REPO NAME>.git'.
-    type: str
-    returned: only if organization contains a repository
-repos.<ELEMENT INDEX>.visibility:
-    description: The repository visibility status will be 'public', 'internal', or 'private'.
-    type: str
-    returned: only if organization contains a repository and is not a part of an enterprise account
-repos.<ELEMENT INDEX>.is_template:
-    description: The repository template status will true or false.
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.pull:
+    description: Will return true if pull rights are given to collaborator. Read and clone repository.
     type: bool
-    returned: only if organization contains a repository and is not a part of an enterprise account
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.triage:
+    description: Will return true if triage rights are given to collaborator.
+                 Triage role can request reviews on pull requests (PRs), mark issues and PRs as duplicates, and add or remove milestones on issues and PRs.
+                 NO WRITE ACCESS.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.site_admin:
+    description: Will return true if collaborator is a site admin.
+                 This permission gives the collaborator the ability to manage users, organizations, and repositories.
+    type: bool
+    returned: only if at least one collaborator is contained within repository
+
+collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
+    description: This will return what type of collaborator the user is.
+    type: str
+    returned: only if at least one collaborator is contained within repository
 '''
 
 
-def add_collaborators(g, repos, to_add, org_name):
+def add_collaborators(g, repos, to_add):
     for repo in repos:
-        r = g.get_repo(org_name + "/" + repo)
-        colab_list = []
+        r = g.get_repo(repo)
+        collaborator_list = []
         collaborators = r.get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-            colab_list.append(collaborator.login)
+            collaborator_list.append(collaborator.login)
+
         for p in to_add:
-            if (p not in colab_list):
-                r.add_to_collaborators(p, permission=to_add[p])
-                print("adding " + p + " to " + repo +
-                      " with Permission " + to_add[p])
+            r.add_to_collaborators(p, permission=to_add[p])
 
 
-def check_permissions(g, repos, user, permission_level, org_name):
+def check_permissions(g, repos, user_to_check):
     status = True
     for repo in repos:
-        r = g.get_repo(org_name + "/" + repo)
-        if(r.get_collaborator_permission(user) != permission_level):
-            status = False
+        r = g.get_repo(repo)
+        for user in user_to_check.items():
+            if(r.get_collaborator_permission(user[0]) != user[1]):
+                status = False
     return status
 
 
-def del_collaborators(g, repos, to_remove, org_name):
+def del_collaborators(g, repos, to_remove):
     for repo in repos:
-        r = g.get_repo(org_name + "/" + repo)
+        r = g.get_repo(repo)
         collaborators = r.get_collaborators(affiliation="direct")
         for collaborator in collaborators:
             if(collaborator.login in to_remove):
                 r.remove_from_collaborators(collaborator.login)
-                print("removing " + str(collaborator) + " from " + repo)
 
 
-def change_collaborator_permissions(g, repos, user, permssion_level, org_name):
+def change_collaborator_permissions(g, repos, to_change):
     for repo in repos:
-        r = g.get_repo(org_name + "/" + repo)
-        colab_list = []
+        r = g.get_repo(repo)
+        collaborator_list = []
         collaborators = r.get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-            if (user == collaborator.login and permssion_level != r.get_collaborator_permission(user)):
-                print("changing " + user + " in " + repo + " from Permission " +
-                      r.get_collaborator_permission(user) + " to " + permssion_level)
-                r.add_to_collaborators(user, permission=permssion_level)
+            collaborator_list.append(collaborator.login)
+        for p in to_change:
+            if (p in collaborator_list):
+                r.add_to_collaborators(p, permission=to_change[p])
 
 
 def get_collaborators(g, repo_list):
-
     output = dict()
     for repo in repo_list:
         dict_repo = list()
@@ -207,7 +256,6 @@ def get_collaborators(g, repo_list):
         collaborators = g.get_repo(
             repo).get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-
             collab_output['login'] = collaborator.login
             collab_output['id'] = collaborator.id
             # collab_output['node_id'] = collaborator.node_id
@@ -226,7 +274,13 @@ def get_collaborators(g, repo_list):
             # collab_output['received_events_url'] = collaborator.received_events_url
             collab_output['type'] = collaborator.type
             collab_output['site_admin'] = collaborator.site_admin
-            collab_output['permissions'] = collaborator.permissions
+            permissions = {
+                'triage': collaborator.permissions.triage,
+                'push': collaborator.permissions.push,
+                'pull': collaborator.permissions.pull,
+                'admin': collaborator.permissions.admin
+            }
+            collab_output['permissions'] = permissions
 
             dict_repo.append(collab_output.copy())
 
@@ -236,11 +290,17 @@ def get_collaborators(g, repo_list):
 
 
 def run_module():
+    changed = False
     module_args = dict(
-        token=dict(type='str', default='No Token Provided.'),
-        organization_name=dict(
-            type='str', default='No Organization Name Provided.'),
+        token=dict(type='str', default='John Doe'),
+        organization_name=dict(type='str', default='default'),
         enterprise_url=dict(type='str', default=''),
+        repos=dict(type='list', elements='str'),
+        collaborators_to_add=dict(type='dict'),
+        check_collaborator=dict(type='dict'),
+        collaborators_to_change=dict(type='dict'),
+        collaborators_to_remove=dict(type='list', elements='str'),
+
     )
 
     module = AnsibleModule(
@@ -252,51 +312,54 @@ def run_module():
         changed=False,
         fact=''
     )
-    # token usage retrieved from module's variables from playbook
 
+    valid_permissions = ["push", "pull", "admin"]
+
+    # token usage retrieved from module's variables from playbook
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
         g = Github(module.params['token'],
                    base_url=module.params['enterprise_url'])
 
-    output = []
+    if len(module.params['repos']):
+        for i in range(len(module.params['repos'])):
+            module.params['repos'][i] = module.params['organization_name'] + \
+                "/" + module.params['repos'][i]
 
-    # organization name retrieved from module's variables from playbook
-    org_name = module.params['organization_name']
+    current_collaborators = get_collaborators(g, module.params['repos'])
 
-    for repo in g.get_organization(org_name).get_repos():
-        if len(module.params["enterprise_url"]) == 0:
-            current_repo_dict = {
-                "owner": repo.owner.login,
-                "description": repo.description,
-                "private": repo.private,
-                "archived": repo.archived,
-                "language": repo.language,
-                "url": repo.url,
-                "default_branch": repo.default_branch,
-                "hooks_url": repo.hooks_url,
-                "clone_url": repo.clone_url,
-                "visibility": repo.raw_data["visibility"],
-                "is_template": repo.raw_data["is_template"]
-            }
-        else:
-            current_repo_dict = {
-                "owner": repo.owner.login,
-                "description": repo.description,
-                "private": repo.private,
-                "archived": repo.archived,
-                "language": repo.language,
-                "url": repo.url,
-                "default_branch": repo.default_branch,
-                "hooks_url": repo.hooks_url,
-                "clone_url": repo.clone_url
-            }
-        output.append(current_repo_dict)
+    if(module.params['collaborators_to_add']):
+        for permission in module.params['collaborators_to_add']:
+            if module.params['collaborators_to_add'][permission].lower() not in valid_permissions:
+                module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
+                                 module.params['collaborators_to_add'][permission] +
+                                 ". Permissions must be 'push' 'pull' or 'admin'")
+
+        if len(module.params['collaborators_to_add']) and len(module.params['repos']):
+            add_collaborators(
+                g, module.params['repos'], module.params['collaborators_to_add'])
+
+    if(module.params['collaborators_to_remove'] and len(module.params['repos'])):
+        del_collaborators(
+            g, module.params['repos'], module.params['collaborators_to_remove'])
+
+    if(module.params['check_collaborator'] and len(module.params['repos'])):
+        check_permissions(
+            g, module.params['repos'], module.params['check_collaborator'])
+
+    if(module.params['collaborators_to_change'] and len(module.params['repos'])):
+        change_collaborator_permissions(
+            g, module.params['repos'], module.params['collaborators_to_change'])
+
+    output = get_collaborators(g, module.params['repos'])
+    if collections.Counter(current_collaborators) == collections.Counter(output):
+        changed = False
+
     if module.check_mode:
         return result
 
-    module.exit_json(repos=output)  # PUTS RESULT INTO result.repos
+    module.exit_json(changed=changed, collaborators=output)
 
 
 def main():
