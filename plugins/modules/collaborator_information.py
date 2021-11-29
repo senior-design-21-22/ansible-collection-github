@@ -7,6 +7,7 @@ from ansible.module_utils.common.text.converters import jsonify
 from ansible.module_utils.basic import AnsibleModule
 import json
 __metaclass__ = type
+from github import Github
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
