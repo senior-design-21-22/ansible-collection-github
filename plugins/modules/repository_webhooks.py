@@ -4,6 +4,8 @@ from github import Github
 from ansible.module_utils.common.text.converters import jsonify
 from ansible.module_utils.basic import AnsibleModule
 import json
+import collections
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -101,28 +103,85 @@ def create_webhook(g, repo_list, org, events, host, endpoint):
     }
 
     for repo_name in repo_list:
-        repo = g.get_repo("%s/%s" % (org, repo_name))
+        repo = g.get_repo(repo_name)
         repo.create_hook("web", config, events, active=True)
 
 
 def run_module():
+    changed = True
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
         organization_name=dict(
-            type='str', default='No Organization Name Provided.'),
+            type='str', default=''),
         enterprise_url=dict(type='str', default=''),
-        repos=dict(type='list', elements='str')
+        repos=dict(type='list', elements='str'),
+        host=dict(type='str', default=''),
+        endpoint=dict(type='str', default=''),
+        events=dict(type='list', elements='str'),
+        content_type=dict(type='str', default='')
     )
+
+    valid_content_types = ["json", "form"]
+    valid_events = ["branch_protection_rule",
+                    "check_run",
+                    "check_suite",
+                    "code_scanning_alert",
+                    "commit_comment",
+                    "content_reference",
+                    "create",
+                    "delete",
+                    "deploy_key",
+                    "deployment",
+                    "deployment_status",
+                    "discussion",
+                    "discussion_comment",
+                    "fork",
+                    "github_app_authorization",
+                    "gollum",
+                    "installation",
+                    "installation_repositories",
+                    "issue_comment",
+                    "issues",
+                    "label",
+                    "marketplace_purchase",
+                    "member",
+                    "membership",
+                    "meta",
+                    "milestone",
+                    "organization",
+                    "org_block",
+                    "package",
+                    "page_build",
+                    "ping",
+                    "project_card",
+                    "project_column",
+                    "project",
+                    "public",
+                    "pull_request",
+                    "pull_request_review",
+                    "pull_request_review_comment",
+                    "push",
+                    "release",
+                    "repository_dispatch",
+                    "repository",
+                    "repository_import",
+                    "repository_vulnerability_alert",
+                    "secret_scanning_alert",
+                    "security_advisory",
+                    "sponsorship",
+                    "star",
+                    "status",
+                    "team",
+                    "team_add",
+                    "watch",
+                    "workflow_dispatch",
+                    "workflow_job"]
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True
     )
 
-    result = dict(
-        changed=False,
-        fact=''
-    )
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
@@ -134,7 +193,26 @@ def run_module():
             module.params['repos'][i] = module.params['organization_name'] + \
                 "/" + module.params['repos'][i]
 
+    initial = get_webhooks(g, module.params['repos'])
+
+
+    if len(module.params['host']) and len(module.params['endpoint']):
+        for event in module.params['events']:
+            if event not in valid_events:
+                module.exit_json(changed=False, err="Invalid event name")
+        if module.params['content_type'] in valid_content_types:
+            create_webhook(g, module.params['repos'], module.params['organization_name'], module.params['events'], module.params['host'], module.params['endpoint'])
+
     output = get_webhooks(g, module.params['repos'])
+
+    if initial == output:
+        changed = False
+
+    result = dict(
+        changed=changed,
+        fact=''
+    )
+
     if module.check_mode:
         return result
 
