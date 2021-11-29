@@ -86,6 +86,6 @@ The tests are runnable using the following commands:
 
 ```bash
 ansible-test units --python 3.[YOUR PYTHON VERSION] --venv
-ansible-test sanity
-ansible-test integration
+ansible-test sanity --python 3.[YOUR PYTHON VERSION] plugins/modules/*
+ansible-test integration --python 3.[YOUR PYTHON VERSION]
 ```
