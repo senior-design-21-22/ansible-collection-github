@@ -41,39 +41,39 @@ pip install PyGithub
 ### Repository Information (From organization)
 
 ```
-  - name: "List GitHub repositories within non-enterprise org"
+  - name: "List GitHub repositories within a non-enterprise organization"
     ohioit.github.repository_information:
-      token: "[token]"
-      organization_name: "[org name]"
+      token: "<API TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
     register: result
 
-  - name: "List GitHub repositories within enterprise org"
+  - name: "List GitHub repositories within an enterprise organization"
     ohioit.github.repository_information:
-      token: "[token]"
-      organization_name: "[org name]"
-      enterprise_url: "https://github.ohio.edu/your/url/here/"
-    register: result     
+      token: "<TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+    register: result    
 ```
 ### Collaborator Information (From organization)
 
 ```
-    - name: "Some functions of Collaborator informationm module"
+    - name: "Functions of Collaborator information module"
       ohioit.github.collaborator_information:
-        token: "[token]"
-        organization_name: "[org name]"
-        enterprise_url: "https://github.ohio.edu/your/url/here/"
+        token: "<API TOKEN>"
+        organization_name: "<ORGANIZATION NAME>"
+        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
         repos:
-          - "[repo 1]"
-          - "[repo 2]"
-          - "[repo 3]"
+          - "<REPO 1>"
+          - "<REPO 2>"
+          - "<REPO 3>"
         collaborators_to_add:
-          [GitHub username]: "[triage, pull, push or admin]"
+          <GITHUB USERNAME>: "<triage, pull, push or admin>"
         check_collaborator:
-          [GitHub username]: "[triage, pull, push or admin]"
+          <GITHUB USERNAME>: "<triage, pull, push or admin>"
         collaborators_to_change:
-          [GitHub username]: "[triage, pull, push or admin]"
+          <GITHUB USERNAME>: "<triage, pull, push or admin>"
         collaborators_to_remove:
-          - "[GitHub username]"   
+          - "<GITHUB USERNAME>"   
 ```
 
 ###### _**NOTE**: Tokens should be encrypted and only decrypted at runtime_
@@ -85,7 +85,7 @@ Testing has been made available using the [ansible-test](https://docs.ansible.co
 The tests are runnable using the following commands:
 
 ```bash
-ansible-test units --python 3.[YOUR PYTHON VERSION] --venv
-ansible-test sanity --python 3.[YOUR PYTHON VERSION] plugins/modules/*
-ansible-test integration --python 3.[YOUR PYTHON VERSION]
+ansible-test units --python 3.<YOUR PYTHON VERSION> --venv
+ansible-test sanity --python 3.<YOUR PYTHON VERSION> plugins/modules/*
+ansible-test integration --python 3.<YOUR PYTHON VERSION>
 ```
