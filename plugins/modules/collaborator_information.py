@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
-import collections
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
+
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -196,16 +196,23 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
     returned: only if at least one collaborator is contained within repository
 '''
 
+import json
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+from github import Github
 
-def add_collaborators(g, repos, to_add):         
+
+def add_collaborators(g, repos, to_add):
     for repo in repos:
         r = g.get_repo(repo)
         collaborator_list = []
         collaborators = r.get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-                collaborator_list.append(collaborator.login)
+            collaborator_list.append(collaborator.login)
+
         for p in to_add:
             r.add_to_collaborators(p, permission=to_add[p])
+
 
 def check_permissions(g, repos, user_to_check):
     status = True
@@ -215,7 +222,7 @@ def check_permissions(g, repos, user_to_check):
             if(r.get_collaborator_permission(user[0]) != user[1]):
                 status = False
     return status
-        
+
 
 def del_collaborators(g, repos, to_remove):
     for repo in repos:
@@ -232,21 +239,19 @@ def change_collaborator_permissions(g, repos, to_change):
         collaborator_list = []
         collaborators = r.get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-                collaborator_list.append(collaborator.login)
+            collaborator_list.append(collaborator.login)
         for p in to_change:
             if (p in collaborator_list):
                 r.add_to_collaborators(p, permission=to_change[p])
 
 
 def get_collaborators(g, repo_list):
-
     output = dict()
     for repo in repo_list:
         dict_repo = list()
         collab_output = dict()
         collaborators = g.get_repo(repo).get_collaborators(affiliation="direct")
         for collaborator in collaborators:
-             
             collab_output['login'] = collaborator.login
             collab_output['id'] = collaborator.id
             # collab_output['node_id'] = collaborator.node_id
@@ -270,9 +275,8 @@ def get_collaborators(g, repo_list):
                 'push': collaborator.permissions.push,
                 'pull': collaborator.permissions.pull,
                 'admin': collaborator.permissions.admin
-                }
+            }
             collab_output['permissions'] = permissions
-
 
             dict_repo.append(collab_output.copy())
 
@@ -332,13 +336,12 @@ def run_module():
 
     if(module.params['collaborators_to_remove'] and len(module.params['repos'])):
         del_collaborators(g, module.params['repos'], module.params['collaborators_to_remove'])
-    
+
     if(module.params['check_collaborator'] and len(module.params['repos'])):
         check_permissions(g, module.params['repos'], module.params['check_collaborator'])
 
     if(module.params['collaborators_to_change'] and len(module.params['repos'])):
         change_collaborator_permissions(g, module.params['repos'], module.params['collaborators_to_change'])
-
 
     output = get_collaborators(g,  module.params['repos'])
     if collections.Counter(current_collaborators) == collections.Counter(output):

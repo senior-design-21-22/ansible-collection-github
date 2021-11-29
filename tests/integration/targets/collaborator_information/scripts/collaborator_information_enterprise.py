@@ -22,6 +22,7 @@ def check_permissions(g, repos, user, permission_level, org_name):
     for repo in repos:
         r = g.get_repo(org_name + "/" + repo)
         status = (r.get_collaborator_permission(user) == permission_level)
+
     return status
         
 
@@ -69,6 +70,7 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
     API_KEY = 'token'
     ORGANIZATION_NAME = 'Organization Name'
     ENTERPRISE_URL = None
+    USER = None
 
     def test_pass_list_collaborators_enterprise_github(self):
         g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
@@ -83,11 +85,11 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
         for collaborator in output[repo_list[0]]:
             collaborator_list.append(collaborator['login'])
 
-        assert 'je652917' in collaborator_list
+        assert self.USER in collaborator_list
 
     def test_pass_check_permissions_enterprise_github(self):
         g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
-        repo_list = ["testing-repo-private", "testing-repo-internal", "testing-repo-public"]
+        repo_list = ["testing-repo-internal"]
 
         if len(repo_list):
             for i in range(len(repo_list)):
@@ -100,17 +102,18 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
             collaborator_list.append(collaborator['login'])
 
         for i in range(0, len(collaborator_list)):
-            if output[repo_list[0]][i]['login'] == 'je652917':
+            if output[repo_list[0]][i]['login'] == self.USER:
                 collaborator_permission = {'permissions': output[repo_list[0]][i]['permissions']}
 
-        # print(collaborator_permission)
         assert 'admin=False' in str(collaborator_permission['permissions'])
+        assert 'pull=True' in str(collaborator_permission['permissions'])
+        assert 'push=False' in str(collaborator_permission['permissions'])
 
     def test_pass_add_and_delete_collaborator_to_enterprise_github_repo(self):
         g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
-        target_repos = ["testing-repo-internal"]
-        collaborators_to_add = {"nk479217":"admin"}
-        collaborators_to_remove = ["nk479217"]
+        target_repos = ["testing-repo-public"]
+        collaborators_to_add = {self.USER:"pull"}
+        collaborators_to_remove = [self.USER]
 
         collaborator_added = False
         collaborator_deleted = False
@@ -130,7 +133,9 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
         for collaborator in output[target_repos_copy[0]]:
             collaborator_list.append(collaborator['login'])
 
-        assert 'nk479217' in collaborator_list
+        assert self.USER in collaborator_list
+
+        # Remove xuj1 from the repository to return it to the original state
 
         if(len(collaborators_to_remove) > 0):  # needed from ansible (list)
             if(len(target_repos) > 0):# needed from ansible (list)
@@ -141,11 +146,11 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
         for collaborator in output[target_repos_copy[0]]:
             collaborator_list.append(collaborator['login'])
 
-        assert 'nk479217' not in collaborator_list
+        assert self.USER not in collaborator_list
 
     def test_pass_change_permissions_of_collaborator_enterprise_github(self):
         g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
-        perms_check = "je652917"
+        perms_check = self.USER
         target_repos = ['testing-repo-private']
 
         target_repos_copy = target_repos.copy()
@@ -153,7 +158,7 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
             for i in range(len(target_repos_copy)):
                 target_repos_copy[i] = self.ORGANIZATION_NAME + "/" + target_repos_copy[i]
 
-        change_collaborator_permissions(g, target_repos, perms_check, "triage", self.ORGANIZATION_NAME)
+        change_collaborator_permissions(g, target_repos, perms_check, "push", self.ORGANIZATION_NAME)
 
         output = get_collaborators(g, target_repos_copy)
 
@@ -162,15 +167,71 @@ class TestCollaboratorRepositoryModule(unittest.TestCase):
             collaborator_list.append(collaborator['login'])
 
         for i in range(0, len(collaborator_list)):
-            if output[target_repos_copy[0]][i]['login'] == 'je652917':
+            if output[target_repos_copy[0]][i]['login'] == self.USER:
                 collaborator_permission = {'permissions': output[target_repos_copy[0]][i]['permissions']}
 
-        assert 'triage=True' in str(collaborator_permission['permissions'])
+        assert 'push=True' in str(collaborator_permission['permissions'])
 
+        change_collaborator_permissions(g, target_repos, perms_check, "pull", self.ORGANIZATION_NAME)
+
+        output = get_collaborators(g, target_repos_copy)
+
+        collaborator_list = list()
+        for collaborator in output[target_repos_copy[0]]:
+            collaborator_list.append(collaborator['login'])
+
+        for i in range(0, len(collaborator_list)):
+            if output[target_repos_copy[0]][i]['login'] == self.USER:
+                collaborator_permission = {'permissions': output[target_repos_copy[0]][i]['permissions']}
+
+        assert 'push=False' in str(collaborator_permission['permissions'])
+
+    def test_pass_check_for_unrealistic_role(self):
+        g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
+        perms_check = self.USER
+        target_repos = ['testing-repo-internal']
+
+        target_repos_copy = target_repos.copy()
+        if len(target_repos_copy):
+            for i in range(len(target_repos_copy)):
+                target_repos_copy[i] = self.ORGANIZATION_NAME + "/" + target_repos_copy[i]
+
+        change_collaborator_permissions(g, target_repos, perms_check, "pizza", self.ORGANIZATION_NAME)
+
+        output = get_collaborators(g, target_repos_copy)
+
+        collaborator_list = list()
+        for collaborator in output[target_repos_copy[0]]:
+            collaborator_list.append(collaborator['login'])
+
+        for i in range(0, len(collaborator_list)):
+            if output[target_repos_copy[0]][i]['login'] == self.USER:
+                collaborator_permission = {'permissions': output[target_repos_copy[0]][i]['permissions']}
+
+        assert 'push=False' in str(collaborator_permission['permissions'])
+        assert 'pull=True' in str(collaborator_permission['permissions'])
+
+    def test_pass_check_for_no_collaborators(self):
+
+        g = Github(self.API_KEY, base_url=self.ENTERPRISE_URL)
+        repo_list = ["test-repo-empty"]
+
+        if len(repo_list):
+            for i in range(len(repo_list)):
+                repo_list[i] = self.ORGANIZATION_NAME + "/" + repo_list[i]
+
+        output = get_collaborators(g, repo_list)
+        collaborator_list = list()
+        for collaborator in output[repo_list[0]]:
+            collaborator_list.append(collaborator['login'])
+
+        assert not collaborator_list
 
 if __name__ == '__main__':
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
+        TestCollaboratorRepositoryModule.USER = sys.argv.pop()
         TestCollaboratorRepositoryModule.ENTERPRISE_URL = sys.argv.pop()
         TestCollaboratorRepositoryModule.ORGANIZATION_NAME = sys.argv.pop()
         TestCollaboratorRepositoryModule.API_KEY = sys.argv.pop()
+
     unittest.main()
