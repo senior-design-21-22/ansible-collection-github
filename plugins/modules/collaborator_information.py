@@ -22,7 +22,7 @@ description:
 options:
     token:
         description:
-            - GitHub API token used to retrieve information about collaborators in repositories a user has access to
+            - GitHub API token that can be used to retrieve information about collaborators of repositories to which a user has access.
         required: true
         type: str
 
@@ -36,7 +36,7 @@ options:
 
     organization_name:
         description:
-            - The organization that the information is within the scope of.
+            - The organization within which to search.
         required: true
         type: str
 
@@ -48,28 +48,28 @@ options:
 
     collaborators_to_add:
         description:
-            - The list of collaborators that will be added to the list of repos.
+            - The list of collaborators that will be added to the list of repositories.
         required: false
         default: null
         type: str
 
     collaborators_to_remove:
         description:
-            - The list of collaborators that will be removed to the list of repos.
+            - The list of collaborators that will be removed from the list of repositories.
         required: false
         default: null
         type: str
 
     check_collaborator:
         description:
-            - The list of collaborators to check their permissions
+            - The list of collaborators to check their permissions.
         required: false
         default: null
         type: str
 
     collaborators_to_change:
         description:
-            - The list of collaborators to change permissions
+            - The list of collaborators to change their permissions.
         required: false
         default: null
         type: str
@@ -118,7 +118,7 @@ EXAMPLES = '''
         - "testing-repo-public"
       collaborators_to_change:
         <GITHUB USERNAME>: "admin"
-        <ANOTHER GITHUB USERNAME>: "triage"
+        <ANOTHER GITHUB USERNAME>: "push"
 
 - name: "Remove permissions of collaborators from enterprise GitHub account"
     ohioit.github.collaborator_information:
@@ -161,7 +161,7 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.login:
     returned: only if at least one collaborator is contained within repository
 
 collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions:
-    description: Dictionary of statuses of permissions including admin, pull, push, and triage.
+    description: Dictionary of statuses of permissions including admin, pull, and push.
     type: dict
     returned: only if at least one collaborator is contained within repository
 
@@ -177,13 +177,6 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.push:
 
 collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.pull:
     description: Will return true if pull rights are given to collaborator. Read and clone repository.
-    type: bool
-    returned: only if at least one collaborator is contained within repository
-
-collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.permissions.triage:
-    description: Will return true if triage rights are given to collaborator.
-                 Triage role can request reviews on pull requests (PRs), mark issues and PRs as duplicates, and add or remove milestones on issues and PRs.
-                 NO WRITE ACCESS.
     type: bool
     returned: only if at least one collaborator is contained within repository
 
@@ -214,8 +207,8 @@ def add_collaborators(g, repos, to_add):
         for collaborator in collaborators:
             collaborator_list.append(collaborator.login)
 
-        for p in to_add:
-            r.add_to_collaborators(p, permission=to_add[p])
+        for permission_given in to_add:
+            r.add_to_collaborators(permission_given, permission=to_add[permission_given])
 
 
 def check_permissions(g, repos, user_to_check):
@@ -245,7 +238,7 @@ def change_collaborator_permissions(g, repos, to_change):
         for collaborator in collaborators:
             collaborator_list.append(collaborator.login)
         for p in to_change:
-            if (p in collaborator_list):
+            if(p in collaborator_list):
                 r.add_to_collaborators(p, permission=to_change[p])
 
 
@@ -258,20 +251,6 @@ def get_collaborators(g, repo_list):
         for collaborator in collaborators:
             collab_output['login'] = collaborator.login
             collab_output['id'] = collaborator.id
-            # collab_output['node_id'] = collaborator.node_id
-            # collab_output['avatar_url'] = collaborator.avatar_url
-            # collab_output['gravatar_id'] = collaborator.gravatar_id
-            # collab_output['url'] = collaborator.url
-            # collab_output['html_url'] = collaborator.html_url
-            # collab_output['followers_url'] = collaborator.followers_url
-            # collab_output['following_url'] = collaborator.following_url
-            # collab_output['gists_url'] = collaborator.gists_url
-            # collab_output['starred_url'] = collaborator.starred_url
-            # collab_output['subscriptions_url'] = collaborator.subscriptions_url
-            # collab_output['organizations_url'] = collaborator.organizations_url
-            # collab_output['repos_url'] = collaborator.repos_url
-            # collab_output['events_url'] = collaborator.events_url
-            # collab_output['received_events_url'] = collaborator.received_events_url
             collab_output['type'] = collaborator.type
             collab_output['site_admin'] = collaborator.site_admin
             permissions = {
