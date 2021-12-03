@@ -135,7 +135,7 @@ Parameters
                         <div>False</div>
                 </td>
                 <td>
-                        <div>Collaborator(s) are added along with their intended permissions (Read, Triage, Write, or Admin) to the provided list of repos</div>  <!-- COMMENTS -->
+                        <div>Collaborator(s) are added along with their intended permissions (Read, Write, or Admin) to the provided list of repos</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- COLLABORATORS TO REMOVE -->
@@ -235,8 +235,8 @@ Examples
           - "<REPO 2>"
           - "<REPO 3>"
         collaborators_to_add:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
+          <GITHUB USERNAME>: "<pull, push or admin>"
+          <ANOTHER GITHUB USERNAME>: "<pull, push or admin>"
           
       register: result
 
@@ -250,8 +250,8 @@ Examples
           - "<REPO 2>"
           - "<REPO 3>"
         check_collaborator:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
+          <GITHUB USERNAME>: "<pull, push or admin>"
+          <ANOTHER GITHUB USERNAME>: "<pull, push or admin>"
 
       register: result
 
@@ -265,8 +265,8 @@ Examples
           - "<REPO 2>"
           - "<REPO 3>"
         collaborators_to_change:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
+          <GITHUB USERNAME>: "<pull, push or admin>"
+          <ANOTHER GITHUB USERNAME>: "<pull, push or admin>"
       register: result
 
     - name: "Remove permissions of collaborators from enterprise GitHub account"
@@ -448,23 +448,6 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                 <td>
                                                                                                                         <!--DESCRIPTION-->
                             <div>Will return true if pull rights are given to collaborator. Read and clone repository.</div>
-                </td>
-            </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions.triage -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions.triage</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if triage rights are given to collaborator. Users with the triage role can request reviews on pull requests, mark issues and pull requests as duplicates, and add or remove milestones on issues and pull requests. No write access.</div>
                 </td>
             </tr>
             
