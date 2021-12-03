@@ -39,7 +39,7 @@ jobs:
         run: ansible-test integration --python 3.6
 
       - name: Perform sanity testing with ansible-test on module files
-        run: ansible-test sanity --python 3.6 plugins/modules/*
+        run: ansible-test sanity --python 3.6 --skip-test import plugins/modules/*
           
       - name: Perform unit testing with ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
