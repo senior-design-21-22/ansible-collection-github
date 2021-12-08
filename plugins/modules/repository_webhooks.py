@@ -81,6 +81,7 @@ import collections
 
 def get_webhooks(g, repo_list):
     hooks = []
+    current_hook_dict = {}
     for repo in repo_list:
         for current_hook in g.get_repo(repo).get_hooks():
             current_hook_dict = {}
