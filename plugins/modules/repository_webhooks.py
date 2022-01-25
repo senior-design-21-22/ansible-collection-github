@@ -79,47 +79,50 @@ import json
 import collections
 
 
-def get_webhooks(g, repo_list):
+def get_webhooks(g, repo):
     hooks = []
     current_hook_dict = {}
-    for repo in repo_list:
-        for current_hook in g.get_repo(repo).get_hooks():
-            current_hook_dict = {}
-            current_hook_dict = {
-                "id": current_hook.id,
-                "name": current_hook.name,
-                "url": current_hook.url,
-                "active": current_hook.active,
-                "test_url": current_hook.test_url,
-                "ping_url": current_hook.ping_url
-
-            }
+    for current_hook in g.get_repo(repo).get_hooks():
+        current_hook_dict = {}
+        current_hook_dict = {
+            "id": current_hook.id,
+            "config": current_hook.config,
+            "name": current_hook.name,
+            "url": current_hook.url,
+            "active": current_hook.active,
+            "test_url": current_hook.test_url,
+            "ping_url": current_hook.ping_url,
+            "events": current_hook.events
+        }
         hooks.append(current_hook_dict)
     output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1:]]
 
     return output
 
 
-def create_webhook(g, repo_list, org, events, host, endpoint):
-
+def create_webhook(g, repo, events, host, endpoint):
+    
     config = {
         "url": "http://%s/%s" % (host, endpoint),
         "content_type": "json"
     }
 
-    for repo_name in repo_list:
-        repo = g.get_repo(repo_name)
-        repo.create_hook("web", config, events, active=True)
+    for current_hook in g.get_repo(repo).get_hooks():
+        if collections.Counter(current_hook.events) == collections.Counter(events) and config["url"] == current_hook.config["url"]:
+                return
+
+    repo = g.get_repo(repo)
+    repo.create_hook("web", config, events, active=True)
+    
 
 
 def run_module():
-    changed = True
     module_args = dict(
         token=dict(type='str', default='No Token Provided.'),
         organization_name=dict(
             type='str', default=''),
         enterprise_url=dict(type='str', default=''),
-        repos=dict(type='list', elements='str'),
+        repo=dict(type='str', default='No Repo Provided.'),
         host=dict(type='str', default=''),
         endpoint=dict(type='str', default=''),
         events=dict(type='list', elements='str'),
@@ -193,35 +196,31 @@ def run_module():
         g = Github(module.params['token'],
                    base_url=module.params['enterprise_url'])
 
-    if len(module.params['repos']):
-        for i in range(len(module.params['repos'])):
-            module.params['repos'][i] = module.params['organization_name'] + \
-                "/" + module.params['repos'][i]
+    if len(module.params['repo']):
+        module.params['repo'] = module.params['organization_name'] + \
+            "/" + module.params['repo']
 
-    initial = get_webhooks(g, module.params['repos'])
+    initial = get_webhooks(g, module.params['repo'])
 
     if len(module.params['host']) and len(module.params['endpoint']):
         for event in module.params['events']:
             if event not in valid_events:
                 module.exit_json(changed=False, err="Invalid event name")
         if module.params['content_type'] in valid_content_types:
-            create_webhook(g, module.params['repos'], module.params['organization_name'],
+            create_webhook(g, module.params['repo'],
                            module.params['events'], module.params['host'], module.params['endpoint'])
 
-    output = get_webhooks(g, module.params['repos'])
-
-    if initial == output:
-        changed = False
+    output = get_webhooks(g, module.params['repo'])
 
     result = dict(
-        changed=changed,
+        changed=initial != output,
         fact=''
     )
 
     if module.check_mode:
         return result
 
-    module.exit_json(webhooks=output)
+    module.exit_json(webhooks=output, changed=initial != output)
 
 
 def main():
