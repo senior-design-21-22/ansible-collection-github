@@ -32,6 +32,7 @@ jobs:
           ORGANIZATION_NAME: senior-design-21-22
         run: |
           ./tests/utils/render.sh \
+
             tests/integration/integration_config.yaml.template \
             > tests/integration/integration_config.yml
    
