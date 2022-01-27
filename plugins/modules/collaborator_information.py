@@ -258,20 +258,6 @@ def get_collaborators(g, repo_list):
         for collaborator in collaborators:
             collab_output['login'] = collaborator.login
             collab_output['id'] = collaborator.id
-            # collab_output['node_id'] = collaborator.node_id
-            # collab_output['avatar_url'] = collaborator.avatar_url
-            # collab_output['gravatar_id'] = collaborator.gravatar_id
-            # collab_output['url'] = collaborator.url
-            # collab_output['html_url'] = collaborator.html_url
-            # collab_output['followers_url'] = collaborator.followers_url
-            # collab_output['following_url'] = collaborator.following_url
-            # collab_output['gists_url'] = collaborator.gists_url
-            # collab_output['starred_url'] = collaborator.starred_url
-            # collab_output['subscriptions_url'] = collaborator.subscriptions_url
-            # collab_output['organizations_url'] = collaborator.organizations_url
-            # collab_output['repos_url'] = collaborator.repos_url
-            # collab_output['events_url'] = collaborator.events_url
-            # collab_output['received_events_url'] = collaborator.received_events_url
             collab_output['type'] = collaborator.type
             collab_output['site_admin'] = collaborator.site_admin
             permissions = {
@@ -290,7 +276,6 @@ def get_collaborators(g, repo_list):
 
 
 def run_module():
-    changed = False
     module_args = dict(
         token=dict(type='str', default='John Doe'),
         organization_name=dict(type='str', default='default'),
@@ -299,8 +284,7 @@ def run_module():
         collaborators_to_add=dict(type='dict'),
         check_collaborator=dict(type='dict'),
         collaborators_to_change=dict(type='dict'),
-        collaborators_to_remove=dict(type='list', elements='str'),
-
+        collaborators_to_remove=dict(type='list', elements='str')
     )
 
     module = AnsibleModule(
@@ -353,13 +337,11 @@ def run_module():
             g, module.params['repos'], module.params['collaborators_to_change'])
 
     output = get_collaborators(g, module.params['repos'])
-    if collections.Counter(current_collaborators) == collections.Counter(output):
-        changed = False
 
     if module.check_mode:
         return result
 
-    module.exit_json(changed=changed, collaborators=output)
+    module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
 
 
 def main():
