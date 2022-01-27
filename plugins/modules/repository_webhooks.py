@@ -101,58 +101,67 @@ def get_webhooks(g, repo):
 
 
 def create_webhook(g, repo, events, host, endpoint, content_type):
-    
+
     config = {
         "url": "http://%s/%s" % (host, endpoint),
         "content_type": content_type
     }
 
     for current_hook in g.get_repo(repo).get_hooks():
-        if collections.Counter(current_hook.events) == collections.Counter(events) and config["url"] == current_hook.config["url"] and current_hook.config["content_type"] == content_type:
-                return
+        if(collections.Counter(current_hook.events) == collections.Counter(events) and
+           config["url"] == current_hook.config["url"] and
+           current_hook.config["content_type"] == content_type):
+            return
 
     repo = g.get_repo(repo)
     repo.create_hook("web", config, events, active=True)
-    
+
+
 def delete_webhook(g, repo, events, host, endpoint, content_type):
     url = "http://" + host + "/" + endpoint
 
     for current_hook in g.get_repo(repo).get_hooks():
-        if collections.Counter(current_hook.events) == collections.Counter(events) and url == current_hook.config["url"] and current_hook.config["content_type"] == content_type:
-                current_hook.delete()
-                
+        if(collections.Counter(current_hook.events) == collections.Counter(events) and
+           url == current_hook.config["url"] and
+           current_hook.config["content_type"] == content_type):
+            current_hook.delete()
+
+
 def edit_webhook(g, repo, events, host, endpoint, content_type, active_status, add_events, remove_events, new_host, new_endpoint, new_content_type):
     url = "http://" + host + "/" + endpoint
     if new_host:
-        host=new_host
+        host = new_host
     if new_endpoint:
-        endpoint=new_endpoint
+        endpoint = new_endpoint
     config = {
         "url": "http://%s/%s" % (host, endpoint),
         "content_type": content_type
     }
     for current_hook in g.get_repo(repo).get_hooks():
-        if collections.Counter(current_hook.events) == collections.Counter(events) and url == current_hook.config["url"] and current_hook.config["content_type"] == content_type:
+        if(collections.Counter(current_hook.events) == collections.Counter(events) and
+           url == current_hook.config["url"] and
+           current_hook.config["content_type"] == content_type):
             if new_host:
-                host=new_host
+                host = new_host
             if new_endpoint:
-                endpoint=new_endpoint
+                endpoint = new_endpoint
             if new_content_type:
-                content_type=new_content_type
+                content_type = new_content_type
             new_config = {
                 "url": "http://%s/%s" % (host, endpoint),
                 "content_type": content_type
             }
             if new_host or new_endpoint or new_content_type:
                 current_hook.edit("web", new_config)
-            if active_status.lower()=="false":
+            if active_status.lower() == "false":
                 current_hook.edit("web", new_config, active=False)
-            if active_status.lower()=="true":
+            if active_status.lower() == "true":
                 current_hook.edit("web", new_config, active=True)
             if add_events:
                 current_hook.edit("web", new_config, add_events=add_events)
             if remove_events:
                 current_hook.edit("web", new_config, remove_events=remove_events)
+
 
 def run_module():
     module_args = dict(
@@ -263,24 +272,37 @@ def run_module():
                 if event not in valid_events:
                     error_message = 'Invalid event name: ' + event
                     module.exit_json(changed=False, err=error_message, failed=True)
-        if module.params['remove_events']:                 
+        if module.params['remove_events']:
             for event in module.params['remove_events']:
                 if event not in valid_events:
                     error_message = 'Invalid event name: ' + event
-                    module.exit_json(changed=False, err=error_message, failed=True)                  
-                
+                    module.exit_json(changed=False, err=error_message, failed=True)
+
         if module.params['action'].lower() == 'add':
             if module.params['content_type'] in valid_content_types:
                 create_webhook(g, module.params['repo'],
-                            module.params['events'], module.params['host'], module.params['endpoint'], module.params['content_type'])
+                               module.params['events'],
+                               module.params['host'],
+                               module.params['endpoint'],
+                               module.params['content_type'])
         elif module.params['action'].lower() == 'delete':
             delete_webhook(g, module.params['repo'],
-                        module.params['events'], module.params['host'], module.params['endpoint'], module.params['content_type'])
+                           module.params['events'],
+                           module.params['host'],
+                           module.params['endpoint'],
+                           module.params['content_type'])
         elif module.params['action'].lower() == 'edit':
             edit_webhook(g, module.params['repo'],
-                        module.params['events'], module.params['host'], module.params['endpoint'], module.params['content_type'],
-                        module.params['active_status'], module.params['add_events'], module.params['remove_events'], 
-                        module.params['new_host'], module.params['new_endpoint'], module.params['new_content_type'])
+                         module.params['events'],
+                         module.params['host'],
+                         module.params['endpoint'],
+                         module.params['content_type'],
+                         module.params['active_status'],
+                         module.params['add_events'],
+                         module.params['remove_events'],
+                         module.params['new_host'],
+                         module.params['new_endpoint'],
+                         module.params['new_content_type'])
     output = get_webhooks(g, module.params['repo'])
 
     result = dict(
