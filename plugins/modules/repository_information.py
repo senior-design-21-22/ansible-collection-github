@@ -2,6 +2,8 @@
 
 
 from __future__ import absolute_import, division, print_function
+from ansible.module_utils.basic import AnsibleModule
+from github import Github
 __metaclass__ = type
 
 
@@ -146,9 +148,6 @@ repos.<ELEMENT INDEX>.is_template:
     type: bool
     returned: only if organization contains a repository and is not a part of an enterprise account
 '''
-
-from github import Github
-from ansible.module_utils.basic import AnsibleModule
 
 
 def run_module():
