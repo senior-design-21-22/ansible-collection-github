@@ -1,15 +1,16 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-    'metadata_version': '1.0',
-    'status': ['preview'],
-    'supported_by': 'community'
+    "metadata_version": "1.0",
+    "status": ["preview"],
+    "supported_by": "community",
 }
 
-DOCUMENTATION = '''
+DOCUMENTATION = """
 ---
 module: repository_webhooks
 
@@ -84,22 +85,22 @@ options:
         description:
           - Given a content type, the current webhook will be update to the new content type. This is used in "edit" action.
         required: false
-        type: list
+        type: string
 
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
     - Tyler Zwolenik (@TylerZwolenik)
     - Nolan Khounborinn (@Khounborinn)
-'''
+"""
 
-EXAMPLES = '''
+EXAMPLES = """
 - name: "LIST WEBHOOK OF REPOSITORY"
     ohioit.github.repository_webhooks:
-    token: "<TOKEN>"
-    organization_name: "<ORG NAME>"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "<REPOSITORY NAME>"
+      token: "<TOKEN>"
+      organization_name: "<ORG NAME>"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+      repo: "<REPOSITORY NAME>"
     register: result
 
 - name: "ADD WEBHOOK TO REPOSITORY"
@@ -131,7 +132,7 @@ EXAMPLES = '''
       new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
     register: result
     
-- name: "Remove webhook to GitHub repository"
+- name: "REMOVE WEBHOOK IN GITHUB REPOSITORY"
     ohioit.github.repository_webhooks:
     action: "delete"
       token: "<TOKEN>"
@@ -140,9 +141,9 @@ EXAMPLES = '''
       repo: "<REPOSITORY NAME>"
       url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
     register: result
-'''
+"""
 
-RETURN = '''
+RETURN = """
 webhooks:
     description: List contains dictionaries of webhooks and their information.
     type: list
@@ -207,7 +208,7 @@ webhooks.<ELEMENT INDEX>.url:
     description: The url in which the webhook resides
     type: string
     returned: provided per webhook dictionary
-'''
+"""
 
 from github import Github
 from ansible.module_utils.common.text.converters import jsonify
@@ -229,24 +230,23 @@ def get_webhooks(g, repo):
             "active": current_hook.active,
             "test_url": current_hook.test_url,
             "ping_url": current_hook.ping_url,
-            "events": current_hook.events
+            "events": current_hook.events,
         }
         hooks.append(current_hook_dict)
-    output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1:]]
+    output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1 :]]
 
     return output
 
 
 def create_webhook(g, repo, events, url, content_type):
 
-    config = {
-        "url": url,
-        "content_type": content_type if content_type else "json"
-    }
+    config = {"url": url, "content_type": content_type if content_type else "json"}
 
     for current_hook in g.get_repo(repo).get_hooks():
-        if(collections.Counter(current_hook.events) == collections.Counter(events) and
-           config["url"] == current_hook.config["url"]):
+        if (
+            collections.Counter(current_hook.events) == collections.Counter(events)
+            and config["url"] == current_hook.config["url"]
+        ):
             return
 
     repo = g.get_repo(repo)
@@ -255,17 +255,21 @@ def create_webhook(g, repo, events, url, content_type):
 
 def delete_webhook(g, repo, url):
     for current_hook in g.get_repo(repo).get_hooks():
-        if(url == current_hook.config["url"]):
+        if url == current_hook.config["url"]:
             current_hook.delete()
 
 
-def edit_webhook(g, repo, url, active_status, add_events, remove_events, new_url, new_content_type):
+def edit_webhook(
+    g, repo, url, active_status, add_events, remove_events, new_url, new_content_type
+):
     for current_hook in g.get_repo(repo).get_hooks():
         if url == current_hook.config["url"]:
-            
+
             new_config = {
                 "url": new_url if new_url else url,
-                "content_type": new_content_type if new_content_type else current_hook.config["content_type"]
+                "content_type": new_content_type
+                if new_content_type
+                else current_hook.config["content_type"],
             }
             if new_url or new_content_type:
                 current_hook.edit("web", new_config)
@@ -281,141 +285,147 @@ def edit_webhook(g, repo, url, active_status, add_events, remove_events, new_url
 
 def run_module():
     module_args = dict(
-        action=dict(type='str', default='add'),
-        token=dict(type='str', default='No Token Provided.'),
-        organization_name=dict(
-            type='str', default=''),
-        enterprise_url=dict(type='str', default=''),
-        repo=dict(type='str', default='No Repo Provided.'),
-        url=dict(type='str', default=''),
-        events=dict(type='list', elements='str'),
-        content_type=dict(type='str', default=''),
-        active_status=dict(type='str', default=''),
-        add_events=dict(type='list', elements='str'),
-        remove_events=dict(type='list', elements='str'),
-        new_url=dict(type='str', default=''),
-        new_content_type=dict(type='str', default='')
+        action=dict(type="str", default="add"),
+        token=dict(type="str", default="No Token Provided."),
+        organization_name=dict(type="str", default=""),
+        enterprise_url=dict(type="str", default=""),
+        repo=dict(type="str", default="No Repo Provided."),
+        url=dict(type="str", default=""),
+        events=dict(type="list", elements="str"),
+        content_type=dict(type="str", default=""),
+        active_status=dict(type="str", default=""),
+        add_events=dict(type="list", elements="str"),
+        remove_events=dict(type="list", elements="str"),
+        new_url=dict(type="str", default=""),
+        new_content_type=dict(type="str", default=""),
     )
 
     valid_content_types = ["json", "form"]
     valid_actions = ["add", "delete", "edit"]
-    valid_events = ["branch_protection_rule",
-                    "check_run",
-                    "check_suite",
-                    "code_scanning_alert",
-                    "commit_comment",
-                    "content_reference",
-                    "create",
-                    "delete",
-                    "deploy_key",
-                    "deployment",
-                    "deployment_status",
-                    "discussion",
-                    "discussion_comment",
-                    "fork",
-                    "github_app_authorization",
-                    "gollum",
-                    "installation",
-                    "installation_repositories",
-                    "issue_comment",
-                    "issues",
-                    "label",
-                    "marketplace_purchase",
-                    "member",
-                    "membership",
-                    "meta",
-                    "milestone",
-                    "organization",
-                    "org_block",
-                    "package",
-                    "page_build",
-                    "ping",
-                    "project_card",
-                    "project_column",
-                    "project",
-                    "public",
-                    "pull_request",
-                    "pull_request_review",
-                    "pull_request_review_comment",
-                    "push",
-                    "release",
-                    "repository_dispatch",
-                    "repository",
-                    "repository_import",
-                    "repository_vulnerability_alert",
-                    "secret_scanning_alert",
-                    "security_advisory",
-                    "sponsorship",
-                    "star",
-                    "status",
-                    "team",
-                    "team_add",
-                    "watch",
-                    "workflow_dispatch",
-                    "workflow_job"]
+    valid_events = [
+        "branch_protection_rule",
+        "check_run",
+        "check_suite",
+        "code_scanning_alert",
+        "commit_comment",
+        "content_reference",
+        "create",
+        "delete",
+        "deploy_key",
+        "deployment",
+        "deployment_status",
+        "discussion",
+        "discussion_comment",
+        "fork",
+        "github_app_authorization",
+        "gollum",
+        "installation",
+        "installation_repositories",
+        "issue_comment",
+        "issues",
+        "label",
+        "marketplace_purchase",
+        "member",
+        "membership",
+        "meta",
+        "milestone",
+        "organization",
+        "org_block",
+        "package",
+        "page_build",
+        "ping",
+        "project_card",
+        "project_column",
+        "project",
+        "public",
+        "pull_request",
+        "pull_request_review",
+        "pull_request_review_comment",
+        "push",
+        "release",
+        "repository_dispatch",
+        "repository",
+        "repository_import",
+        "repository_vulnerability_alert",
+        "secret_scanning_alert",
+        "security_advisory",
+        "sponsorship",
+        "star",
+        "status",
+        "team",
+        "team_add",
+        "watch",
+        "workflow_dispatch",
+        "workflow_job",
+    ]
 
-    module = AnsibleModule(
-        argument_spec=module_args,
-        supports_check_mode=True
-    )
+    module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
-    if module.params['action'] not in valid_actions:
-        error_message = 'Invalid action: ' + module.params['action']
+    if module.params["action"] not in valid_actions:
+        error_message = "Invalid action: " + module.params["action"]
         module.exit_json(changed=False, err=error_message, failed=True)
 
-    if(module.params['enterprise_url'] == ''):
-        g = Github(module.params['token'])
+    if module.params["enterprise_url"] == "":
+        g = Github(module.params["token"])
     else:
-        g = Github(module.params['token'],
-                   base_url=module.params['enterprise_url'])
+        g = Github(module.params["token"], base_url=module.params["enterprise_url"])
 
-    if len(module.params['repo']):
-        module.params['repo'] = module.params['organization_name'] + \
-            "/" + module.params['repo']
+    if len(module.params["repo"]):
+        module.params["repo"] = (
+            module.params["organization_name"] + "/" + module.params["repo"]
+        )
 
-    initial = get_webhooks(g, module.params['repo'])
+    initial = get_webhooks(g, module.params["repo"])
 
-    if module.params['url']:
-        if module.params['events']:
-            for event in module.params['events']:
+    if module.params["url"]:
+        if module.params["events"]:
+            for event in module.params["events"]:
                 if event not in valid_events:
-                    error_message = 'Invalid event name: ' + event
+                    error_message = "Invalid event name: " + event
                     module.exit_json(changed=False, err=error_message, failed=True)
-        if module.params['add_events']:
-            for event in module.params['add_events']:
+        if module.params["add_events"]:
+            for event in module.params["add_events"]:
                 if event not in valid_events:
-                    error_message = 'Invalid event name: ' + event
+                    error_message = "Invalid event name: " + event
                     module.exit_json(changed=False, err=error_message, failed=True)
-        if module.params['remove_events']:
-            for event in module.params['remove_events']:
+        if module.params["remove_events"]:
+            for event in module.params["remove_events"]:
                 if event not in valid_events:
-                    error_message = 'Invalid event name: ' + event
+                    error_message = "Invalid event name: " + event
                     module.exit_json(changed=False, err=error_message, failed=True)
 
-        if module.params['action'].lower() == 'add':
-            if module.params['content_type'] in valid_content_types or not module.params['content_type']:
-                create_webhook(g, module.params['repo'],
-                               module.params['events'],
-                               module.params['url'],
-                               module.params['content_type'])
-        elif module.params['action'].lower() == 'delete':
-            delete_webhook(g, module.params['repo'],
-                           module.params['url'])
-        elif module.params['action'].lower() == 'edit':
-            if module.params['new_content_type'] in valid_content_types or not module.params['new_content_type']:
-                edit_webhook(g, module.params['repo'],
-                            module.params['url'],
-                            module.params['active_status'],
-                            module.params['add_events'],
-                            module.params['remove_events'],
-                            module.params['new_url'],
-                            module.params['new_content_type'])
-    output = get_webhooks(g, module.params['repo'])
+        if module.params["action"].lower() == "add":
+            if (
+                module.params["content_type"] in valid_content_types
+                or not module.params["content_type"]
+            ):
+                create_webhook(
+                    g,
+                    module.params["repo"],
+                    module.params["events"],
+                    module.params["url"],
+                    module.params["content_type"],
+                )
+        elif module.params["action"].lower() == "delete":
+            delete_webhook(g, module.params["repo"], module.params["url"])
+        elif module.params["action"].lower() == "edit":
+            if (
+                module.params["new_content_type"] in valid_content_types
+                or not module.params["new_content_type"]
+            ):
+                edit_webhook(
+                    g,
+                    module.params["repo"],
+                    module.params["url"],
+                    module.params["active_status"],
+                    module.params["add_events"],
+                    module.params["remove_events"],
+                    module.params["new_url"],
+                    module.params["new_content_type"],
+                )
+    output = get_webhooks(g, module.params["repo"])
 
-    result = dict(
-        changed=initial != output,
-        fact=''
-    )
+    result = dict(changed=initial != output, fact="")
 
     if module.check_mode:
         return result
@@ -427,5 +437,5 @@ def main():
     run_module()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

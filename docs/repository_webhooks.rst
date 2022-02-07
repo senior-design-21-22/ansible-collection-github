@@ -71,11 +71,14 @@ Parameters
                         <span style="color: purple">string</span>
                     </div>
                 </td>
+                
                 <td>
                 </td>
+                
                 <td>
                         <div>True</div>
                 </td>
+                
                 <td>
                         <div>Organization provided by users.</div>
                 </td>
@@ -90,121 +93,226 @@ Parameters
                         <span style="color: purple">string</span>
                     </div>
                 </td>
+                
                 <td>
                         <div>Unecessary in event of user token</div>
                 </td>
+                
                 <td>
                         <div>False</div>
                 </td>
+                
                 <td>
                         <div>An enterprise URL is necessary when a module is recieving an enterprise token. In the structure of the URL, it is vital that it includes the subdirectory path to the GitHub API as well as the correct version type. An template of this is:</div>
                         <code>https://github.&ltENTERPRISE DOMAIN&gt/api/v3</code>
                 </td>
             </tr>
-  <!-- REPOSITORIES LIST-->
+  <!-- ORGANIZATION NAME-->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>repos</b>                                                                            <!-- PARAMETER -->
+                    <b>organization_name</b>                                                                            <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                
+                <td>
+                        <div></div>                                                                         <!-- CHOICES/DEFAULTS -->
+                </td>
+                
+                <td>
+                        <div>True</div>
+                </td>
+                
+                <td>
+                        <div>The organization in which the query will be run.</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
+    <!-- ACTION -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>action</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                
+                <td>
+                        <div>If action is not provided, will return a list of webhooks with nothing changed.</div><!-- CHOICES/DEFAULTS -->
+                </td>
+                
+                <td>
+                        <div>False</div>
+                </td>
+                <td>
+                        <div>The current task's purpose. This can be to "add", "delete", or "edit".</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
+    <!-- REPO -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>repo</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>True</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>The provided repository will have its webhooks modified.</div>  <!-- COMMENTS -->
+                </td>
+            </tr> 
+    <!-- URL -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>url</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>The provided url will be the webhook that is added, deleted, or edited. This must be structured as <code>&ltSCHEME(https://)&gt&ltHOST(fakewebsite.com)&gt&ltENDPOINT(/path/end/here)&gt</code></div>  <!-- COMMENTS -->
+                </td>
+            </tr> 
+            
+    <!-- EVENTS -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>events</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">list</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div></div>                                                                         <!-- CHOICES/DEFAULTS -->
+                        <div> <code>branch_protection_rule</code> <code>check_run</code> <code>check_suite</code> <code>code_scanning_alert</code> <code>commit_comment</code> <code>content_reference</code> <code>create</code> <code>delete</code> <code>deploy_key</code> <code>deployment</code> <code>deployment_status</code> <code>discussion</code> <code>discussion_comment</code> <code>fork</code> <code>github_app_authorization</code> <code>gollum</code> <code>installation</code> <code>installation_repositories</code> <code>issue_comment</code> <code>issues</code> <code>label</code> <code>marketplace_purchase</code> <code>member</code> <code>membership</code> <code>meta</code> <code>milestone</code> <code>organization</code> <code>org_block</code> <code>package</code> <code>page_build</code> <code>ping</code> <code>project_card</code> <code>project_column</code> <code>project</code> <code>public</code> <code>pull_request</code> <code>pull_request_review</code> <code>pull_request_review_comment</code> <code>push</code> <code>release</code> <code>repository_dispatch</code> <code>repository</code> <code>repository_import</code> <code>repository_vulnerability_alert</code> <code>secret_scanning_alert</code> <code>security_advisory</code> <code>sponsorship</code> <code>star</code> <code>status</code> <code>team</code> <code>team_add</code> <code>watch</code> <code>workflow_dispatch</code> <code>workflow_job</code> </div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
-                        <div>True</div>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>List of repositories is provided by user to perform further action upon their collaborators.</div>  <!-- COMMENTS -->
+                        <div>The list of provided events will be added to what triggers a webhook.</div>  <!-- COMMENTS -->
+                </td>
+            </tr> 
+    <!-- CONTENT_TYPE -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>content_type</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div><code>json</code> <code>form</code></div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>The provided content type will be the webhook's primary content type.</div>  <!-- COMMENTS -->
+                </td>
+            </tr> 
+    <!-- ADD_EVENTS -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>add_events</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>When provided a list of events to add, the provided url of the webhook will recieve the additions.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- COLLABORATORS TO ADD-->
+    <!-- REMOVE_EVENTS -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_add</b>                                                             <!-- PARAMETER -->
+                    <b>remove_events</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">list/dict</span>                                             <!-- TYPE -->
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>Add by providing a list of dicts of collaborators to add along with their permissions or provide a single collaborator with their intended permission</div><!-- CHOICES/DEFAULTS -->
+                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
-                        <div>False</div>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Collaborator(s) are added along with their intended permissions (Read, Triage, Write, or Admin) to the provided list of repos</div>  <!-- COMMENTS -->
+                        <div>When provided a list of events to remove, the provided url of the webhook will remove the events.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- COLLABORATORS TO REMOVE -->
+    <!-- NEW_URL -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_remove</b>                                                             <!-- PARAMETER -->
+                    <b>new_url</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">list of string</span>                                             <!-- TYPE -->
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>Delete collaborator(s) by providing a list of collaborator names (as strings).</div>      <!-- CHOICES/DEFAULTS -->
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>This will delete all of the provided collaborators from the given repositories.</div>  <!-- COMMENTS -->
+                        <div>Given a url, the current webhook will be update to the new url.</div>  <!-- COMMENTS -->
                 </td>
-            </tr> 
-    <!-- CHECK COLLABORATOR -->
+            </tr>
+    <!-- NEW_CONTENT_TYPE -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>check_collaborator</b>                                                             <!-- PARAMETER -->
+                    <b>new_content_type</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">dict</span>                                             <!-- TYPE -->
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>A name as the Key and a permission to check is provided by the user.</div>      <!-- CHOICES/DEFAULTS -->
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>This will check the provided permission against the given repos.</div>  <!-- COMMENTS -->
+                        <div>Given a content type, the current webhook will be update to the new content type.</div>  <!-- COMMENTS -->
                 </td>
-            </tr> 
-            
-    <!-- COLLABORATORS TO CHANGE -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_change</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">dict</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div>A name as the Key and a permission to check is provided by the user.</div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>This will check the provided permission against the given repos.</div>  <!-- COMMENTS -->
-                </td>
-            </tr> 
-       
-            
-            
+            </tr>
     <!-- END OF TABLE-->      
     </table>
     <br/>
@@ -217,75 +325,52 @@ Examples
 
 .. code-block:: yaml
 
-    - name: "Listing collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
+    - name: "LIST WEBHOOK OF REPOSITORY"
+        ohioit.github.repository_webhooks:
+          token: "<TOKEN>"
+          organization_name: "<ORG NAME>"
+          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+          repo: "<REPOSITORY NAME>"
       register: result
 
-    - name: "Adding collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_add:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
-          
+    - name: "ADD WEBHOOK TO REPOSITORY"
+        ohioit.github.repository_webhooks:
+          action: "add"
+          token: "<TOKEN>"
+          organization_name: "<ORG NAME>"
+          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+          repo: "<REPOSITORY NAME>"
+          url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
+          content_type: "json"
+          events:
+            - "public"
+            - "push"
       register: result
 
-    - name: "Check permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        check_collaborator:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
+    - name: "EDIT WEBHOOK IN REPOSITORY"
+        ohioit.github.repository_webhooks:
+          action: "edit"
+          token: "<TOKEN>"
+          organization_name: "<ORG NAME>"
+          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+          repo: "<REPOSITORY NAME>"
+          url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
+          add_events:
+            - "create"
+          remove_events:
+            - "public"
+          new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
+        register: result
 
-      register: result
-
-    - name: "Change permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_change:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
-      register: result
-
-    - name: "Remove permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_remove:
-          - "<GitHub Username>"
-          - "<GitHub Username>"
-      register: result
-      
+    - name: "REMOVE WEBHOOK IN GITHUB REPOSITORY"
+        ohioit.github.repository_webhooks:
+          action: "delete"
+          token: "<TOKEN>"
+          organization_name: "<ORG NAME>"
+          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+          repo: "<REPOSITORY NAME>"
+          url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
+        register: result
      
 
 Return Values
@@ -300,224 +385,224 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
             <th width="15%">Returned</th>                                                                           
             <th width="50%">Description</th>
         </tr>
-  <!-- COLLABORATORS -->
+  <!-- WEBHOOKS -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">dict</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if GitHub API token connects</td>                                                                             <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Dictionary contains all repositories with the names as keys and a list of collaborator's information as the values.</div>
-                </td>
-            </tr>
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME> -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt]</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">list</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>if GitHub API token connects</td>                                                                             <!-- WHEN IS IT RETURNED -->
                 <td>
                                                                                                                         <!--DESCRIPTION-->
-                            <div>List contains dicts of each collaborator's information (that are in that repository).</div>
+                            <div>List contains dictionaries of webhooks and their information.</div>
                 </td>
             </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.index -->
+  <!-- WEBHOOKS.<ELEMENT INDEX> -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt</b>                                                        <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks.&ltELEMENT INDEX&gt</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">dict</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>if at least one webhook is contained within organization</td>                                                                    <!-- WHEN IS IT RETURNED -->
                 <td>
                                                                                                                         <!--DESCRIPTION-->
-                            <div>This index provides access to a dictionary containing information about a single collaborator.</div>
+                            <div>Dictionary contains keys and values of webhooks' information.</div>
+                </td>
+            </tr>
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.ACTIVE -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.active</b>                                                        <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>Status of whether the webhook is active or not.</div>
                 </td>
             </tr>
       
             
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.id -->
+  <!-- WEBHOOKS.<ELEMENT INDEX>.CONFIG -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.id</b>                                                        <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks.&ltELEMENT INDEX&gt.config</b>                                                        <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">dict</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>dictionary containing the webhook's content type, insecure ssl number, and the url of where to send.</div>
+                </td>
+            </tr>
+                        
+  <!-- WEBHOOKS.<ELEMENT INDEX>.CONFIG.CONTENT_TYPE -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.config.content_type</b>                                                       <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">str</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook's configuration</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>The format of the webhook being sent to the url.</div>
+                </td>
+            </tr>
+               
+  <!-- WEBHOOKS.<ELEMENT INDEX>.CONFIG.INSECURE_SSL -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.config.insecure_ssl</b>                                             <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">str</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook's configuration</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>The status of the website being sent information. Whether or not it is secure (https vs http).</div>
+                </td>
+            </tr>
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.CONFIG.URL -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.config.url</b>                                         <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">str</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook's configuration</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>The url that the webhook is sending to.</div>
+                </td>
+            </tr>
+            
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.EVENTS -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.events</b>                                         <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">list</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>List of events that trigger the webhook to send data.</div>
+                </td>
+            </tr>
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.ID -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.id</b>                                         <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">int</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
                 <td>
                                                                                                                         <!--DESCRIPTION-->
-                            <div>Collaborator's id number.</div>
+                            <div>Unique identifier for the webhook in the repository.</div>
                 </td>
             </tr>
-                        
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.login -->
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.NAME -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.login</b>                                                       <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks.&ltELEMENT INDEX&gt.name</b>                                         <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">str</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
                 <td>
                                                                                                                         <!--DESCRIPTION-->
-                            <div>Collaborator's login. This is their GitHub username.</div>
-                </td>
-            </tr>
-               
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions</b>                                             <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">dict</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Dictionary of statuses of permissions including admin, pull, push, and triage.</div>
+                            <div>Name of the webhook</div>
                 </td>
             </tr>
             
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions.admin -->
+  <!-- WEBHOOKS.<ELEMENT INDEX>.PING_URL -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions.admin</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if admin rights are given to collaborator. Read, clone, push, and add collaborators permissions to repository.</div>
-                </td>
-            </tr>
-            
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions.push -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions.push</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if push rights are given to collaborator. Read, clone, and push to repository.</div>
-                </td>
-            </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions.pull -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions.pull</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if pull rights are given to collaborator. Read and clone repository.</div>
-                </td>
-            </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.permissions.triage -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.permissions.triage</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if triage rights are given to collaborator. Users with the triage role can request reviews on pull requests, mark issues and pull requests as duplicates, and add or remove milestones on issues and pull requests. No write access.</div>
-                </td>
-            </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.site_admin -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.site_admin</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>Will return true if collaborator is a site admin. This permission gives the collaborator the ability to manage users, organizations, and repositories.</div>
-                </td>
-            </tr>
-            
-  <!-- COLLABORATORS.<ORG NAME>/<REPO NAME>.<INDEX>.type -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>collaborators[&ltORG NAME&gt/&ltREPO NAME&gt].&ltINDEX&gt.type</b>                                         <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks.&ltELEMENT INDEX&gt.ping_url</b>                                         <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
                       <span style="color: purple">str</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if at least one collaborator is within repository</td>                                                                    <!-- WHEN IS IT RETURNED -->
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
                 <td>
                                                                                                                         <!--DESCRIPTION-->
-                            <div>This will return what type of collaborator the user is.</div>
+                            <div>The URL to ping the webhook</div>
                 </td>
             </tr>
             
-  <!-- CHANGED -->
+  <!-- WEBHOOKS.<ELEMENT INDEX>.TEST_URL -->
             <tr>
                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>changed</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
+                    <b>webhooks.&ltELEMENT INDEX&gt.test_url</b>                                         <!-- HOW TO ACCESS RETURNED -->
                     <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
                     <div style="font-size: small">
-                      <span style="color: purple">bool</span>                                               <!-- TYPE -->
+                      <span style="color: purple">str</span>                                               <!-- TYPE -->
                     </div>
                 </td>
-                <td>if GitHub API token connects</td>                                                                             <!-- WHEN IS IT RETURNED -->
+                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
                 <td>
-                            <div>Whether or not any of the collaborators were changed. This includes adding or changing permissions of collaborators. The status returned will either be true (something changed) or false (nothing changed).</div>
+                                                                                                                        <!--DESCRIPTION-->
+                            <div>The url to test the webhook.</div>
+                </td>
+            </tr>
+            
+  <!-- WEBHOOKS.<ELEMENT INDEX>.URL -->
+            <tr>
+                <td colspan="2">
+                    <div class="ansibleOptionAnchor" id="return-"></div>
+                    <b>webhooks.&ltELEMENT INDEX&gt.test_url</b>                                                                     <!-- HOW TO ACCESS RETURNED -->
+                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
+                    <div style="font-size: small">
+                      <span style="color: purple">str</span>                                               <!-- TYPE -->
+                    </div>
+                </td>
+                <td>provided per webhook dictionary</td>                                                                             <!-- WHEN IS IT RETURNED -->
+                <td>
+                            <div>The url in which the webhook resides</div>
                 </td>
             </tr>
     </table>
