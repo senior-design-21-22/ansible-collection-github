@@ -99,18 +99,13 @@ def edit_branch_protections(g, repo, branch, branch_protections):
                                 user_push_restrictions=branch_protections["user_push_restrictions"], 
                                 team_push_restrictions=branch_protections["team_push_restrictions"])
         
-
     except Exception as e:
-        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-            temp.write(str(e))
         return e
 
 def get_branch_protections(g, repo, branch, token):
     output = {}
     try:
         branch = g.get_repo(repo).get_branch(branch)
-        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-            temp.write(str(branch))
         if not branch.protected:
             return output
         else:
@@ -121,14 +116,9 @@ def get_branch_protections(g, repo, branch, token):
             headers={
                'Authorization': 'Bearer {}'.format(token)}
             ).json()
-            
-            # with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-                # temp.write(str(output))
             return output
     
     except Exception as e:
-        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-            temp.write(str(e))
         return e
 
 def run_module():
@@ -159,18 +149,14 @@ def run_module():
             "/" + module.params['repo']
 
     initial = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
-    with open("/Users/bradleygolski/Desktop/ansibleOutput2.txt", "w+") as temp:
-            temp.write("FUCK Made it here 1")
     if not initial:
         initial = {}
 
-    # if module.params["branch_protections"]:
-    #     edit_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
+    if module.params["branch_protections"]:
+        edit_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
 
 
     if module.params["delete"]:
-        with open("/Users/bradleygolski/Desktop/ansibleOutput3.txt", "w+") as temp:
-            temp.write("calling delete")
         remove_branch_protection(g, module.params['repo'], module.params['branch'],  module.params['token'])
 
     output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
