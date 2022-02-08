@@ -77,23 +77,53 @@ from ansible.module_utils.common.text.converters import jsonify
 from ansible.module_utils.basic import AnsibleModule
 import json
 import collections
+import requests
 
 
-def get_branch_protections(g, repo, branch):
+def remove_branch_protection(g, repo, branch):
+    branch = g.get_repo(repo).get_branch(branch)
+    branch.remove_protection()
+
+def edit_branch_protections(g, repo, branch, branch_protections):
+    try:
+       
+        branch = g.get_repo(repo).get_branch(branch)
+        branch.edit_protection(strict=branch_protections["strict"],
+                                contexts=branch_protections["contexts"], 
+                                enforce_admins=branch_protections["enforce_admins"],
+                                dismissal_users=branch_protections["dismissal_users"], 
+                                dismissal_teams=branch_protections["dismissal_teams"], 
+                                dismiss_stale_reviews=branch_protections["dismiss_stale_reviews"],
+                                require_code_owner_reviews=branch_protections["require_code_owner_reviews"], 
+                                required_approving_review_count=branch_protections["required_approving_review_count"],
+                                user_push_restrictions=branch_protections["user_push_restrictions"], 
+                                team_push_restrictions=branch_protections["team_push_restrictions"])
+        
+
+    except Exception as e:
+        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
+            temp.write(str(e))
+        return e
+
+def get_branch_protections(g, repo, branch, token):
     output = {}
     try:
         branch = g.get_repo(repo).get_branch(branch)
+        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
+            temp.write(str(branch))
         if not branch.protected:
             return output
         else:
             url = branch.protection_url
-            output = {
-                "url": branch.get_protection().url,
-                "status_checks": json.dumps(branch.get_required_status_checks())
-            }
+
+            output = requests.get(
+            url, 
+            headers={
+               'Authorization': 'Bearer {}'.format(token)}
+            ).json()
             
-            with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-                temp.write(str(output))
+            # with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
+                # temp.write(str(output))
             return output
     
     except Exception as e:
@@ -103,24 +133,14 @@ def get_branch_protections(g, repo, branch):
 
 def run_module():
     module_args = dict(
-        # action=dict(type='str', default='add'),
         token=dict(type='str', default='No Token Provided.'),
         organization_name=dict(
             type='str', default=''),
         enterprise_url=dict(type='str', default=''),
         repo=dict(type='str', default='No Repo Provided.'),
         branch=dict(type='str', default='No Branch Provided.'),
-        # host=dict(type='str', default=''),
-        # endpoint=dict(type='str', default=''),
-        # events=dict(type='list', elements='str'),
-        # content_type=dict(type='str', default=''),
-        # change_events=dict(type='list', elements='str'),
-        # active_status=dict(type='str', default=''),
-        # add_events=dict(type='list', elements='str'),
-        # remove_events=dict(type='list', elements='str'),
-        # new_host=dict(type='str', default=''),
-        # new_endpoint=dict(type='str', default=''),
-        # new_content_type=dict(type='str', default='')
+        branch_protections=dict(type='dict'),
+        delete=dict(type='bool', default=False)
     )
 
     module = AnsibleModule(
@@ -138,13 +158,24 @@ def run_module():
         module.params['repo'] = module.params['organization_name'] + \
             "/" + module.params['repo']
 
-    initial = get_branch_protections(g, module.params['repo'], module.params['branch'])
+    initial = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
+    with open("/Users/bradleygolski/Desktop/ansibleOutput2.txt", "w+") as temp:
+            temp.write("FUCK Made it here 1")
     if not initial:
-        initial = []
+        initial = {}
 
-    output = get_branch_protections(g, module.params['repo'], module.params['branch'])
+    # if module.params["branch_protections"]:
+    #     edit_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
+
+
+    if module.params["delete"]:
+        with open("/Users/bradleygolski/Desktop/ansibleOutput3.txt", "w+") as temp:
+            temp.write("calling delete")
+        remove_branch_protection(g, module.params['repo'], module.params['branch'],  module.params['token'])
+
+    output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
     if not output:
-        output = []
+        output = {}
     result = dict(
         changed=initial != output,
         fact=''
