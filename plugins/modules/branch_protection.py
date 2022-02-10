@@ -130,7 +130,7 @@ def run_module():
         repo=dict(type='str', default='No Repo Provided.'),
         branch=dict(type='str', default='No Branch Provided.'),
         branch_protections=dict(type='dict'),
-        delete=dict(type='bool', default=False)
+        state=dict(type="str", default="No State Provided.")
     )
 
     module = AnsibleModule(
@@ -152,11 +152,11 @@ def run_module():
     if not initial:
         initial = {}
 
-    if module.params["branch_protections"]:
+    if module.params["branch_protections"] and module.params["state"] == "present":
         edit_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
 
 
-    if module.params["delete"]:
+    if module.params["state"] == "absent":
         remove_branch_protection(g, module.params['repo'], module.params['branch'],)
 
     output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
