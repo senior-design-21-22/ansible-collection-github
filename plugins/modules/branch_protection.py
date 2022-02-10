@@ -157,7 +157,7 @@ def run_module():
 
 
     if module.params["delete"]:
-        remove_branch_protection(g, module.params['repo'], module.params['branch'],  module.params['token'])
+        remove_branch_protection(g, module.params['repo'], module.params['branch'],)
 
     output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
     if not output:
