@@ -27,7 +27,9 @@ description:
 options:
     token:
         description:
+
             - GitHub API token used to retrieve information about collaborators in repositories a user has access.
+
         required: true
         type: str
 
@@ -94,14 +96,21 @@ EXAMPLES = '''
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "testing-repo-private"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
 
 - name: "Adding collaborators from enterprise GitHub account"
     ohioit.github.collaborator_information:
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "testing-repo-private"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+        
       collaborators_to_add:
         <GITHUB USERNAME>: "push"
         <ANOTHER GITHUB USERNAME>: "pull"
@@ -111,7 +120,11 @@ EXAMPLES = '''
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "testing-repo-private"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+        
       collaborators_to_change:
         <GITHUB USERNAME>: "admin"
         <ANOTHER GITHUB USERNAME>: "triage"
@@ -121,7 +134,11 @@ EXAMPLES = '''
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "testing-repo-private"
+      repos:
+        - "testing-repo-private"
+        - "testing-repo-internal"
+        - "testing-repo-public"
+
         collaborators_to_remove:
           - "<GITHUB USERNAME>"
           - "<ANOTHER GITHUB USERNAME>"
@@ -310,12 +327,12 @@ def run_module():
 
     output = get_collaborators(g, module.params['repo'])
 
+
     if module.check_mode:
         return result
 
     module.exit_json(changed=json.dumps(current_collaborators)
                      != json.dumps(output), collaborators=output)
-
 
 def main():
     run_module()
