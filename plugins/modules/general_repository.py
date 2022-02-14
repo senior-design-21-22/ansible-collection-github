@@ -151,11 +151,19 @@ def run_module():
         supports_check_mode=True
     )
 
+    if module.params['state'] not in valid_states:
+        error_message = 'Invalid state: ' + module.params['state']
+        module.exit_json(changed=False, err=error_message, failed=True)
+
     if module.params['enterprise_url'] == '':
         g = Github(module.params['token'])
     else:
         g = Github(module.params['token'],
                    base_url=module.params['enterprise_url'])
+
+    if module.params['license_template'] not in valid_licenses:
+        error_message = 'Invalid license: ' + module.params['license_template']
+        module.exit_json(changed=False, err=error_message, failed=True)
 
     try:
         repo = g.get_organization(
@@ -171,25 +179,26 @@ def run_module():
             "url": repo.url,
             "default_branch": repo.default_branch,
             "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url
+            "clone_url": repo.clone_url,
+            "allow_merge_commit": repo.allow_merge_commit,
+            "allow_rebase_merge": repo.allow_rebase_merge,
+            "allow_squash_merge": repo.allow_squash_merge,
+            "delete_branch_on_merge": repo.delete_branch_on_merge,
+            "has_issues": repo.has_issues,
+            "has_downloads": repo.has_downloads,
+            "has_wiki": repo.has_wiki,
+            "has_projects": repo.has_projects,
+            "description": repo.description,
+            "homepage": repo.homepage
         }
     except Exception as e:
-        with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-            temp.write("made it here\n")
         initial = {}
-
-    # with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-    #     for team in g.get_organization(module.params['organization_name']).get_teams():
-    #         temp.write(str(team))
-    #         temp.write("\n")
 
     if module.params['state'] == 'present':
         try:
             repo = g.get_organization(module.params['organization_name']).get_repo(
                 module.params['repo_name'])
             if repo:
-                with open("/Users/bradleygolski/Desktop/ansibleOutput2.txt", "w+") as temp:
-                    temp.write("repo exists")
                 repo.edit(name=module.params['repo_name'],
                           description=module.params['description'],
                           homepage=module.params['homepage'],
@@ -222,28 +231,42 @@ def run_module():
                 module.params['allow_rebase_merge'],
                 module.params['delete_branch_on_merge']
             )
+    else:
+        try:
+            repo = g.get_organization(module.params['organization_name']).get_repo(
+                module.params['repo_name']).delete()
 
-    repo = g.get_organization(
-        module.params['organization_name']).get_repo(module.params['repo_name'])
+        except Exception as e:
+            ...
 
-    output = {
-        "name": repo.name,
-        "full_name": repo.full_name,
-        "owner": repo.owner.login,
-        "description": repo.description,
-        "private": repo.private,
-        "archived": repo.archived,
-        "language": repo.language,
-        "url": repo.url,
-        "default_branch": repo.default_branch,
-        "hooks_url": repo.hooks_url,
-        "clone_url": repo.clone_url
-    }
-
-    with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-        temp.write(str(initial))
-        temp.write("\n")
-        temp.write(str(output))
+    try:
+        repo = g.get_organization(
+            module.params['organization_name']).get_repo(module.params['repo_name'])
+        output = {
+            "name": repo.name,
+            "full_name": repo.full_name,
+            "owner": repo.owner.login,
+            "description": repo.description,
+            "private": repo.private,
+            "archived": repo.archived,
+            "language": repo.language,
+            "url": repo.url,
+            "default_branch": repo.default_branch,
+            "hooks_url": repo.hooks_url,
+            "clone_url": repo.clone_url,
+            "allow_merge_commit": repo.allow_merge_commit,
+            "allow_rebase_merge": repo.allow_rebase_merge,
+            "allow_squash_merge": repo.allow_squash_merge,
+            "delete_branch_on_merge": repo.delete_branch_on_merge,
+            "has_issues": repo.has_issues,
+            "has_downloads": repo.has_downloads,
+            "has_wiki": repo.has_wiki,
+            "has_projects": repo.has_projects,
+            "description": repo.description,
+            "homepage": repo.homepage
+        }
+    except Exception as e:
+        output = {}
 
     result = dict(
         changed=collections.Counter(initial) != collections.Counter(output)
@@ -252,7 +275,7 @@ def run_module():
     if module.check_mode:
         return result
 
-    module.exit_json(repos=output)
+    module.exit_json(repo=output, changed=initial != output)
 
 
 def main():
