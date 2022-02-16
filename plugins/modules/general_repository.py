@@ -329,8 +329,8 @@ def run_module():
                 module.exit_json(changed=False, err=error_message, failed=True)
 
             if module.params['gitignore_template'] and module.params['gitignore_template'] not in valid_gitignore_templates:
-                with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-                    temp.write(module.params['gitignore_template'])
+                # with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
+                #     temp.write(module.params['gitignore_template'])
                 error_message = 'Invalid gitignore template: ' + \
                     module.params['gitignore_template']
                 module.exit_json(changed=False, err=error_message, failed=True)
