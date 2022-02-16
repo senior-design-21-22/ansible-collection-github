@@ -84,23 +84,24 @@ def remove_branch_protection(g, repo, branch):
     branch = g.get_repo(repo).get_branch(branch)
     branch.remove_protection()
 
+
 def edit_branch_protections(g, repo, branch, branch_protections):
     try:
-       
         branch = g.get_repo(repo).get_branch(branch)
         branch.edit_protection(strict=branch_protections["strict"],
-                                contexts=branch_protections["contexts"], 
-                                enforce_admins=branch_protections["enforce_admins"],
-                                dismissal_users=branch_protections["dismissal_users"], 
-                                dismissal_teams=branch_protections["dismissal_teams"], 
-                                dismiss_stale_reviews=branch_protections["dismiss_stale_reviews"],
-                                require_code_owner_reviews=branch_protections["require_code_owner_reviews"], 
-                                required_approving_review_count=branch_protections["required_approving_review_count"],
-                                user_push_restrictions=branch_protections["user_push_restrictions"], 
-                                team_push_restrictions=branch_protections["team_push_restrictions"])
-        
+                               contexts=branch_protections["contexts"],
+                               enforce_admins=branch_protections["enforce_admins"],
+                               dismissal_users=branch_protections["dismissal_users"],
+                               dismissal_teams=branch_protections["dismissal_teams"],
+                               dismiss_stale_reviews=branch_protections["dismiss_stale_reviews"],
+                               require_code_owner_reviews=branch_protections["require_code_owner_reviews"],
+                               required_approving_review_count=branch_protections["required_approving_review_count"],
+                               user_push_restrictions=branch_protections["user_push_restrictions"],
+                               team_push_restrictions=branch_protections["team_push_restrictions"])
+
     except Exception as e:
         return e
+
 
 def get_branch_protections(g, repo, branch, token):
     output = {}
@@ -110,16 +111,12 @@ def get_branch_protections(g, repo, branch, token):
             return output
         else:
             url = branch.protection_url
-
-            output = requests.get(
-            url, 
-            headers={
-               'Authorization': 'Bearer {}'.format(token)}
-            ).json()
+            output = requests.get(url, headers={'Authorization': 'Bearer {}'.format(token)}).json()
             return output
-    
+
     except Exception as e:
         return e
+
 
 def run_module():
     module_args = dict(
@@ -154,7 +151,6 @@ def run_module():
 
     if module.params["branch_protections"] and module.params["state"] == "present":
         edit_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
-
 
     if module.params["state"] == "absent":
         remove_branch_protection(g, module.params['repo'], module.params['branch'],)
