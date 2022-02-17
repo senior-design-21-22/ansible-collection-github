@@ -22,7 +22,7 @@ description:
 options:
     token:
         description:
-            - GitHub API token used to retrieve information about repositories to which a user has access to
+            - GitHub API token used to retrieve information about repositories to which a user has access.
         required: true
         type: str
     enterprise_url:
