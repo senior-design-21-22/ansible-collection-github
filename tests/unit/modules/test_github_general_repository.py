@@ -1,87 +1,14 @@
-#!/usr/bin/python
-
-from __future__ import absolute_import, division, print_function
-import collections
-from email.policy import default
-import json
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
-from numpy import outer
+from __future__ import (absolute_import, division, print_function)
+from unittest import result
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.0',
-    'status': ['preview'],
-    'supported_by': 'community'
-}
-
-DOCUMENTATION = '''
----
-module: repository_information
-
-short_description: A module that returns information about GitHub repositories
-
-description:
-  - "A module that fetches information about repositories that a GitHub user has access to inside an organization."
-
-options:
-    token:
-        description:
-            - GitHub API token used to retrieve information about repositories to which a user has access to
-        required: true
-        type: str
-    enterprise_url:
-        description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
-              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
-        required: false
-        type: str
-    organization_name:
-        description:
-          - The organization in which the query will be run.
-        required: true
-        type: str
-
-author:
-    - Jacob Eicher (@jacobeicher)
-    - Bradley Golski (@bgolski)
-    - Tyler Zwolenik (@TylerZwolenik)
-    - Nolan Khounborinn (@Khounborinn)
-'''
-
-EXAMPLES = '''
-# Pass in an organization name and GitHub API token
-- name: returns information about
-  repository_webhooks:
-    organization: "senior-design-21-22"
-    github_token: "12345"
-
-
-# Pass in an organization name, GitHub API token and enterprise URL
-- name: returns information about
-  repository_info:
-    organization: "SSEP"
-    github_token: "12345"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>"
-'''
-
-RETURN = '''
-webhooks:
-    description: List contains dictionaries of webhooks and their information.
-    type: list
-    returned: if GitHub API token connects
-
-repos.<ELEMENT INDEX>:
-    description: Dictionary contains keys and values of a repository's information.
-    type: dict
-    returned: only if at least one repo is contained within organization
-
-'''
-
-
-# def check_repo_name(g, organization, repo):
-#     org = g.get_organization("org-name")
+from ansible.module_utils import basic
+from utils import ModuleTestCase, set_module_args, exit_json, AnsibleExitJson
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+import json
+import collections
+import unittest
 
 
 def run_module():
@@ -284,140 +211,267 @@ def run_module():
 
     if module.params['state'] not in valid_states:
         error_message = 'Invalid state: ' + module.params['state']
-        module.exit_json(changed=False, err=error_message, failed=True)
+        return error_message, False
 
     if module.params['enterprise_url'] == '':
-        g = Github(module.params['token'])
+        g = module.params['token']
     else:
-        g = Github(module.params['token'],
-                   base_url=module.params['enterprise_url'])
+        g = module.params['token'] + module.params['enterprise_url']
 
     try:
-        repo = g.get_organization(
-            module.params['organization_name']).get_repo(module.params['repo_name'])
+        repo = module.params['repo_name']
         initial = {
-            "name": repo.name,
-            "full_name": repo.full_name,
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "archived": repo.archived,
-            "language": repo.language,
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url,
-            "allow_merge_commit": repo.allow_merge_commit,
-            "allow_rebase_merge": repo.allow_rebase_merge,
-            "allow_squash_merge": repo.allow_squash_merge,
-            "delete_branch_on_merge": repo.delete_branch_on_merge,
-            "has_issues": repo.has_issues,
-            "has_downloads": repo.has_downloads,
-            "has_wiki": repo.has_wiki,
-            "has_projects": repo.has_projects,
-            "homepage": repo.homepage
+            "name": module.params['repo_name'],
+            "full_name": module.params['organization_name'] + '/' + module.params['repo_name'],
+            "owner": 'test_login',
+            "description": '',
+            "private": False,
+            "archived": False,
+            "language": 'null',
+            "url": 'test_url',
+            "default_branch": 'master',
+            "hooks_url": 'test_hook_url',
+            "clone_url": 'test_clone_url',
+            "allow_merge_commit": True,
+            "allow_rebase_merge": True,
+            "allow_squash_merge": True,
+            "delete_branch_on_merge": False,
+            "has_issues": True,
+            "has_downloads": False,
+            "has_wiki": True,
+            "has_projects": True,
+            "homepage": ''
         }
     except Exception as e:
         initial = {}
 
+    test_output = initial.copy()
     if module.params['state'] == 'present':
         try:
             if module.params['license_template'] and module.params['license_template'] not in valid_licenses:
                 error_message = 'Invalid license: ' + \
                     module.params['license_template']
-                module.exit_json(changed=False, err=error_message, failed=True)
+                return error_message, False
 
             if module.params['gitignore_template'] and module.params['gitignore_template'] not in valid_gitignore_templates:
-                # with open("/Users/bradleygolski/Desktop/ansibleOutput.txt", "w+") as temp:
-                #     temp.write(module.params['gitignore_template'])
                 error_message = 'Invalid gitignore template: ' + \
                     module.params['gitignore_template']
-                module.exit_json(changed=False, err=error_message, failed=True)
-            repo = g.get_organization(module.params['organization_name']).get_repo(
-                module.params['repo_name'])
-            if repo:
-                repo.edit(name=module.params['repo_name'],
-                          description=module.params['description'],
-                          homepage=module.params['homepage'],
-                          private=module.params['private'],
-                          has_issues=module.params['has_issues'],
-                          has_projects=module.params['has_projects'],
-                          has_wiki=module.params['has_wiki'],
-                          has_downloads=module.params['has_downloads'],
-                          allow_squash_merge=module.params['allow_squash_merge'],
-                          allow_merge_commit=module.params['allow_merge_commit'],
-                          allow_rebase_merge=module.params['allow_rebase_merge'],
-                          delete_branch_on_merge=module.params['delete_branch_on_merge'])
+                return error_message, False
+
+            if repo == 'test_present_repo':
+                test_output['name'] = module.params['repo_name']
+                test_output['description'] = module.params['description']
+                test_output['homepage'] = module.params['homepage']
+                test_output['private'] = module.params['private']
+                test_output['has_issues'] = module.params['has_issues']
+                test_output['has_projects'] = module.params['has_projects']
+                test_output['has_wiki'] = module.params['has_wiki']
+                test_output['has_downloads'] = module.params['has_downloads']
+                test_output['allow_squash_merge'] = module.params['allow_squash_merge']
+                test_output['allow_merge_commit'] = module.params['allow_merge_commit']
+                test_output['allow_rebase_merge'] = module.params['allow_rebase_merge']
+                test_output['delete_branch_on_merge'] = module.params['delete_branch_on_merge']
+
         except Exception as e:
-            # if not check_repo_name(g, module.params['organization_name'], module.params['repo_name']):
-            g.get_organization(module.params['organization_name']).create_repo(
-                module.params['repo_name'],
-                module.params['description'],
-                module.params['homepage'],
-                module.params['private'],
-                module.params['has_issues'],
-                module.params['has_wiki'],
-                module.params['has_downloads'],
-                module.params['has_projects'],
-                module.params['team_id'],
-                module.params['auto_init'],
-                module.params['license_template'],
-                module.params['gitignore_template'],
-                module.params['allow_squash_merge'],
-                module.params['allow_merge_commit'],
-                module.params['allow_rebase_merge'],
-                module.params['delete_branch_on_merge']
-            )
+            repo = 'created new repo'
+            # g.get_organization(module.params['organization_name']).create_repo(
+            #     module.params['repo_name'],
+            #     module.params['description'],
+            #     module.params['homepage'],
+            #     module.params['private'],
+            #     module.params['has_issues'],
+            #     module.params['has_wiki'],
+            #     module.params['has_downloads'],
+            #     module.params['has_projects'],
+            #     module.params['team_id'],
+            #     module.params['auto_init'],
+            #     module.params['license_template'],
+            #     module.params['gitignore_template'],
+            #     module.params['allow_squash_merge'],
+            #     module.params['allow_merge_commit'],
+            #     module.params['allow_rebase_merge'],
+            #     module.params['delete_branch_on_merge']
+            # )
+
     else:
         try:
-            repo = g.get_organization(module.params['organization_name']).get_repo(
-                module.params['repo_name']).delete()
-
+            test_output = {}
+        
         except Exception as e:
             ...
 
     try:
-        repo = g.get_organization(
-            module.params['organization_name']).get_repo(module.params['repo_name'])
-        output = {
-            "name": repo.name,
-            "full_name": repo.full_name,
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "archived": repo.archived,
-            "language": repo.language,
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url,
-            "allow_merge_commit": repo.allow_merge_commit,
-            "allow_rebase_merge": repo.allow_rebase_merge,
-            "allow_squash_merge": repo.allow_squash_merge,
-            "delete_branch_on_merge": repo.delete_branch_on_merge,
-            "has_issues": repo.has_issues,
-            "has_downloads": repo.has_downloads,
-            "has_wiki": repo.has_wiki,
-            "has_projects": repo.has_projects,
-            "description": repo.description,
-            "homepage": repo.homepage
-        }
+        output = test_output
     except Exception as e:
         output = {}
 
-    result = dict(
-        changed=collections.Counter(initial) != collections.Counter(output)
-    )
+    return output, initial!=output
 
-    if module.check_mode:
-        return result
+class TestGeneralRepositoryModule(unittest.TestCase):
+    def test_return_initial_repo(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'present'
+        })
+        result, changed = run_module()
+        test = {
+            "name": 'test_present_repo',
+            "full_name": 'test_org_name/test_present_repo',
+            "owner": 'test_login',
+            "description": '',
+            "private": False,
+            "archived": False,
+            "language": 'null',
+            "url": 'test_url',
+            "default_branch": 'master',
+            "hooks_url": 'test_hook_url',
+            "clone_url": 'test_clone_url',
+            "allow_merge_commit": True,
+            "allow_rebase_merge": True,
+            "allow_squash_merge": True,
+            "delete_branch_on_merge": False,
+            "has_issues": True,
+            "has_downloads": False,
+            "has_wiki": True,
+            "has_projects": True,
+            "homepage": ''
+        }
+        assert result == test
+        assert changed == False
 
-    module.exit_json(repo=output, changed=initial != output)
+    def test_changing_one_variable(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'present',
+            'description' : 'new description'
+        })
+        result, changed = run_module()
+        test = {
+            "name": 'test_present_repo',
+            "full_name": 'test_org_name/test_present_repo',
+            "owner": 'test_login',
+            "description": 'new description',
+            "private": False,
+            "archived": False,
+            "language": 'null',
+            "url": 'test_url',
+            "default_branch": 'master',
+            "hooks_url": 'test_hook_url',
+            "clone_url": 'test_clone_url',
+            "allow_merge_commit": True,
+            "allow_rebase_merge": True,
+            "allow_squash_merge": True,
+            "delete_branch_on_merge": False,
+            "has_issues": True,
+            "has_downloads": False,
+            "has_wiki": True,
+            "has_projects": True,
+            "homepage": ''
+        }
+        assert result == test
+        assert changed == True
 
+    def test_changing_multiple_variables(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'present',
+            'description' : 'new description',
+            'has_downloads' : True
+        })
+        result, changed = run_module()
+        test = {
+            "name": 'test_present_repo',
+            "full_name": 'test_org_name/test_present_repo',
+            "owner": 'test_login',
+            "description": 'new description',
+            "private": False,
+            "archived": False,
+            "language": 'null',
+            "url": 'test_url',
+            "default_branch": 'master',
+            "hooks_url": 'test_hook_url',
+            "clone_url": 'test_clone_url',
+            "allow_merge_commit": True,
+            "allow_rebase_merge": True,
+            "allow_squash_merge": True,
+            "delete_branch_on_merge": False,
+            "has_issues": True,
+            "has_downloads": True,
+            "has_wiki": True,
+            "has_projects": True,
+            "homepage": ''
+        }
+        assert result == test
+        assert changed == True
 
-def main():
-    run_module()
+    def test_deleting_repository(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'absent',
+            'description' : 'new description',
+            'has_downloads' : True
+        })
+        result, changed = run_module()
+        test = {}
+        assert result == test
+        assert changed == True
 
+    def test_deleting_repository_that_does_not_exit(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_not_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'absent',
+            'description' : 'new description',
+            'has_downloads' : True
+        })
+        result, changed = run_module()
+        test = {}
+        assert result == test
+        assert changed == True
 
-if __name__ == '__main__':
-    main()
+    def test_error_message_state_choices(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_not_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'maybe',
+        })
+        result, changed = run_module()
+        test = 'Invalid state: maybe'
+        assert result == test
+        assert changed == False
+
+    def test_error_message_license_choices(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_not_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'present',
+            'license_template' : 'not a real template'
+        })
+        result, changed = run_module()
+        test = 'Invalid license: not a real template'
+        assert result == test
+        assert changed == False
+
+    def test_error_message_license_choices(self):
+        set_module_args({
+            'token' : 'test_token',
+            'repo_name' : 'test_not_present_repo',
+            'organization_name' : 'test_org_name',
+            'state' : 'present',
+            'gitignore_template' : 'not a real template'
+        })
+        result, changed = run_module()
+        test = 'Invalid gitignore template: not a real template'
+        assert result == test
+        assert changed == False
