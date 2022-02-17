@@ -15,10 +15,10 @@ jobs:
         with:
           path: ansible_collections/ohioit/github
 
-      - name: Set up Python 3.6.9
+      - name: Set up Python 3.9
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6.9
+          python-version: 3.9
 
       - name: Install Ansible
         run: pip install ansible
@@ -37,18 +37,18 @@ jobs:
             > tests/integration/integration_config.yml
    
       - name: Run the integration tests
-        run: ansible-test integration --python 3.6
+        run: ansible-test integration --python 3.9
 
       - name: Perform sanity testing with ansible-test on module files
-        run: ansible-test sanity --python 3.6 --skip-test import plugins/modules/*
+        run: ansible-test sanity --python 3.9 --skip-test import plugins/modules/*
           
       - name: Perform unit testing with ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: stable-2.11
           pre-test-cmd: echo This runs before the ansible-test invocation
-          python-version: 3.6
-          target-python-version: 3.6
+          python-version: 3.9
+          target-python-version: 3.9
           testing-type: units
           test-deps: >-
             ansible.netcommon
