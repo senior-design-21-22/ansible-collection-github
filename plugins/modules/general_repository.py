@@ -399,7 +399,6 @@ def run_module():
             "has_downloads": repo.has_downloads,
             "has_wiki": repo.has_wiki,
             "has_projects": repo.has_projects,
-            "description": repo.description,
             "homepage": repo.homepage
         }
     except Exception as e:
