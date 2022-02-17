@@ -1,3 +1,4 @@
+
 #!/usr/bin/python
 
 from __future__ import absolute_import, division, print_function
@@ -11,12 +12,12 @@ ANSIBLE_METADATA = {
 
 DOCUMENTATION = '''
 ---
-module: repository_information
+module: branch_protection
 
-short_description: A module that returns information about GitHub repositories
+short_description: A module that allows the modification of branch protections.
 
 description:
-  - "A module that fetches information about repositories that a GitHub user has access to inside an organization."
+  - "A module that allows the addition, deletion and modification of existing branch protections"
 
 options:
     token:
@@ -27,14 +28,84 @@ options:
     enterprise_url:
         description:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
-              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
+              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
     organization_name:
         description:
-          - The organization in which the query will be run.
+          - The organization in which branch protections will be modified.
         required: true
         type: str
+    repo:
+        description:
+          - The repository in which branch protections will be modified.
+        required: true
+        type: str
+    branch:
+        description:
+          - The branch whose protections will be modified.
+        required: true
+        type: str
+    state:
+        description:
+          - When provided 'present', the branch protection will either be created of modified. When provided 'absent', the branch protection will be deleted.
+        required: true
+        type: str
+    branch_protections:
+        description:
+          - The following elements will be modified or created upon the state being 'present'.
+        required: false
+        type: dict
+    strict:
+        description:
+          - The branch must be up to date with the base branch before merging.
+        required: false
+        type: bool
+    contexts:
+        description:
+          - The list of status checks to require in order to merge into this branch.
+        required: false
+        type: list
+    enforce_admins:
+        description:
+          - Set to 'true' to enforce required status checks for repository administrators.
+        required: false
+        type: bool
+    dismissal_users:
+        description:
+          - Specify which users can dismiss pull request reviews.
+        required: false
+        type: list
+    dismissal_teams:
+        description:
+          - Specify which teams can dismiss pull request reviews.
+        required: false
+        type: list
+    dismiss_stale_reviews:
+        description:
+          - Set to true if you want to automatically dismiss approving reviews when someone pushes a new commit.
+        required: false
+        type: bool
+    require_code_owner_reviews:
+        description:
+          - Blocks merging pull requests until code owners have reviewed.
+        required: false
+        type: bool
+    required_approving_review_count:
+        description:
+          - Specifies the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers.
+        required: false
+        type: int
+    user_push_restrictions:
+        description:
+          - Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories.
+        required: false
+        type: list
+    team_push_restrictions:
+        description:
+          - Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories.
+        required: false
+        type: list
 
 author:
     - Jacob Eicher (@jacobeicher)
@@ -44,32 +115,190 @@ author:
 '''
 
 EXAMPLES = '''
-# Pass in an organization name and GitHub API token
-- name: returns information about
-  repository_webhooks:
-    organization: "senior-design-21-22"
-    github_token: "12345"
+# Given an existing branch, create or modify current branch protections
+- name: "Modify branch protections to a branch"
+  ohioit.github.branch_protection:
+    token: "12345"
+    organization_name: "SSEP"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "testing-repo-public"
+    branch: "tyler-branch"
+    state: present
+    branch_protections:
+      strict: false
+      contexts: ["default", "ci-test"]
+      enforce_admins: false
+      dismissal_users: ["nk479217", "bg881717"]
+      dismissal_teams: ["tyler-team"]
+      dismiss_stale_reviews: false
+      require_code_owner_reviews: true
+      required_approving_review_count: 5
+      user_push_restrictions: ["nk479217"]
+      team_push_restrictions: ["tyler-team"]
+    register: result
 
-
-# Pass in an organization name, GitHub API token and enterprise URL
-- name: returns information about
-  repository_info:
-    organization: "SSEP"
-    github_token: "12345"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>"
+# Remove the current branch protections on the branch provided
+- name: "Remove all branch protections from a branch"
+  ohioit.github.branch_protection:
+    token: "12345"
+    organization_name: "SSEP"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "testing-repo-public"
+    branch: "tyler-branch"
+    state: absent
+    register: result
 '''
 
 RETURN = '''
-webhooks:
-    description: List contains dictionaries of webhooks and their information.
-    type: list
-    returned: if GitHub API token connects
-
-repos.<ELEMENT INDEX>:
-    description: Dictionary contains keys and values of a repository's information.
+branch_protections:
+    description: Dictionary describing branch protections of a single branch.
     type: dict
-    returned: only if at least one repo is contained within organization
+    returned: If branch provided is valid.
 
+branch_protections.allow_deletions.enabled:
+    description: Allows deletions within the branch.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.allow_force_pushes.enabled:
+    description: Allows force pushes within the branch.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.enforce_admins.enabled:
+    description: Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators.
+    type: bool
+    returned: If branch protections are present.
+    
+branch_protections.enforce_admins.url:
+    description: API URL where to find the enforce_admins status
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.required_conversation_resolution.enabled:
+    description: Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule. Set to false to disable. Default: false.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_linear_history.enabled:
+    description: Enforces a linear commit Git history, which prevents anyone from pushing merge commits to a branch. Set to true to enforce a linear commit history. Set to false to disable a linear commit Git history. Your repository must allow squash merging or rebase merging before you can enable a linear commit history.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismiss_stale_reviews:
+    description: Set to true if you want to automatically dismiss approving reviews when someone pushes a new commit.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismissal_restrictions.teams:
+    description: Specifies which teams can dismiss pull request reviews.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismissal_restrictions.teams_url:
+    description: API URL to access the dismissal restriction teams.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismissal_restrictions.url:
+    description: API URL to access the dismissal restrictions.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismissal_restrictions.users:
+    description: List of user dictionaries and their information
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.dismissal_restrictions.users_url:
+    description: API URL access to the users with dismissal restrictions
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.require_code_owner_reviews:
+    description: Blocks merging pull requests until code owners have reviewed.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.required_approving_review_count:
+    description: Specifies the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers.
+    type: int
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.required_approving_review_count:
+    description: Specifies the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers.
+    type: int
+    returned: If branch protections are present.
+
+branch_protections.required_pull_request_reviews.url:
+    description: URL to access required pull request reviews.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.required_signatures.enabled:
+    description: Status of whether signatures are required.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_signatures.url:
+    description: URL to access status of whether signatures are required.
+    type: bool
+    returned: If branch protections are present.
+
+branch_protections.required_status_checks.contexts:
+    description: The list of status checks to require in order to merge into this branch.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.required_status_checks.contexts:
+    description: The list of status checks to require in order to merge into this branch.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.required_status_checks.contexts_url:
+    description: The URL where to find the list of status checks to require in order to merge into this branch.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.restrictions.apps:
+    description: list of apps that restrict who can push to the protected branch.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.restrictions.apps_url:
+    description: URL where to find the list of apps that restrict who can push to the protected branch.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.restrictions.teams:
+    description: list of teams that restrict who can push to the protected branch.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.restrictions.teams_url:
+    description: URL where to find the list of teams that restrict who can push to the protected branch.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.restrictions.users:
+    description: list of users that restrict who can push to the protected branch.
+    type: list
+    returned: If branch protections are present.
+
+branch_protections.restrictions.users_url:
+    description: URL where to find the list of users that restrict who can push to the protected branch.
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.restrictions.url:
+    description: URL where to find branch protection restrictions
+    type: str
+    returned: If branch protections are present.
+
+branch_protections.url:
+    description: URL where to find branch protections
+    type: str
+    returned: If branch protections are present.
 '''
 
 from github import Github
