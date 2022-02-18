@@ -28,7 +28,7 @@ options:
     enterprise_url:
         description:
             - If using a GitHub API token from a GitHub Enterprise account, the user must pass an enterprise URL.
-              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/repos/<ORGANIZATION NAME>/<REPO NAME>'.
+              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
     organization_name:
