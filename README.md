@@ -35,10 +35,13 @@ pip install PyGithub
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
 | [repository_information](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/repository_information.rst) | Output repositories along with vital information from an (user specified) organization |
 | [collaborator_information](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/collaborator_information.rst) | View and manage repository collaborators |
+| [repository_webhooks](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/repository_webhooks.rst) | A module that manages a repository's webhooks |
+| [branch_protection](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/branch_protection.rst) | A module that allows the modification of branch protections. |
+| [general_repository](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/general_repository.rst) | A module that manages a repository in an organization. |
 
 ## Usage
 
-### Repository Information (From organization)
+### Repository Information
 
 ```
   - name: "List GitHub repositories within a non-enterprise organization"
@@ -54,7 +57,7 @@ pip install PyGithub
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
     register: result    
 ```
-### Collaborator Information (From organization)
+### Collaborator Information
 
 ```
     - name: "Functions of Collaborator information module"
@@ -74,6 +77,55 @@ pip install PyGithub
           <GITHUB USERNAME>: "<triage, pull, push or admin>"
         collaborators_to_remove:
           - "<GITHUB USERNAME>"   
+```
+### Branch Protection
+
+```
+    - name: "Modify branch protections to a branch"
+      ohioit.github.branch_protection:
+        token: "<API TOKEN>"
+        organization_name: "<ORGANIZATION NAME>"
+        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+        repo: "<REPO NAME>"
+        branch: "<BRANCH NAME>"
+        state: "<present or absent>"
+        branch_protections:
+          strict: <true or false>
+          contexts: ["<EXAMPLE: default or ci-test>", ...]
+          enforce_admins: <true or false>
+          dismissal_users: ["<GITHUB USERNAMES>", ...]
+          dismissal_teams: ["<GITHUB TEAMS>", ...]
+          dismiss_stale_reviews: <true or false>
+          require_code_owner_reviews: <true or false>
+          required_approving_review_count: <INTEGER>
+          user_push_restrictions: ["<GITHUB USERNAMES>", ...]
+          team_push_restrictions: ["<GITHUB TEAMS>", ...]
+```
+### General Repository
+
+```
+    - name: "Create repository within enterprise organization"
+      ohioit.github.general_repository:
+        token: "<API TOKEN>"
+        organization_name: "<ORGANIZATION NAME>"
+        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+        repo_name: <REPO NAME>
+        private: <true or false>
+        description: "<DESCRIPTION OF REPOSITORY>"
+        homepage: "<HOMEPAGE NAME>"
+        has_issues: <true or false>
+        has_wiki: <true or false>
+        has_downloads: <true or false>
+        has_projects: <true or false>
+        team_id: <INTEGER>
+        auto_init: <true or false>
+        license_template: <LICENSING GUIDLINES example: gpl-3.0>
+        gitignore_template: "<SUPPPORTED PROGRAMMING LANGUAGE>"
+        allow_squash_merge: <true or false>
+        allow_merge_commit: <true or false>
+        allow_rebase_merge: <true or false>
+        delete_branch_on_merge: <true or false>
+        state: <present or absent>
 ```
 
 ###### _**NOTE**: Tokens should be encrypted and only decrypted at runtime_

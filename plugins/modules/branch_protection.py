@@ -27,8 +27,7 @@ options:
         type: str
     enterprise_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
-              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL. This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
     organization_name:
@@ -176,7 +175,7 @@ branch_protections.enforce_admins.url:
     returned: If branch protections are present.
 
 branch_protections.required_conversation_resolution.enabled:
-    description: Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule. Set to false to disable. Default: false.
+    description: Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule. Set to false to disable.
     type: bool
     returned: If branch protections are present.
 
