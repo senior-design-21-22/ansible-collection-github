@@ -288,7 +288,7 @@ def run_module():
         organization_name=dict(type='str', default=''),
         enterprise_url=dict(type='str', default=''),
         repo_name=dict(type='str', default=''),
-        team_id=dict(type='int', default=0),
+        team_name=dict(type='str', default=0),
         private=dict(type='bool', default=False),
         has_issues=dict(type='bool', default=True),
         has_wiki=dict(type='bool', default=True),
@@ -547,25 +547,27 @@ def run_module():
                           allow_rebase_merge=module.params['allow_rebase_merge'],
                           delete_branch_on_merge=module.params['delete_branch_on_merge'])
         except Exception as e:
-            # if not check_repo_name(g, module.params['organization_name'], module.params['repo_name']):
-            g.get_organization(module.params['organization_name']).create_repo(
-                module.params['repo_name'],
-                module.params['description'],
-                module.params['homepage'],
-                module.params['private'],
-                module.params['has_issues'],
-                module.params['has_wiki'],
-                module.params['has_downloads'],
-                module.params['has_projects'],
-                module.params['team_id'],
-                module.params['auto_init'],
-                module.params['license_template'],
-                module.params['gitignore_template'],
-                module.params['allow_squash_merge'],
-                module.params['allow_merge_commit'],
-                module.params['allow_rebase_merge'],
-                module.params['delete_branch_on_merge']
-            )
+            org = g.get_organization(module.params['organization_name'])
+            for team in org.get_teams():
+                if team.name == module.params['team_name']:
+                    g.get_organization(module.params['organization_name']).create_repo(
+                        module.params['repo_name'],
+                        module.params['description'],
+                        module.params['homepage'],
+                        module.params['private'],
+                        module.params['has_issues'],
+                        module.params['has_wiki'],
+                        module.params['has_downloads'],
+                        module.params['has_projects'],
+                        team.id,
+                        module.params['auto_init'],
+                        module.params['license_template'],
+                        module.params['gitignore_template'],
+                        module.params['allow_squash_merge'],
+                        module.params['allow_merge_commit'],
+                        module.params['allow_rebase_merge'],
+                        module.params['delete_branch_on_merge']
+                    )
     else:
         try:
             repo = g.get_organization(module.params['organization_name']).get_repo(
