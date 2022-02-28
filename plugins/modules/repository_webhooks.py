@@ -3,6 +3,7 @@
 from __future__ import absolute_import, division, print_function
 import collections
 import json
+from operator import mod
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
@@ -355,28 +356,60 @@ def run_module():
                         changed=False, err=error_message, failed=True)
 
         if module.params["state"].lower() == "absent":
-            delete_webhook(g, module.params["repo"], module.params["url"])
+            if module.check_mode:
+                for hooks in initial:
+                    if hooks['config']['url'] == module.params['url']:
+                        initial.remove(hooks)
+
+            else:
+                delete_webhook(g, module.params["repo"], module.params["url"])
         elif module.params["state"].lower() == "present":
             if module.params["content_type"] not in valid_content_types:
                 error_message = "Invalid content type: " + \
                     module.params["content_type"]
-                module.exit_json(changed=False, err=error_message, failed=True)
-            create_webhook(
-                g,
-                module.params["repo"],
-                module.params["events"],
-                module.params["url"],
-                module.params["content_type"],
-            )
+                module.exit_json(
+                    changed=False, err=error_message, failed=True)
+            if module.check_mode:
+                found = False
+                for hooks in initial:
+                    if hooks['config']['url'] == module.params['url']:
+                        hooks['events'] = module.params['events']
+                        found = True
+                if not found:
+                    if module.params["enterprise_url"] != "":
+                        urlBase = module.params["enterprise_url"]
+                    else:
+                        urlBase = "https://github.com/api/v3%s" % (
+                            module.params['organization_name'])
+                    initial.append({
+                        "active": True,
+                        "config": {
+                            "content_type": module.params['content_type'],
+                            "insecure_ssl": "0",
+                            "url":  module.params['url']
+                        },
+                        "events":  module.params['events'],
+                        "id": "<WEBHOOK_ID>",
+                        "name": "web",
+                        "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repo"]),
+                        "test_url": "%s/%s/hooks/<WEBHOOK_ID>/test" % (urlBase, module.params["repo"]),
+                        "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repo"])
+                    })
+            else:
+                create_webhook(
+                    g,
+                    module.params["repo"],
+                    module.params["events"],
+                    module.params["url"],
+                    module.params["content_type"],
+                )
 
     output = get_webhooks(g, module.params["repo"])
 
-    result = dict(changed=initial != output, fact="")
-
     if module.check_mode:
-        return result
-
-    module.exit_json(webhooks=output, changed=initial != output)
+        module.exit_json(webhooks=initial, changed=initial != output)
+    else:
+        module.exit_json(webhooks=output, changed=initial != output)
 
 
 def main():
