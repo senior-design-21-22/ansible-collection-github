@@ -283,7 +283,8 @@ def run_module():
         organization=dict(type='str', default='default'),
         api_url=dict(type='str', default=''),
         repository=dict(type='str', default=''),
-        collaborator=dict(type='dict'),
+        collaborator=dict(type='str', default=''),
+        permission=dict(type='str', default=''),
         state=dict(type='str', default='present')
     )
 
@@ -334,17 +335,15 @@ def run_module():
     repository = g.get_repo(module.params['repository'])
     if module.params['state'] == 'present':
         
-        if module.params['collaborator'] and list(module.params['collaborator'].values())[0] not in valid_permissions:
-            error_message = 'Invalid permissions: ' + list(module.params['collaborator'].values())[0]
+        if module.params['collaborator'] and module.params['permission'] not in valid_permissions:
+            error_message = 'Invalid permissions: ' + module.params['permission']
             module.exit_json(changed=False, err=error_message, failed=True)
 
-        for username, permission in module.params['collaborator'].items():
-            repository.add_to_collaborators(username, permission=permission)
+        repository.add_to_collaborators(module.params['collaborator'], permission=module.params['permission'])
 
     else:
         try:
-            for username, permission in module.params['collaborator'].items():
-                repository.remove_from_collaborators(collaborator.login)
+            repository.remove_from_collaborators(module.params['collaborator'])
 
         except Exception as e:
             ...
