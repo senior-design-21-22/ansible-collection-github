@@ -1,6 +1,11 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import, division, print_function
+import collections
+import json
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+from github import Github
 
 __metaclass__ = type
 
@@ -59,7 +64,7 @@ options:
     content_type:
         description:
           - The provided content type will be the webhook's primary content type. This can either be "json" or "form". The set default of an arguement is not provided is "json". This is used with the "add" action.
-        required: false
+        required false
         type: str
     active_status:
         description:
@@ -210,12 +215,6 @@ webhooks.<ELEMENT INDEX>.url:
     returned: provided per webhook dictionary
 """
 
-from github import Github
-from ansible.module_utils.common.text.converters import jsonify
-from ansible.module_utils.basic import AnsibleModule
-import json
-import collections
-
 
 def get_webhooks(g, repo):
     hooks = []
@@ -233,7 +232,7 @@ def get_webhooks(g, repo):
             "events": current_hook.events,
         }
         hooks.append(current_hook_dict)
-    output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1 :]]
+    output = [i for n, i in enumerate(hooks) if i not in hooks[n + 1:]]
 
     return output
 
@@ -243,10 +242,8 @@ def create_webhook(g, repo, events, url, content_type):
     config = {"url": url, "content_type": content_type if content_type else "json"}
 
     for current_hook in g.get_repo(repo).get_hooks():
-        if (
-            collections.Counter(current_hook.events) == collections.Counter(events)
-            and config["url"] == current_hook.config["url"]
-        ):
+        if (config["url"] == current_hook.config["url"]):
+            current_hook.edit("web", config, events, active=True)
             return
 
     repo = g.get_repo(repo)
@@ -259,49 +256,20 @@ def delete_webhook(g, repo, url):
             current_hook.delete()
 
 
-def edit_webhook(
-    g, repo, url, active_status, add_events, remove_events, new_url, new_content_type
-):
-    for current_hook in g.get_repo(repo).get_hooks():
-        if url == current_hook.config["url"]:
-
-            new_config = {
-                "url": new_url if new_url else url,
-                "content_type": new_content_type
-                if new_content_type
-                else current_hook.config["content_type"],
-            }
-            if new_url or new_content_type:
-                current_hook.edit("web", new_config)
-            if active_status.lower() == "false":
-                current_hook.edit("web", new_config, active=False)
-            if active_status.lower() == "true":
-                current_hook.edit("web", new_config, active=True)
-            if add_events:
-                current_hook.edit("web", new_config, add_events=add_events)
-            if remove_events:
-                current_hook.edit("web", new_config, remove_events=remove_events)
-
-
 def run_module():
     module_args = dict(
-        action=dict(type="str", default="add"),
+        state=dict(type="str", default="present"),
         token=dict(type="str", default="No Token Provided."),
         organization_name=dict(type="str", default=""),
         enterprise_url=dict(type="str", default=""),
         repo=dict(type="str", default="No Repo Provided."),
         url=dict(type="str", default=""),
         events=dict(type="list", elements="str"),
-        content_type=dict(type="str", default=""),
-        active_status=dict(type="str", default=""),
-        add_events=dict(type="list", elements="str"),
-        remove_events=dict(type="list", elements="str"),
-        new_url=dict(type="str", default=""),
-        new_content_type=dict(type="str", default=""),
+        content_type=dict(type="str", default="json"),
     )
 
     valid_content_types = ["json", "form"]
-    valid_actions = ["add", "delete", "edit"]
+    valid_actions = ["absent", "present"]
     valid_events = [
         "branch_protection_rule",
         "check_run",
@@ -361,14 +329,15 @@ def run_module():
 
     module = AnsibleModule(argument_spec=module_args, supports_check_mode=True)
 
-    if module.params["action"] not in valid_actions:
-        error_message = "Invalid action: " + module.params["action"]
+    if module.params["state"] not in valid_actions:
+        error_message = "Invalid action: " + module.params["state"]
         module.exit_json(changed=False, err=error_message, failed=True)
 
     if module.params["enterprise_url"] == "":
         g = Github(module.params["token"])
     else:
-        g = Github(module.params["token"], base_url=module.params["enterprise_url"])
+        g = Github(module.params["token"],
+                   base_url=module.params["enterprise_url"])
 
     if len(module.params["repo"]):
         module.params["repo"] = (
@@ -382,47 +351,24 @@ def run_module():
             for event in module.params["events"]:
                 if event not in valid_events:
                     error_message = "Invalid event name: " + event
-                    module.exit_json(changed=False, err=error_message, failed=True)
-        if module.params["add_events"]:
-            for event in module.params["add_events"]:
-                if event not in valid_events:
-                    error_message = "Invalid event name: " + event
-                    module.exit_json(changed=False, err=error_message, failed=True)
-        if module.params["remove_events"]:
-            for event in module.params["remove_events"]:
-                if event not in valid_events:
-                    error_message = "Invalid event name: " + event
-                    module.exit_json(changed=False, err=error_message, failed=True)
+                    module.exit_json(
+                        changed=False, err=error_message, failed=True)
 
-        if module.params["action"].lower() == "add":
-            if (
-                module.params["content_type"] in valid_content_types
-                or not module.params["content_type"]
-            ):
-                create_webhook(
-                    g,
-                    module.params["repo"],
-                    module.params["events"],
-                    module.params["url"],
-                    module.params["content_type"],
-                )
-        elif module.params["action"].lower() == "delete":
+        if module.params["state"].lower() == "absent":
             delete_webhook(g, module.params["repo"], module.params["url"])
-        elif module.params["action"].lower() == "edit":
-            if (
-                module.params["new_content_type"] in valid_content_types
-                or not module.params["new_content_type"]
-            ):
-                edit_webhook(
-                    g,
-                    module.params["repo"],
-                    module.params["url"],
-                    module.params["active_status"],
-                    module.params["add_events"],
-                    module.params["remove_events"],
-                    module.params["new_url"],
-                    module.params["new_content_type"],
-                )
+        elif module.params["state"].lower() == "present":
+            if module.params["content_type"] not in valid_content_types:
+                error_message = "Invalid content type: " + \
+                    module.params["content_type"]
+                module.exit_json(changed=False, err=error_message, failed=True)
+            create_webhook(
+                g,
+                module.params["repo"],
+                module.params["events"],
+                module.params["url"],
+                module.params["content_type"],
+            )
+
     output = get_webhooks(g, module.params["repo"])
 
     result = dict(changed=initial != output, fact="")
