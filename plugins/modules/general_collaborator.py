@@ -307,12 +307,12 @@ def run_module():
                    base_url=module.params['api_url'])
 
     module.params['repository'] = module.params['organization'] + '/' + module.params['repository']
-    initial = {}
-    output = {}
+    initial = list()
+    output = list()
 
     try: 
         github_collaborators = g.get_repo(module.params['repository']).get_collaborators(affiliation='direct')
-        initial_collaborators = dict()
+        initial_collaborators = list()
         current_collaborator = dict()
         for collaborator in github_collaborators:
             current_collaborator['login'] = collaborator.login
@@ -326,11 +326,12 @@ def run_module():
                 'admin': collaborator.permissions.admin
             }
             current_collaborator['permissions'] = permissions
-            initial_collaborators[module.params['repository']] = current_collaborator.copy()
-            initial = initial_collaborators.copy()
+            initial_collaborators.append(current_collaborator)
+
+        initial = initial_collaborators.copy()
 
     except Exception as e:
-        initial = {}
+        initial = list()
 
     repository = g.get_repo(module.params['repository'])
     if module.params['state'] == 'present':
@@ -339,45 +340,89 @@ def run_module():
             error_message = 'Invalid permissions: ' + module.params['permission']
             module.exit_json(changed=False, err=error_message, failed=True)
 
-        repository.add_to_collaborators(module.params['collaborator'], permission=module.params['permission'])
+        if module.check_mode:
+            collaborator_position = next((i for i, x in enumerate(initial_collaborators) if x["login"] == module.params['collaborator']), None)
+            permissions = dict()
+
+            if module.params['permission'] == 'admin':
+                permissions = {
+                    'admin': True,
+                    'pull': True,
+                    'push': True,
+                    'triage': True
+                }
+            elif module.params['permission'] == 'pull':
+                permissions = {
+                    'admin': False,
+                    'pull': True,
+                    'push': False,
+                    'triage': True
+                }
+            else:
+                permissions = {
+                    'admin': False,
+                    'pull': True,
+                    'push': True,
+                    'triage': True
+                }
+            output = initial_collaborators.copy()
+            if collaborator_position == None:
+                collaborator_to_add = {
+                    'login': module.params['collaborator'], 
+                    'id': 000,
+                    'type': 'User',
+                    'site_admin': True if module.params['permission'] == 'admin' else False, 
+                    'permissions': permissions
+                }
+                output.append(collaborator_to_add)
+            else:
+                for current_collaborator in output:
+                    if module.params['collaborator'] == current_collaborator['login']:
+                        current_collaborator['permissions'] = permissions
+                        if module.params['permission'] == 'admin':
+                            current_collaborator['site_admin'] = True
+            
+        else:
+            repository.add_to_collaborators(module.params['collaborator'], permission=module.params['permission'])
 
     else:
         try:
-            repository.remove_from_collaborators(module.params['collaborator'])
+            if module.check_mode:
+                output = initial_collaborators.copy()
+                for collaborator in initial_collaborators:
+                    if collaborator['login'] == module.params['collaborator']:
+                        output.remove(collaborator)
+            else:
+                repository.remove_from_collaborators(module.params['collaborator'])
 
         except Exception as e:
             ...
 
-    try:
-        github_collaborators = g.get_repo(module.params['repository']).get_collaborators(affiliation='direct')
-        output_collaborators = dict()
-        current_collaborator = dict()
-        for collaborator in github_collaborators:
-            current_collaborator['login'] = collaborator.login
-            current_collaborator['id'] = collaborator.id
-            current_collaborator['type'] = collaborator.type
-            current_collaborator['site_admin'] = collaborator.site_admin
-            permissions = {
-                'triage': collaborator.permissions.triage,
-                'push': collaborator.permissions.push,
-                'pull': collaborator.permissions.pull,
-                'admin': collaborator.permissions.admin
-            }
-            current_collaborator['permissions'] = permissions
-            output_collaborators[module.params['repository']] = current_collaborator.copy()
+    if module.check_mode == False:
+        try:
+            github_collaborators = g.get_repo(module.params['repository']).get_collaborators(affiliation='direct')
+            output_collaborators = list()
+            current_collaborator = dict()
+            for collaborator in github_collaborators:
+                current_collaborator['login'] = collaborator.login
+                current_collaborator['id'] = collaborator.id
+                current_collaborator['type'] = collaborator.type
+                current_collaborator['site_admin'] = collaborator.site_admin
+                permissions = {
+                    'triage': collaborator.permissions.triage,
+                    'push': collaborator.permissions.push,
+                    'pull': collaborator.permissions.pull,
+                    'admin': collaborator.permissions.admin
+                }
+                current_collaborator['permissions'] = permissions
+                output_collaborators.append(current_collaborator)
+
             output = output_collaborators.copy()
-        
-    except Exception as e:
-        output = {}
 
-    result = dict(
-        changed=collections.Counter(initial) != collections.Counter(output)
-    )
+        except Exception as e:
+            output = list()
 
-    if module.check_mode:
-        return result
-
-    module.exit_json(repo=output, changed=initial != output)
+    module.exit_json(collaborators=output, changed=initial != output)
 
 
 def main():
