@@ -205,86 +205,102 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
 '''
 
 
-def add_collaborators(g, repos, to_add):
-    for repo in repos:
-        r = g.get_repo(repo)
-        collaborator_list = []
-        collaborators = r.get_collaborators(affiliation="direct")
-        for collaborator in collaborators:
-            collaborator_list.append(collaborator.login)
+def present_collaborator(g, repo, collaborator, permission):
+    r = g.get_repo(repo)
+    r.add_to_collaborators(collaborator, permission=permission)
 
-        for p in to_add:
-            r.add_to_collaborators(p, permission=to_add[p])
+def absent_collaborator(g, repo, collaborator):
+    r = g.get_repo(repo)
+    r.remove_from_collaborators(collaborator)
 
+def get_collaborators(g, repo):
+    dict_repo = list()
+    collab_output = dict()
+    collaborators = g.get_repo(
+        repo).get_collaborators(affiliation="direct")
+    for collaborator in collaborators:
+        collab_output['login'] = collaborator.login
+        collab_output['id'] = collaborator.id
+        collab_output['type'] = collaborator.type
+        collab_output['site_admin'] = collaborator.site_admin
+        permissions = {
+            'triage': collaborator.permissions.triage,
+            'push': collaborator.permissions.push,
+            'pull': collaborator.permissions.pull,
+            'admin': collaborator.permissions.admin
+        }
+        collab_output['permissions'] = permissions
 
-def check_permissions(g, repos, user_to_check):
-    status = True
-    for repo in repos:
-        r = g.get_repo(repo)
-        for user in user_to_check.items():
-            if(r.get_collaborator_permission(user[0]) != user[1]):
-                status = False
-    return status
+        dict_repo.append(collab_output.copy())
 
+    return dict_repo
 
-def del_collaborators(g, repos, to_remove):
-    for repo in repos:
-        r = g.get_repo(repo)
-        collaborators = r.get_collaborators(affiliation="direct")
-        for collaborator in collaborators:
-            if(collaborator.login in to_remove):
-                r.remove_from_collaborators(collaborator.login)
+def present_collaborator_check_mode(g, repo, collaborator, permission, current_collaborators):
 
+    collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
+    permissions={}
+    if permission == 'admin':
+        permissions = {
+            'admin': True,
+            'pull': True,
+            'push': True,
+            'triage': True
+        }
+    elif permission == 'pull':
+        permissions = {
+            'admin': False,
+            'pull': True,
+            'push': True,
+            'triage': True
+        }
+    else:
+        permissions = {
+            'admin': False,
+            'pull': False,
+            'push': True,
+            'triage': True
+        }
 
-def change_collaborator_permissions(g, repos, to_change):
-    for repo in repos:
-        r = g.get_repo(repo)
-        collaborator_list = []
-        collaborators = r.get_collaborators(affiliation="direct")
-        for collaborator in collaborators:
-            collaborator_list.append(collaborator.login)
-        for p in to_change:
-            if (p in collaborator_list):
-                r.add_to_collaborators(p, permission=to_change[p])
+    output_collaborators = current_collaborators.copy()
+    if collaborator_position == None:
+    # adding
 
-
-def get_collaborators(g, repo_list):
-    output = dict()
-    for repo in repo_list:
-        dict_repo = list()
-        collab_output = dict()
-        collaborators = g.get_repo(
-            repo).get_collaborators(affiliation="direct")
-        for collaborator in collaborators:
-            collab_output['login'] = collaborator.login
-            collab_output['id'] = collaborator.id
-            collab_output['type'] = collaborator.type
-            collab_output['site_admin'] = collaborator.site_admin
-            permissions = {
-                'triage': collaborator.permissions.triage,
-                'push': collaborator.permissions.push,
-                'pull': collaborator.permissions.pull,
-                'admin': collaborator.permissions.admin
+        collaborator_to_add = {
+            'login': collaborator, 
+            'id': 000,
+            'type': 'User',
+            'site_admin': True if permission=='admin' else False, 
+            'permissions': permissions
             }
-            collab_output['permissions'] = permissions
+        output_collaborators.append(collaborator_to_add)
+        
+    else:
+    # changing
+        for current_collaborator in output_collaborators:
+            if collaborator == current_collaborator['login']:
+                current_collaborator['permissions'] = permissions
+                if permission == 'admin':
+                    current_collaborator['site_admin'] = True
+                    
+    return output_collaborators
+        
+        
+def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators):
+    collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
+    output_collaborators = current_collaborators.copy()
+    if collaborator_position != None:
+        output_collaborators.remove(collaborator_position)
 
-            dict_repo.append(collab_output.copy())
-
-        output[repo] = dict_repo.copy()
-
-    return output
-
-
+    return output_collaborators
 def run_module():
     module_args = dict(
-        token=dict(type='str', default='John Doe'),
+        token=dict(type='str', default='No Token Provided'),
         organization_name=dict(type='str', default='default'),
         enterprise_url=dict(type='str', default=''),
-        repos=dict(type='list', elements='str'),
-        collaborators_to_add=dict(type='dict'),
-        check_collaborator=dict(type='dict'),
-        collaborators_to_change=dict(type='dict'),
-        collaborators_to_remove=dict(type='list', elements='str')
+        repo=dict(type='str', default=''),
+        collaborator=dict(type='str', default=''),
+        permission=dict(type='str', default=''),
+        state=dict(type='str', default='present'),
     )
 
     module = AnsibleModule(
@@ -299,47 +315,46 @@ def run_module():
 
     valid_permissions = ["push", "pull", "admin"]
 
-    # token usage retrieved from module's variables from playbook
     if(module.params['enterprise_url'] == ''):
         g = Github(module.params['token'])
     else:
         g = Github(module.params['token'],
                    base_url=module.params['enterprise_url'])
 
-    if len(module.params['repos']):
-        for i in range(len(module.params['repos'])):
-            module.params['repos'][i] = module.params['organization_name'] + \
-                "/" + module.params['repos'][i]
+    if len(module.params['repo']):
+        module.params['repo'] = module.params['organization_name'] + \
+            "/" + module.params['repo']
 
-    current_collaborators = get_collaborators(g, module.params['repos'])
+    current_collaborators = get_collaborators(g, module.params['repo'])
+    
+    output=[]
+    
+    if module.params['state'] == 'present':
+        if len(module.params['collaborator']) and len(module.params['repo']) and module.params['permission'].lower() in valid_permissions:
+            if module.check_mode == False:
+                present_collaborator(
+                    g, module.params['repo'], module.params['collaborator'], module.params['permission'])
+            else:
+                output = present_collaborator_check_mode(
+                    g, module.params['repo'], module.params['collaborator'], module.params['permission'],current_collaborators)
+        elif module.params['permission'].lower() not in valid_permissions:
+            module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
+                                module.params['collaborator'] +
+                                ". Permissions must be 'push' 'pull' or 'admin'")
 
-    if(module.params['collaborators_to_add']):
-        for permission in module.params['collaborators_to_add']:
-            if module.params['collaborators_to_add'][permission].lower() not in valid_permissions:
-                module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
-                                 module.params['collaborators_to_add'][permission] +
-                                 ". Permissions must be 'push' 'pull' or 'admin'")
+    if module.params['state'] == 'absent' and len(module.params['repo']):
+        if module.check_mode == False:
+            absent_collaborator(
+                g, module.params['repo'], module.params['collaborator'])
+        else:
+            output = absent_collaborator_check_mode(
+                g, module.params['repo'], module.params['collaborator'], current_collaborators)
+    
+    if module.check_mode == False:
+        output = get_collaborators(g, module.params['repo'])
 
-        if len(module.params['collaborators_to_add']) and len(module.params['repos']):
-            add_collaborators(
-                g, module.params['repos'], module.params['collaborators_to_add'])
-
-    if(module.params['collaborators_to_remove'] and len(module.params['repos'])):
-        del_collaborators(
-            g, module.params['repos'], module.params['collaborators_to_remove'])
-
-    if(module.params['check_collaborator'] and len(module.params['repos'])):
-        check_permissions(
-            g, module.params['repos'], module.params['check_collaborator'])
-
-    if(module.params['collaborators_to_change'] and len(module.params['repos'])):
-        change_collaborator_permissions(
-            g, module.params['repos'], module.params['collaborators_to_change'])
-
-    output = get_collaborators(g, module.params['repos'])
-
-    if module.check_mode:
-        return result
+    # if module.check_mode:
+    #     module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
 
     module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
 

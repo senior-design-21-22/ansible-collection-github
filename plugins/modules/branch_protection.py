@@ -1,5 +1,17 @@
-
 #!/usr/bin/python
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
@@ -55,56 +67,6 @@ options:
           - The following elements will be modified or created upon the state being 'present'.
         required: false
         type: dict
-    strict:
-        description:
-          - The branch must be up to date with the base branch before merging.
-        required: false
-        type: bool
-    contexts:
-        description:
-          - The list of status checks to require in order to merge into this branch.
-        required: false
-        type: list
-    enforce_admins:
-        description:
-          - Set to 'true' to enforce required status checks for repository administrators.
-        required: false
-        type: bool
-    dismissal_users:
-        description:
-          - Specify which users can dismiss pull request reviews.
-        required: false
-        type: list
-    dismissal_teams:
-        description:
-          - Specify which teams can dismiss pull request reviews.
-        required: false
-        type: list
-    dismiss_stale_reviews:
-        description:
-          - Set to true if you want to automatically dismiss approving reviews when someone pushes a new commit.
-        required: false
-        type: bool
-    require_code_owner_reviews:
-        description:
-          - Blocks merging pull requests until code owners have reviewed.
-        required: false
-        type: bool
-    required_approving_review_count:
-        description:
-          - Specifies the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers.
-        required: false
-        type: int
-    user_push_restrictions:
-        description:
-          - Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories.
-        required: false
-        type: list
-    team_push_restrictions:
-        description:
-          - Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories.
-        required: false
-        type: list
 
 author:
     - Jacob Eicher (@jacobeicher)
@@ -224,11 +186,6 @@ branch_protections.required_pull_request_reviews.required_approving_review_count
     type: int
     returned: If branch protections are present.
 
-branch_protections.required_pull_request_reviews.required_approving_review_count:
-    description: Specifies the number of reviewers required to approve pull requests. Use a number between 1 and 6 or 0 to not require reviewers.
-    type: int
-    returned: If branch protections are present.
-
 branch_protections.required_pull_request_reviews.url:
     description: URL to access required pull request reviews.
     type: str
@@ -242,11 +199,6 @@ branch_protections.required_signatures.enabled:
 branch_protections.required_signatures.url:
     description: URL to access status of whether signatures are required.
     type: bool
-    returned: If branch protections are present.
-
-branch_protections.required_status_checks.contexts:
-    description: The list of status checks to require in order to merge into this branch.
-    type: list
     returned: If branch protections are present.
 
 branch_protections.required_status_checks.contexts:
@@ -520,12 +472,12 @@ def get_branch_protections(g, repo, branch, token):
 
 def run_module():
     module_args = dict(
-        token=dict(type='str', default='No Token Provided.'),
+        token=dict(type='str', required=True, no_log=True),
         organization_name=dict(
-            type='str', default=''),
-        enterprise_url=dict(type='str', default=''),
-        repo=dict(type='str', default='No Repo Provided.'),
-        branch=dict(type='str', default='No Branch Provided.'),
+            type='str', required=True),
+        enterprise_url=dict(type='str'),
+        repo=dict(type='str', required=True),
+        branch=dict(type='str', required=True),
         branch_protections=dict(type='dict'),
         state=dict(type="str", default="present")
     )
