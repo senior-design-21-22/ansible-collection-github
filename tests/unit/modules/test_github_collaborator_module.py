@@ -38,10 +38,12 @@ def fail_json(*args, **kwargs):
 
 
 def present_collaborator(g, repo, collaborator, permission):
-    collaborator_position = next((i for i, x in enumerate(g) if x["login"] == collaborator), None)
+    output = g.copy()
+    collaborator_position = next((i for i, x in enumerate(output) if x["login"] == collaborator), None)
     permissions = {}
-    if collaborator_position != None:
-        for user in g:
+
+    if collaborator_position is not None:
+        for user in output:
             if collaborator == user['login']:
                 if permission == 'admin':
                     permissions = {
@@ -65,6 +67,8 @@ def present_collaborator(g, repo, collaborator, permission):
                         'triage': True
                     }
                 user['permissions'] = permissions
+                if permission == 'admin':
+                    user['site_admin'] = True
                 break
     else:
         if permission == 'admin':
@@ -89,25 +93,29 @@ def present_collaborator(g, repo, collaborator, permission):
                 'triage': True
             }
         new_collaborator = {
-            'login' : collaborator,
-            'id' : 000,
-            'type' : 'user',
-            'site_admin' : False,
-            'permissions' : permissions
+            'login': collaborator,
+            'id': 000,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': permissions
         }
         if permission == 'admin':
             new_collaborator['site_admin'] = True
 
-        g.append(new_collaborator)
+        output.append(new_collaborator)
 
-    return g
+    return output
+
 
 def absent_collaborator(g, repo, collaborator):
-    collaborator_position = next((i for i, x in enumerate(g) if x["login"] == collaborator), None)
-    if collaborator_position:
-        g.remove(collaborator_position)
-    
-    return g
+    output = g.copy()
+    collaborator_position = next((i for i, x in enumerate(output) if x["login"] == collaborator), None)
+    if collaborator_position is not None:
+        output.pop(collaborator_position)
+
+    print(output)
+    return output
+
 
 def get_collaborators(g, repo):
     collaborator_list = list()
@@ -159,7 +167,7 @@ def get_collaborators(g, repo):
 
 def present_collaborator_check_mode(g, repo, collaborator, permission, current_collaborators):
     collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
-    permissions={}
+    permissions = {}
     if permission == 'admin':
         permissions = {
             'admin': True,
@@ -183,33 +191,31 @@ def present_collaborator_check_mode(g, repo, collaborator, permission, current_c
         }
 
     output_collaborators = current_collaborators.copy()
-    if collaborator_position == None:
-    # adding
+    if collaborator_position is None:
 
         collaborator_to_add = {
-            'login': collaborator, 
+            'login': collaborator,
             'id': 000,
             'type': 'User',
-            'site_admin': True if permission=='admin' else False, 
+            'site_admin': True if permission == 'admin' else False,
             'permissions': permissions
-            }
+        }
         output_collaborators.append(collaborator_to_add)
-        
+
     else:
-    # changing
         for current_collaborator in output_collaborators:
             if collaborator == current_collaborator['login']:
                 current_collaborator['permissions'] = permissions
                 if permission == 'admin':
                     current_collaborator['site_admin'] = True
-                    
+
     return output_collaborators
-        
-        
+
+
 def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators):
     collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
     output_collaborators = current_collaborators.copy()
-    if collaborator_position != None:
+    if collaborator_position is not None:
         output_collaborators.remove(collaborator_position)
 
     return output_collaborators
@@ -239,6 +245,8 @@ def run_module():
 
     valid_permissions = ["push", "pull", "admin"]
 
+    changed = False
+
     if(module.params['api_url'] == ''):
         g = module.params['access_token']
     else:
@@ -249,26 +257,32 @@ def run_module():
             "/" + module.params['repository']
 
     current_collaborators = get_collaborators(g, module.params['repository'])
-    
+
     output = []
-    
+
     if module.params['state'] == 'present':
-        if len(module.params['collaborator']) and len(module.params['repo']) and module.params['permission'].lower() in valid_permissions:
-            if module.check_mode == False:
-                output = present_collaborator(current_collaborators, module.params['repo'], module.params['collaborator'], module.params['permission'])
+        if len(module.params['collaborator']) and len(module.params['repository']) and module.params['permission'].lower() in valid_permissions:
+            if module.check_mode is False:
+                output = present_collaborator(current_collaborators, module.params['repository'], module.params['collaborator'], module.params['permission'])
             else:
-                output = present_collaborator_check_mode(g, module.params['repo'], module.params['collaborator'], module.params['permission'],current_collaborators)
+                output = present_collaborator_check_mode(g, module.params['repository'],
+                                                         module.params['collaborator'], module.params['permission'], current_collaborators)
         elif module.params['permission'].lower() not in valid_permissions:
             error_message = 'Permissions must be \'push\' \'pull\' or \'admin\''
-            return error_message
+            return error_message, changed
 
-    if module.params['state'] == 'absent' and len(module.params['repo']):
-        if module.check_mode == False:
-            output = absent_collaborator(current_collaborators, module.params['repo'], module.params['collaborator'])
+    if module.params['state'] == 'absent' and len(module.params['repository']):
+        if module.check_mode is False:
+            output = absent_collaborator(current_collaborators, module.params['repository'], module.params['collaborator'])
         else:
-            output = absent_collaborator_check_mode(g, module.params['repo'], module.params['collaborator'], current_collaborators)
-    
-    return output
+            output = absent_collaborator_check_mode(g, module.params['repository'], module.params['collaborator'], current_collaborators)
+
+    current_collaborators = get_collaborators(g, module.params['repository'])
+
+    if current_collaborators != output:
+        changed = True
+
+    return output, changed
 
 
 class TestCollaboratorModule(unittest.TestCase):
@@ -280,3 +294,316 @@ class TestCollaboratorModule(unittest.TestCase):
                          'permission': 'push',
                          'state': 'present'})
         self.assertRaises(AnsibleExitJson)
+
+    def test_module_returning_collaborator_already_there(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'push',
+                         'state': 'present'})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        }]
+
+        assert result == test
+        assert changed is False
+
+    def test_module_adding_collaborator_to_empty_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'no_collaborator',
+                         'collaborator': 'new_username',
+                         'permission': 'push',
+                         'state': 'present'})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'new_username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_adding_collaborator_to_populated_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'new_username',
+                         'permission': 'push',
+                         'state': 'present'})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        },
+            {
+                'login': 'new_username',
+                'id': 0,
+                'type': 'user',
+                'site_admin': False,
+                'permissions': {
+                    'triage': True,
+                    'push': True,
+                    'pull': False,
+                    'admin': False
+                }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_changing_collaborator_permissions(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'present'})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': True,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': True,
+                'admin': True
+            }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_remove_collaborator_from_empty_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'no_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'absent'})
+
+        result, changed = run_module()
+
+        test = []
+
+        assert result == test
+        assert changed is False
+
+    def test_module_remove_collaborator_from_populated_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'absent'})
+
+        result, changed = run_module()
+
+        test = []
+
+        assert result == test
+        assert changed is True
+
+    def test_module_incorrect_permission(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'Not a real permission',
+                         'state': 'present'})
+
+        result, changed = run_module()
+
+        test = 'Permissions must be \'push\' \'pull\' or \'admin\''
+
+        assert result == test
+        assert changed is False
+
+    def test_module_check_mode_adding_collaborator(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'push',
+                         'state': 'present',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        }]
+
+        assert result == test
+        assert changed is False
+
+    def test_module_check_mode_adding_collaborator_to_empty_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'no_collaborator',
+                         'collaborator': 'new_username',
+                         'permission': 'push',
+                         'state': 'present',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'new_username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_check_mode_adding_collaborator_to_populated_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'new_username',
+                         'permission': 'push',
+                         'state': 'present',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': False,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': False,
+                'admin': False
+            }
+        },
+            {
+                'login': 'new_username',
+                'id': 0,
+                'type': 'user',
+                'site_admin': False,
+                'permissions': {
+                    'triage': True,
+                    'push': True,
+                    'pull': False,
+                    'admin': False
+                }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_check_mode_changing_collaborator_permissions(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'present',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = [{
+            'login': 'username',
+            'id': 0,
+            'type': 'user',
+            'site_admin': True,
+            'permissions': {
+                'triage': True,
+                'push': True,
+                'pull': True,
+                'admin': True
+            }
+        }]
+
+        assert result == test
+        assert changed is True
+
+    def test_module_check_mode_remove_collaborator_from_empty_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'no_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'absent',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = []
+
+        assert result == test
+        assert changed is False
+
+    def test_module_check_mode_remove_collaborator_from_populated_list(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'org',
+                         'repository': 'one_collaborator',
+                         'collaborator': 'username',
+                         'permission': 'admin',
+                         'state': 'absent',
+                         'check_mode': True})
+
+        result, changed = run_module()
+
+        test = []
+
+        assert result == test
+        assert changed is True
