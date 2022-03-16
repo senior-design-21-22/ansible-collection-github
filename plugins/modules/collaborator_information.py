@@ -35,7 +35,7 @@ description:
 options:
     access_token:
         description:
-            - GitHub API token used to retrieve information about collaborators in repositories a user has access to
+            - GitHub API token used to retrieve information about collaborators in repositories a user has access.
         required: true
         type: str
 
@@ -49,13 +49,13 @@ options:
 
     organization:
         description:
-            - The organization that the information is within the scope of.
+            - The organization whose repository's collaborators will be modified.
         required: true
         type: str
 
     repository:
         description:
-            - The list of repositories that will be managed.
+            - The repository whose collaborators will be managed.
         required: true
         type: str
 
@@ -67,8 +67,9 @@ options:
 
     permission:
         description:
-            - The permission the collaborator will have in the repository.
-        required: True
+            - The permission the collaborator will have in the repository (push, pull, or admin).
+        required: False
+        default: pull
         type: str
 
     state:
@@ -89,54 +90,25 @@ author:
 EXAMPLES = '''
 # Pass in an github API token and organization name
 
-- name: "Listing collaborators from enterprise GitHub account"
-    collaborator_information:
-      token: "12345"
-      organization_name: "SSEP"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repos:
-        - "testing-repo-private"
-        - "testing-repo-internal"
-        - "testing-repo-public"
+- name: "Adding/modifying collaborator in enterprise GitHub account"
+    ohioit.github.collaborator_information:
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-private"
+    collaborator: <VALID GITHUB USERNAME>
+    permission: pull
+    state: present
 
-- name: "Adding collaborators from enterprise GitHub account"
-    collaborator_information:
-      token: "12345"
-      organization_name: "SSEP"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repos:
-        - "testing-repo-private"
-        - "testing-repo-internal"
-        - "testing-repo-public"
-      collaborators_to_add:
-        <GITHUB USERNAME>: "push"
-        <ANOTHER GITHUB USERNAME>: "pull"
+- name: "Delete collaborator in enterprise GitHub account"
+    ohioit.github.collaborator_information:
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-private"
+    collaborator: <VALID GITHUB USERNAME>
+    state: absent
 
-- name: "Change permissions of collaborators from enterprise GitHub account"
-    collaborator_information:
-      token: "12345"
-      organization_name: "SSEP"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repos:
-        - "testing-repo-private"
-        - "testing-repo-internal"
-        - "testing-repo-public"
-      collaborators_to_change:
-        <GITHUB USERNAME>: "admin"
-        <ANOTHER GITHUB USERNAME>: "triage"
-
-- name: "Remove permissions of collaborators from enterprise GitHub account"
-    collaborator_information:
-      token: "12345"
-      organization_name: "SSEP"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repos:
-        - "testing-repo-private"
-        - "testing-repo-internal"
-        - "testing-repo-public"
-        collaborators_to_remove:
-          - "<GITHUB USERNAME>"
-          - "<ANOTHER GITHUB USERNAME>"
 '''
 
 RETURN = '''
@@ -310,7 +282,7 @@ def run_module():
         api_url=dict(type='str', default=''),
         repository=dict(type='str', required=True),
         collaborator=dict(type='str', required=True),
-        permission=dict(type='str', required=True),
+        permission=dict(type='str', required=False, default="pull"),
         state=dict(type='str', default='present'),
     )
 
