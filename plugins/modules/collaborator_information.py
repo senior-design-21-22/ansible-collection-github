@@ -1,12 +1,20 @@
 #!/usr/bin/python
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import absolute_import, division, print_function
-import collections
-from github import Github
-from ansible.module_utils.common.text.converters import jsonify
-from ansible.module_utils.basic import AnsibleModule
-import json
-__metaclass__ = type
+
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
@@ -62,7 +70,14 @@ options:
             - The permission the collaborator will have in the repository.
         required: True
         type: str
-    
+
+    state:
+        description:
+            - The option to have the collaborator being present or absent in the repository.
+        required: False
+        type: str
+        default: present
+
 
 author:
     - Jacob Eicher (@jacobeicher)
@@ -75,7 +90,7 @@ EXAMPLES = '''
 # Pass in an github API token and organization name
 
 - name: "Listing collaborators from enterprise GitHub account"
-    ohioit.github.collaborator_information:
+    collaborator_information:
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
@@ -85,7 +100,7 @@ EXAMPLES = '''
         - "testing-repo-public"
 
 - name: "Adding collaborators from enterprise GitHub account"
-    ohioit.github.collaborator_information:
+    collaborator_information:
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
@@ -98,7 +113,7 @@ EXAMPLES = '''
         <ANOTHER GITHUB USERNAME>: "pull"
 
 - name: "Change permissions of collaborators from enterprise GitHub account"
-    ohioit.github.collaborator_information:
+    collaborator_information:
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
@@ -111,7 +126,7 @@ EXAMPLES = '''
         <ANOTHER GITHUB USERNAME>: "triage"
 
 - name: "Remove permissions of collaborators from enterprise GitHub account"
-    ohioit.github.collaborator_information:
+    collaborator_information:
       token: "12345"
       organization_name: "SSEP"
       enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
@@ -190,13 +205,23 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
 '''
 
 
+import collections
+from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+import json
+__metaclass__ = type
+
+
 def present_collaborator(g, repo, collaborator, permission):
     r = g.get_repo(repo)
     r.add_to_collaborators(collaborator, permission=permission)
 
+
 def absent_collaborator(g, repo, collaborator):
     r = g.get_repo(repo)
     r.remove_from_collaborators(collaborator)
+
 
 def get_collaborators(g, repo):
     dict_repo = list()
@@ -220,10 +245,10 @@ def get_collaborators(g, repo):
 
     return dict_repo
 
-def present_collaborator_check_mode(g, repo, collaborator, permission, current_collaborators):
 
+def present_collaborator_check_mode(g, repo, collaborator, permission, current_collaborators):
     collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
-    permissions={}
+    permissions = {}
     if permission == 'admin':
         permissions = {
             'admin': True,
@@ -247,36 +272,37 @@ def present_collaborator_check_mode(g, repo, collaborator, permission, current_c
         }
 
     output_collaborators = current_collaborators.copy()
-    if collaborator_position == None:
-    # adding
-
+    if collaborator_position is None:
+        # adding
         collaborator_to_add = {
-            'login': collaborator, 
+            'login': collaborator,
             'id': 000,
             'type': 'User',
-            'site_admin': True if permission=='admin' else False, 
+            'site_admin': True if permission == 'admin' else False,
             'permissions': permissions
-            }
+        }
         output_collaborators.append(collaborator_to_add)
-        
+
     else:
-    # changing
+        # changing
         for current_collaborator in output_collaborators:
             if collaborator == current_collaborator['login']:
                 current_collaborator['permissions'] = permissions
                 if permission == 'admin':
                     current_collaborator['site_admin'] = True
-                    
+
     return output_collaborators
-        
-        
+
+
 def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators):
     collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
     output_collaborators = current_collaborators.copy()
-    if collaborator_position != None:
+    if collaborator_position is not None:
         output_collaborators.remove(collaborator_position)
 
     return output_collaborators
+
+
 def run_module():
     module_args = dict(
         access_token=dict(type='str', required=True, no_log=True),
@@ -311,31 +337,31 @@ def run_module():
             "/" + module.params['repository']
 
     current_collaborators = get_collaborators(g, module.params['repository'])
-    
-    output=[]
-    
+
+    output = []
+
     if module.params['state'] == 'present':
         if len(module.params['collaborator']) and len(module.params['repository']) and module.params['permission'].lower() in valid_permissions:
-            if module.check_mode == False:
+            if module.check_mode is False:
                 present_collaborator(
                     g, module.params['repository'], module.params['collaborator'], module.params['permission'])
             else:
                 output = present_collaborator_check_mode(
-                    g, module.params['repository'], module.params['collaborator'], module.params['permission'],current_collaborators)
+                    g, module.params['repository'], module.params['collaborator'], module.params['permission'], current_collaborators)
         elif module.params['permission'].lower() not in valid_permissions:
             module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
-                                module.params['collaborator'] +
-                                ". Permissions must be 'push' 'pull' or 'admin'")
+                             module.params['collaborator'] +
+                             ". Permissions must be 'push' 'pull' or 'admin'")
 
     if module.params['state'] == 'absent' and len(module.params['repository']):
-        if module.check_mode == False:
+        if module.check_mode is False:
             absent_collaborator(
                 g, module.params['repository'], module.params['collaborator'])
         else:
             output = absent_collaborator_check_mode(
                 g, module.params['repository'], module.params['collaborator'], current_collaborators)
-    
-    if module.check_mode == False:
+
+    if module.check_mode is False:
         output = get_collaborators(g, module.params['repository'])
 
     module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
