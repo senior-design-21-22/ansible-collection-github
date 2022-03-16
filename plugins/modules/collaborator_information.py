@@ -25,13 +25,13 @@ description:
   - "A module that fetches information about collaborators in repositories that a GitHub user provides that are inside of an organization."
 
 options:
-    token:
+    access_token:
         description:
             - GitHub API token used to retrieve information about collaborators in repositories a user has access to
         required: true
         type: str
 
-    enterprise_url:
+    api_url:
         description:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
               This URL should be in the format of "https://github.<ENTERPRISE DOMAIN>/api/v3".
@@ -39,45 +39,30 @@ options:
         default: null
         type: str
 
-    organization_name:
+    organization:
         description:
             - The organization that the information is within the scope of.
         required: true
         type: str
 
-    repos:
+    repository:
         description:
             - The list of repositories that will be managed.
         required: true
         type: str
 
-    collaborators_to_add:
+    collaborator:
         description:
-            - The list of collaborators that will be added to the list of repos.
-        required: false
-        default: null
+            - The collaborator that will be added, deleted, or changed.
+        required: True
         type: str
 
-    collaborators_to_remove:
+    permission:
         description:
-            - The list of collaborators that will be removed to the list of repos.
-        required: false
-        default: null
+            - The permission the collaborator will have in the repository.
+        required: True
         type: str
-
-    check_collaborator:
-        description:
-            - The list of collaborators to check their permissions
-        required: false
-        default: null
-        type: str
-
-    collaborators_to_change:
-        description:
-            - The list of collaborators to change permissions
-        required: false
-        default: null
-        type: str
+    
 
 author:
     - Jacob Eicher (@jacobeicher)
@@ -294,12 +279,12 @@ def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators)
     return output_collaborators
 def run_module():
     module_args = dict(
-        token=dict(type='str', default='No Token Provided'),
-        organization_name=dict(type='str', default='default'),
-        enterprise_url=dict(type='str', default=''),
-        repo=dict(type='str', default=''),
-        collaborator=dict(type='str', default=''),
-        permission=dict(type='str', default=''),
+        access_token=dict(type='str', required=True, no_log=True),
+        organization=dict(type='str', required=True),
+        api_url=dict(type='str', default=''),
+        repository=dict(type='str', required=True),
+        collaborator=dict(type='str', required=True),
+        permission=dict(type='str', required=True),
         state=dict(type='str', default='present'),
     )
 
@@ -315,46 +300,43 @@ def run_module():
 
     valid_permissions = ["push", "pull", "admin"]
 
-    if(module.params['enterprise_url'] == ''):
-        g = Github(module.params['token'])
+    if(module.params['api_url'] == ''):
+        g = Github(module.params['access_token'])
     else:
-        g = Github(module.params['token'],
-                   base_url=module.params['enterprise_url'])
+        g = Github(module.params['access_token'],
+                   base_url=module.params['api_url'])
 
-    if len(module.params['repo']):
-        module.params['repo'] = module.params['organization_name'] + \
-            "/" + module.params['repo']
+    if len(module.params['repository']):
+        module.params['repository'] = module.params['organization'] + \
+            "/" + module.params['repository']
 
-    current_collaborators = get_collaborators(g, module.params['repo'])
+    current_collaborators = get_collaborators(g, module.params['repository'])
     
     output=[]
     
     if module.params['state'] == 'present':
-        if len(module.params['collaborator']) and len(module.params['repo']) and module.params['permission'].lower() in valid_permissions:
+        if len(module.params['collaborator']) and len(module.params['repository']) and module.params['permission'].lower() in valid_permissions:
             if module.check_mode == False:
                 present_collaborator(
-                    g, module.params['repo'], module.params['collaborator'], module.params['permission'])
+                    g, module.params['repository'], module.params['collaborator'], module.params['permission'])
             else:
                 output = present_collaborator_check_mode(
-                    g, module.params['repo'], module.params['collaborator'], module.params['permission'],current_collaborators)
+                    g, module.params['repository'], module.params['collaborator'], module.params['permission'],current_collaborators)
         elif module.params['permission'].lower() not in valid_permissions:
             module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
                                 module.params['collaborator'] +
                                 ". Permissions must be 'push' 'pull' or 'admin'")
 
-    if module.params['state'] == 'absent' and len(module.params['repo']):
+    if module.params['state'] == 'absent' and len(module.params['repository']):
         if module.check_mode == False:
             absent_collaborator(
-                g, module.params['repo'], module.params['collaborator'])
+                g, module.params['repository'], module.params['collaborator'])
         else:
             output = absent_collaborator_check_mode(
-                g, module.params['repo'], module.params['collaborator'], current_collaborators)
+                g, module.params['repository'], module.params['collaborator'], current_collaborators)
     
     if module.check_mode == False:
-        output = get_collaborators(g, module.params['repo'])
-
-    # if module.check_mode:
-    #     module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
+        output = get_collaborators(g, module.params['repository'])
 
     module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
 
