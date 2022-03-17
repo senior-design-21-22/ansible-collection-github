@@ -89,9 +89,8 @@ author:
 
 EXAMPLES = '''
 # Pass in an github API token and organization name
-
 - name: "Adding/modifying collaborator in enterprise GitHub account"
-    ohioit.github.collaborator_information:
+  ohioit.github.collaborator_information:
     access_token: "12345"
     organization: "SSEP"
     api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
@@ -100,15 +99,15 @@ EXAMPLES = '''
     permission: pull
     state: present
 
+
 - name: "Delete collaborator in enterprise GitHub account"
-    ohioit.github.collaborator_information:
+  ohioit.github.collaborator_information:
     access_token: "12345"
     organization: "SSEP"
     api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
     repository: "testing-repo-private"
     collaborator: <VALID GITHUB USERNAME>
     state: absent
-
 '''
 
 RETURN = '''
