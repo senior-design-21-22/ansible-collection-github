@@ -340,18 +340,18 @@ def run_module():
         error_message = "Invalid action: " + module.params["state"]
         module.exit_json(changed=False, err=error_message, failed=True)
 
-    if module.params["enterprise_url"] == "":
-        g = Github(module.params["token"])
+    if module.params["api_url"] == "":
+        g = Github(module.params["access_token"])
     else:
-        g = Github(module.params["token"],
-                   base_url=module.params["enterprise_url"])
+        g = Github(module.params["access_token"],
+                   base_url=module.params["api_url"])
 
-    if len(module.params["repo"]):
-        module.params["repo"] = (
-            module.params["organization_name"] + "/" + module.params["repo"]
+    if len(module.params["repository"]):
+        module.params["repository"] = (
+            module.params["organization"] + "/" + module.params["repository"]
         )
 
-    initial = get_webhooks(g, module.params["repo"])
+    initial = get_webhooks(g, module.params["repository"])
 
     if module.params["url"]:
         if module.params["events"]:
@@ -368,7 +368,7 @@ def run_module():
                         initial.remove(hooks)
 
             else:
-                delete_webhook(g, module.params["repo"], module.params["url"])
+                delete_webhook(g, module.params["repository"], module.params["url"])
         elif module.params["state"].lower() == "present":
             if module.params["content_type"] not in valid_content_types:
                 error_message = "Invalid content type: " + \
@@ -382,11 +382,11 @@ def run_module():
                         hooks['events'] = module.params['events']
                         found = True
                 if not found:
-                    if module.params["enterprise_url"] != "":
-                        urlBase = module.params["enterprise_url"]
+                    if module.params["api_url"] != "":
+                        urlBase = module.params["api_url"]
                     else:
                         urlBase = "https://github.com/api/v3%s" % (
-                            module.params['organization_name'])
+                            module.params['organization'])
                     initial.append({
                         "active": True,
                         "config": {
@@ -397,20 +397,20 @@ def run_module():
                         "events": module.params['events'],
                         "id": "<WEBHOOK_ID>",
                         "name": "web",
-                        "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repo"]),
-                        "test_url": "%s/%s/hooks/<WEBHOOK_ID>/test" % (urlBase, module.params["repo"]),
-                        "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repo"])
+                        "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repository"]),
+                        "test_url": "%s/%s/hooks/<WEBHOOK_ID>/test" % (urlBase, module.params["repository"]),
+                        "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repository"])
                     })
             else:
                 create_webhook(
                     g,
-                    module.params["repo"],
+                    module.params["repository"],
                     module.params["events"],
                     module.params["url"],
                     module.params["content_type"],
                 )
 
-    output = get_webhooks(g, module.params["repo"])
+    output = get_webhooks(g, module.params["repository"])
 
     if module.check_mode:
         module.exit_json(webhooks=initial, changed=initial != output)
