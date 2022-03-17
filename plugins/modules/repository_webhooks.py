@@ -45,19 +45,19 @@ options:
         type: str
     organization:
         description:
-          - The organization in which the query will be run.
+          - The organization containing the repository whose webhook will be modified or deleted.
         required: true
         type: str
     repository:
         description:
-          - The provided repository will have its webhooks modified
+          - The provided repository will have its webhook modified or deleted.
         required: true
         type: str
     url:
         description:
           - The provided url will be the webhook that is added, deleted, or edited.
             This must be structured as <SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>
-        required: false
+        required: true
         type: str
     events:
         description:
@@ -71,21 +71,21 @@ options:
             "project_column", "project", "public", "pull_request", "pull_request_review", "pull_request_review_comment",
             "push", "release", "repository_dispatch", "repository", "repository_import", "repository_vulnerability_alert",
             "secret_scanning_alert", "security_advisory", "sponsorship", "star", "status", "team", "team_add", "watch",
-            "workflow_dispatch", or "workflow_job". This is used with the "add" action.
+            "workflow_dispatch", or "workflow_job". This is used with the "present" state.
         required: false
         type: list
         elements: str
     content_type:
         description:
           - The provided content type will be the webhook's primary content type.
-            This can either be "json" or "form". The set default of an arguement is not provided is "json".
-            This is used with the "add" action.
+            This can either be "json" or "form".
+            This is used with the "present" state.
         required: false
         type: str
         default: json
     state:
         description:
-          - Tells the program if the webhook should exist or not in the repository.
+          - Tells the program if the webhook should exist or not in the repository. Can be either "present" or "absent"
         required: False
         type: str
         default: present
@@ -98,51 +98,28 @@ author:
 '''
 
 EXAMPLES = """
-- name: "LIST WEBHOOK OF REPOSITORY"
+- name: "Add/Modify webhook to GitHub repository"
   ohioit.github.repository_webhooks:
-    token: "<TOKEN>"
-    organization_name: "<ORG NAME>"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "<REPOSITORY NAME>"
-  register: result
-
-- name: "ADD WEBHOOK TO REPOSITORY"
-  ohioit.github.repository_webhooks:
-    action: "add"
-    token: "<TOKEN>"
-    organization_name: "<ORG NAME>"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "<REPOSITORY NAME>"
-    url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
-    content_type: "json"
+    state: present
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ORGANIZATION DOMAIN>/api/v3"
+    repository: "testing-repo-public"
+    url: "https://ansiblest.ansible.com/ansible-test"
     events:
-    - "public"
-    - "push"
-  register: result
-
-- name: "EDIT WEBHOOK IN REPOSITORY"
-  ohioit.github.repository_webhooks:
-    action: "edit"
-    token: "<TOKEN>"
-    organization_name: "<ORG NAME>"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "<REPOSITORY NAME>"
-    url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
-    add_events:
-      - "create"
-    remove_events:
       - "public"
-    new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
+      - "gollum"
+    content_type: json
   register: result
 
-- name: "REMOVE WEBHOOK IN GITHUB REPOSITORY"
+- name: "Delete webhook in GitHub repository"
   ohioit.github.repository_webhooks:
-    action: "delete"
-    token: "<TOKEN>"
-    organization_name: "<ORG NAME>"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "<REPOSITORY NAME>"
-    url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
+    state: absent
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ORGANIZATION DOMAIN>/api/v3"
+    repository: "testing-repo-public"
+    url: "https://ansiblest.ansible.com/ansible-test"
   register: result
 """
 
@@ -270,7 +247,7 @@ def run_module():
         organization=dict(type="str", required=True),
         api_url=dict(type="str", default=""),
         repository=dict(type="str", required=True),
-        url=dict(type="str", default=""),
+        url=dict(type="str", required=True),
         events=dict(type="list", elements="str"),
         content_type=dict(type="str", default="json"),
     )

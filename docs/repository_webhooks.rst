@@ -39,11 +39,11 @@ Parameters
             <th>Choices/<font color="blue">Required</font></th>
             <th width="50%">Comments</th>
         </tr>
-  <!-- GITHUB TOKEN -->
+  <!-- ACCESS_TOKEN -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>token</b>
+                    <b>access_token</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -61,11 +61,11 @@ Parameters
                         <div>GitHub Token used to authenticate with the Github Rest API.</div>
                 </td>
             </tr>
-  <!-- ORG_NAME -->
+  <!-- ORGANIZATION -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>organization_name</b>
+                    <b>organization</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -83,11 +83,11 @@ Parameters
                         <div>Organization provided by users.</div>
                 </td>
             </tr>
-  <!-- ENTERPRISE_URL -->
+  <!-- API_URL -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>enterprise_url</b>
+                    <b>api_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -107,11 +107,11 @@ Parameters
                         <code>https://github.&ltENTERPRISE DOMAIN&gt/api/v3</code>
                 </td>
             </tr>
-  <!-- ORGANIZATION NAME-->
+    <!-- STATE -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>organization_name</b>                                                                            <!-- PARAMETER -->
+                    <b>state</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -119,44 +119,21 @@ Parameters
                 </td>
                 
                 <td>
-                        <div></div>                                                                         <!-- CHOICES/DEFAULTS -->
-                </td>
-                
-                <td>
-                        <div>True</div>
-                </td>
-                
-                <td>
-                        <div>The organization in which the query will be run.</div>  <!-- COMMENTS -->
-                </td>
-            </tr>
-    <!-- ACTION -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>action</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                
-                <td>
-                        <div>If action is not provided, will return a list of webhooks with nothing changed.</div><!-- CHOICES/DEFAULTS -->
+                        <div>Default: <code>present</code></div><!-- CHOICES/DEFAULTS -->
                 </td>
                 
                 <td>
                         <div>False</div>
                 </td>
                 <td>
-                        <div>The current task's purpose. This can be to "add", "delete", or "edit".</div>  <!-- COMMENTS -->
+                        <div>The state can either be <code>present</code> (where the webhook will be added or modified) or <code>absent</code> (where the webhook will be deleted)</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- REPO -->
+    <!-- REPOSITORY -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>repo</b>                                                             <!-- PARAMETER -->
+                    <b>repository</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -186,7 +163,7 @@ Parameters
                         <div></div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
+                        <div>True</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
                         <div>The provided url will be the webhook that is added, deleted, or edited. This must be structured as <code>&ltSCHEME(https://)&gt&ltHOST(fakewebsite.com)&gt&ltENDPOINT(/path/end/here)&gt</code></div>  <!-- COMMENTS -->
@@ -224,95 +201,15 @@ Parameters
                     </div>
                 </td>
                 <td>
-                        <div><code>json</code> <code>form</code></div>      <!-- CHOICES/DEFAULTS -->
+                        Default: <div><code>json</code></div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>The provided content type will be the webhook's primary content type.</div>  <!-- COMMENTS -->
+                        <div>The provided content type will be the webhook's primary content type (either <div><code>json</code> <code>form</code>).</div>  <!-- COMMENTS -->
                 </td>
             </tr> 
-    <!-- ADD_EVENTS -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>add_events</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">list</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>When provided a list of events to add, the provided url of the webhook will recieve the additions.</div>  <!-- COMMENTS -->
-                </td>
-            </tr>
-    <!-- REMOVE_EVENTS -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>remove_events</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">list</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>When provided a list of events to remove, the provided url of the webhook will remove the events.</div>  <!-- COMMENTS -->
-                </td>
-            </tr>
-    <!-- NEW_URL -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>new_url</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">list</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div></div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>Given a url, the current webhook will be update to the new url.</div>  <!-- COMMENTS -->
-                </td>
-            </tr>
-    <!-- NEW_CONTENT_TYPE -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>new_content_type</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">string</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div></div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>Given a content type, the current webhook will be update to the new content type.</div>  <!-- COMMENTS -->
-                </td>
-            </tr>
     <!-- END OF TABLE-->      
     </table>
     <br/>
@@ -325,53 +222,27 @@ Examples
 
 .. code-block:: yaml
 
-    - name: "LIST WEBHOOK OF REPOSITORY"
-        ohioit.github.repository_webhooks:
-          token: "<TOKEN>"
-          organization_name: "<ORG NAME>"
-          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-          repo: "<REPOSITORY NAME>"
-      register: result
+    - name: "Add/Modify webhook to GitHub repository"
+      ohioit.github.repository_webhooks:
+        state: present
+        access_token: <GITHUB API TOKEN>
+        organization: <ORGANIZATION NAME>
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+        repository: "<REPOSITORY NAME>"
+        url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
+        events:
+          - "public"
+          - "gollum"
+        content_type: json
 
-    - name: "ADD WEBHOOK TO REPOSITORY"
-        ohioit.github.repository_webhooks:
-          action: "add"
-          token: "<TOKEN>"
-          organization_name: "<ORG NAME>"
-          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-          repo: "<REPOSITORY NAME>"
-          url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
-          content_type: "json"
-          events:
-            - "public"
-            - "push"
-      register: result
-
-    - name: "EDIT WEBHOOK IN REPOSITORY"
-        ohioit.github.repository_webhooks:
-          action: "edit"
-          token: "<TOKEN>"
-          organization_name: "<ORG NAME>"
-          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-          repo: "<REPOSITORY NAME>"
-          url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
-          add_events:
-            - "create"
-          remove_events:
-            - "public"
-          new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
-        register: result
-
-    - name: "REMOVE WEBHOOK IN GITHUB REPOSITORY"
-        ohioit.github.repository_webhooks:
-          action: "delete"
-          token: "<TOKEN>"
-          organization_name: "<ORG NAME>"
-          enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-          repo: "<REPOSITORY NAME>"
-          url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
-        register: result
-     
+    - name: "Delete webhook in GitHub repository"
+      ohioit.github.repository_webhooks:
+        state: absent
+        access_token: <GITHUB API TOKEN>
+        organization: <ORGANIZATION NAME>
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+        repository: "<REPOSITORY NAME>"
+        url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
 
 Return Values
 -------------
