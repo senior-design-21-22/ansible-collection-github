@@ -17,8 +17,8 @@ Version added: 0.0.1
 
 Synopsis
 --------
-- Retrieve Github organization collaborator information in the form of a dictionary of repositories. Each dictionary then containing a list of dictionaries that consist of collaborators' information.
-- Manage GitHub collaborators in organization repositories including adding, removing, or changing collaborator permissions.
+- Retrieve a Github organization's provided repository. This contains collaborator information in the form of a list of dictionaries that consist of collaborators' information.
+- Manage GitHub collaborators in organization repository including adding, removing, or changing collaborator permissions.
 
 
 Requirements
@@ -39,11 +39,11 @@ Parameters
             <th>Choices/<font color="blue">Required</font></th>
             <th width="50%">Comments</th>
         </tr>
-  <!-- GITHUB TOKEN -->
+  <!-- ACCESS_TOKEN -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>token</b>
+                    <b>access_token</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -58,11 +58,11 @@ Parameters
                         <div>GitHub Token used to authenticate with the Github Rest API.</div>
                 </td>
             </tr>
-  <!-- ORG_NAME -->
+  <!-- ORGANIZATION -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>organization_name</b>
+                    <b>organization</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -77,11 +77,11 @@ Parameters
                         <div>Organization provided by users.</div>
                 </td>
             </tr>
-  <!-- ENTERPRISE_URL -->
+  <!-- API_URL -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>enterprise_url</b>
+                    <b>api_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -98,14 +98,14 @@ Parameters
                         <code>https://github.&ltENTERPRISE DOMAIN&gt/api/v3</code>
                 </td>
             </tr>
-  <!-- REPOSITORIES LIST-->
+  <!-- REPOSITORY-->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>repos</b>                                                                            <!-- PARAMETER -->
+                    <b>repository</b>                                                                            <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">list</span>                                             <!-- TYPE -->
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
@@ -115,90 +115,70 @@ Parameters
                         <div>True</div>
                 </td>
                 <td>
-                        <div>List of repositories is provided by user to perform further action upon their collaborators.</div>  <!-- COMMENTS -->
+                        <div>Repository that is part of the provided organization whose collaborators will be modified</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- COLLABORATORS TO ADD-->
+    <!-- COLLABORATOR -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_add</b>                                                             <!-- PARAMETER -->
+                    <b>collaborator</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">list/dict</span>                                             <!-- TYPE -->
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>Add by providing a list of dicts of collaborators to add along with their permissions or provide a single collaborator with their intended permission</div><!-- CHOICES/DEFAULTS -->
+                        <div>Must be a valid GitHub username</div><!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
-                        <div>False</div>
+                        <div>True</div>
                 </td>
                 <td>
-                        <div>Collaborator(s) are added along with their intended permissions (Read, Triage, Write, or Admin) to the provided list of repos</div>  <!-- COMMENTS -->
+                        <div>Collaborator to be added, modified or deleted to the provided repository</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- COLLABORATORS TO REMOVE -->
+    <!-- PERMISSION -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_remove</b>                                                             <!-- PARAMETER -->
+                    <b>permission</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">list of string</span>                                             <!-- TYPE -->
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>Delete collaborator(s) by providing a list of collaborator names (as strings).</div>      <!-- CHOICES/DEFAULTS -->
+                        <div>Default: <code>pull</code>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>This will delete all of the provided collaborators from the given repositories.</div>  <!-- COMMENTS -->
+                        <div>The permission the collaborator will have in the repository (<code>pull</code> <code>push</code> or <code>admin</code>)</div>  <!-- COMMENTS -->
                 </td>
             </tr> 
-    <!-- CHECK COLLABORATOR -->
+    <!-- STATE -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>check_collaborator</b>                                                             <!-- PARAMETER -->
+                    <b>state</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
-                        <span style="color: purple">dict</span>                                             <!-- TYPE -->
+                        <span style="color: purple">str</span>                                             <!-- TYPE -->
                     </div>
                 </td>
                 <td>
-                        <div>A name as the Key and a permission to check is provided by the user.</div>      <!-- CHOICES/DEFAULTS -->
+                        <div>Default: <code>present</code></div>      <!-- CHOICES/DEFAULTS -->
                 </td>
                 <td>
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>This will check the provided permission against the given repos.</div>  <!-- COMMENTS -->
+                        <div>The option to have the collaborator being <code>present</code> or <code>absent</code> in the repository.</div>  <!-- COMMENTS -->
                 </td>
             </tr> 
             
-    <!-- COLLABORATORS TO CHANGE -->
-            <tr>
-                <td colspan="1">
-                    <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>collaborators_to_change</b>                                                             <!-- PARAMETER -->
-                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
-                    <div style="font-size: small">
-                        <span style="color: purple">dict</span>                                             <!-- TYPE -->
-                    </div>
-                </td>
-                <td>
-                        <div>A name as the Key and a permission to check is provided by the user.</div>      <!-- CHOICES/DEFAULTS -->
-                </td>
-                <td>
-                        <div>False</div>                                                                         <!-- REQUIRED -->
-                </td>
-                <td>
-                        <div>This will check the provided permission against the given repos.</div>  <!-- COMMENTS -->
-                </td>
-            </tr> 
        
             
             
@@ -214,76 +194,22 @@ Examples
 
 .. code-block:: yaml
 
-    - name: "Listing collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-      register: result
-
-    - name: "Adding collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_add:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
-          
-      register: result
-
-    - name: "Check permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        check_collaborator:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
-
-      register: result
-
-    - name: "Change permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_change:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-          <ANOTHER GITHUB USERNAME>: "<triage, pull, push or admin>"
-      register: result
-
-    - name: "Remove permissions of collaborators from enterprise GitHub account"
-      ohioit.github.collaborator_information:
-        token: "<GITHUB TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_remove:
-          - "<GitHub Username>"
-          - "<GitHub Username>"
-      register: result
-      
-     
+   - name: "Adding/modifying collaborator in enterprise GitHub account"
+     ohioit.github.collaborator_information:
+       access_token: <GITHUB TOKEN>
+       organization: <ORGANIZATION NAME>
+       api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+       permission: <pull, push, or admin>
+       state: present
+       
+   - name: "Delete collaborator in enterprise GitHub account"
+     ohioit.github.collaborator_information:
+       access_token: <GITHUB TOKEN>
+       organization: <ORGANIZATION NAME>
+       api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+       repository: "testing-repo-private"
+       collaborator: <VALID GITHUB USERNAME>
+       state: absent
 
 Return Values
 -------------
