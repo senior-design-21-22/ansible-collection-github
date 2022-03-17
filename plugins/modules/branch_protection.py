@@ -472,11 +472,11 @@ def get_branch_protections(g, repo, branch, token):
 
 def run_module():
     module_args = dict(
-        token=dict(type='str', required=True, no_log=True),
-        organization_name=dict(
+        access_token=dict(type='str', required=True, no_log=True),
+        organization=dict(
             type='str', required=True),
-        enterprise_url=dict(type='str'),
-        repo=dict(type='str', required=True),
+        api_url=dict(type='str'),
+        repository=dict(type='str', required=True),
         branch=dict(type='str', required=True),
         branch_protections=dict(type='dict'),
         state=dict(type="str", default="present")
@@ -487,35 +487,35 @@ def run_module():
         supports_check_mode=True
     )
 
-    if(module.params['enterprise_url'] == ''):
-        g = Github(module.params['token'])
+    if(module.params['api_url'] == ''):
+        g = Github(module.params['access_token'])
     else:
-        g = Github(module.params['token'],
-                   base_url=module.params['enterprise_url'])
+        g = Github(module.params['access_token'],
+                   base_url=module.params['api_url'])
 
-    if len(module.params['repo']):
-        module.params['repo'] = module.params['organization_name'] + \
-            "/" + module.params['repo']
+    if len(module.params['repository']):
+        module.params['repository'] = module.params['organization'] + \
+            "/" + module.params['repository']
 
-    initial = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
+    initial = get_branch_protections(g, module.params['repository'], module.params['branch'], module.params['access_token'])
     output = dict()
     if not initial:
         initial = {}
 
     if module.params["state"] == "present":
         if module.check_mode:
-            output = present_branch_protection_check_mode(initial, module.params['branch_protections'], module.params['enterprise_url'], module.params['repo'], module.params['organization_name'], module.params['branch'])
+            output = present_branch_protection_check_mode(initial, module.params['branch_protections'], module.params['api_url'], module.params['repository'], module.params['organization'], module.params['branch'])
         else:
-            present_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
+            present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])
 
     if module.params["state"] == "absent":
         if module.check_mode:
             output = absent_branch_protection_check_mode()
         else:
-            absent_branch_protection(g, module.params['repo'], module.params['branch'])
+            absent_branch_protection(g, module.params['repository'], module.params['branch'])
 
     if module.check_mode == False:
-        output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
+        output = get_branch_protections(g, module.params['repository'], module.params['branch'], module.params['access_token'])
 
     result = dict(
         changed=initial != output,
