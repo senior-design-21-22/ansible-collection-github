@@ -1,14 +1,20 @@
 #!/usr/bin/python
 
-from __future__ import absolute_import, division, print_function
-import collections
-import json
-from operator import mod
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 
-__metaclass__ = type
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+from __future__ import absolute_import, division, print_function
+
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.0",
@@ -16,7 +22,7 @@ ANSIBLE_METADATA = {
     "supported_by": "community",
 }
 
-DOCUMENTATION = """
+DOCUMENTATION = '''
 ---
 module: repository_webhooks
 
@@ -26,127 +32,118 @@ description:
   - "A module that manages a repository's webhooks by adding, deleting, and editing."
 
 options:
-    token:
+    access_token:
         description:
             - GitHub API token used to retrieve information about repositories to which a user has access.
         required: true
         type: str
-    enterprise_url:
+    api_url:
         description:
             - If using a GitHub API token from a GitHub Enterprise account, the user must pass an enterprise URL.
               This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
-    organization_name:
+    organization:
         description:
           - The organization in which the query will be run.
         required: true
         type: str
-    action:
-        description:
-          - The current task's purpose. This can be to "add", "delete", or "edit".
-        required: false
-        type: str
-    repo:
+    repository:
         description:
           - The provided repository will have its webhooks modified
         required: true
         type: str
     url:
         description:
-          - The provided url will be the webhook that is added, deleted, or edited. This must be structured as <SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>
+          - The provided url will be the webhook that is added, deleted, or edited.
+            This must be structured as <SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>
         required: false
         type: str
     events:
         description:
-          - The list of provided events will be added to what triggers a webhook. The following events are valid "branch_protection_rule", "check_run", "check_suite", "code_scanning_alert", "commit_comment", "content_reference", "create", "delete", "deploy_key", "deployment", "deployment_status", "discussion", "discussion_comment", "fork", "github_app_authorization", "gollum", "installation", "installation_repositories", "issue_comment", "issues", "label", "marketplace_purchase", "member", "membership", "meta", "milestone", "organization", "org_block", "package", "page_build", "ping", "project_card", "project_column", "project", "public", "pull_request", "pull_request_review", "pull_request_review_comment", "push", "release", "repository_dispatch", "repository", "repository_import", "repository_vulnerability_alert", "secret_scanning_alert", "security_advisory", "sponsorship", "star", "status", "team", "team_add", "watch", "workflow_dispatch", or "workflow_job". This is used with the "add" action.
+          - The list of provided events will be added to what triggers a webhook.
+            The following events are valid "branch_protection_rule", "check_run", "check_suite",
+            "code_scanning_alert", "commit_comment", "content_reference", "create", "delete",
+            "deploy_key", "deployment", "deployment_status", "discussion", "discussion_comment",
+            "fork", "github_app_authorization", "gollum", "installation", "installation_repositories",
+            "issue_comment", "issues", "label", "marketplace_purchase", "member", "membership", "meta",
+            "milestone", "organization", "org_block", "package", "page_build", "ping", "project_card",
+            "project_column", "project", "public", "pull_request", "pull_request_review", "pull_request_review_comment",
+            "push", "release", "repository_dispatch", "repository", "repository_import", "repository_vulnerability_alert",
+            "secret_scanning_alert", "security_advisory", "sponsorship", "star", "status", "team", "team_add", "watch",
+            "workflow_dispatch", or "workflow_job". This is used with the "add" action.
         required: false
         type: list
+        elements: str
     content_type:
         description:
-          - The provided content type will be the webhook's primary content type. This can either be "json" or "form". The set default of an arguement is not provided is "json". This is used with the "add" action.
-        required false
+          - The provided content type will be the webhook's primary content type.
+            This can either be "json" or "form". The set default of an arguement is not provided is "json".
+            This is used with the "add" action.
+        required: false
         type: str
-    active_status:
+        default: json
+    state:
         description:
-          - This sets the active status of the webhook depending on whether it is provided "true" or "false". This is used in "edit" action.
-        required: false
-        type: string
-    add_events:
-        description:
-          - When provided a list of events to add, the provided url of the webhook will recieve the additions. This is used in "edit" action.
-        required: false
-        type: list
-    remove_events:
-        description:
-          - When provided a list of events to remove, the provided url of the webhook will remove the events. This is used in "edit" action.
-        required: false
-        type: list
-    new_url:
-        description:
-          - Given a url, the current webhook will be update to the new url. This is used in "edit" action.
-        required: false
-        type: list
-    new_content_type:
-        description:
-          - Given a content type, the current webhook will be update to the new content type. This is used in "edit" action.
-        required: false
-        type: string
+          - Tells the program if the webhook should exist or not in the repository.
+        required: False
+        type: str
+        default: present
 
 author:
     - Jacob Eicher (@jacobeicher)
     - Bradley Golski (@bgolski)
     - Tyler Zwolenik (@TylerZwolenik)
     - Nolan Khounborinn (@Khounborinn)
-"""
+'''
 
 EXAMPLES = """
 - name: "LIST WEBHOOK OF REPOSITORY"
-    ohioit.github.repository_webhooks:
-      token: "<TOKEN>"
-      organization_name: "<ORG NAME>"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "<REPOSITORY NAME>"
-    register: result
+  ohioit.github.repository_webhooks:
+    token: "<TOKEN>"
+    organization_name: "<ORG NAME>"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "<REPOSITORY NAME>"
+  register: result
 
 - name: "ADD WEBHOOK TO REPOSITORY"
-    ohioit.github.repository_webhooks:
-      action: "add"
-      token: "<TOKEN>"
-      organization_name: "<ORG NAME>"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "<REPOSITORY NAME>"
-      url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
-      content_type: "json"
-      events:
-        - "public"
-        - "push"
-    register: result
+  ohioit.github.repository_webhooks:
+    action: "add"
+    token: "<TOKEN>"
+    organization_name: "<ORG NAME>"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "<REPOSITORY NAME>"
+    url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
+    content_type: "json"
+    events:
+    - "public"
+    - "push"
+  register: result
 
 - name: "EDIT WEBHOOK IN REPOSITORY"
-    ohioit.github.repository_webhooks:
-      action: "edit"
-      token: "<TOKEN>"
-      organization_name: "<ORG NAME>"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "<REPOSITORY NAME>"
-      url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
-      add_events:
-        - "create"
-      remove_events:
-        - "public"
-      new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
-    register: result
-    
+  ohioit.github.repository_webhooks:
+    action: "edit"
+    token: "<TOKEN>"
+    organization_name: "<ORG NAME>"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "<REPOSITORY NAME>"
+    url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
+    add_events:
+      - "create"
+    remove_events:
+      - "public"
+    new_url: "<SCHEME(https://)><HOST(newfakewebsite.com)><ENDPOINT(/path/end/there)>"
+  register: result
+
 - name: "REMOVE WEBHOOK IN GITHUB REPOSITORY"
-    ohioit.github.repository_webhooks:
+  ohioit.github.repository_webhooks:
     action: "delete"
-      token: "<TOKEN>"
-      organization_name: "<ORG NAME>"
-      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-      repo: "<REPOSITORY NAME>"
-      url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
-    register: result
+    token: "<TOKEN>"
+    organization_name: "<ORG NAME>"
+    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repo: "<REPOSITORY NAME>"
+    url: "<SCHEME(https://)><HOST(fakewebsite.com)><ENDPOINT(/path/end/here)>"
+  register: result
 """
 
 RETURN = """
@@ -197,24 +194,33 @@ webhooks.<ELEMENT INDEX>.id:
 
 webhooks.<ELEMENT INDEX>.name:
     description: Name of the webhook.
-    type: string
+    type: str
     returned: provided per webhook dictionary
 
 webhooks.<ELEMENT INDEX>.ping_url:
     description: The url to ping the webhook.
-    type: string
+    type: str
     returned: provided per webhook dictionary
 
 webhooks.<ELEMENT INDEX>.test_url:
     description: The url to test the webhook.
-    type: string
+    type: str
     returned: provided per webhook dictionary
 
 webhooks.<ELEMENT INDEX>.url:
     description: The url in which the webhook resides
-    type: string
+    type: str
     returned: provided per webhook dictionary
 """
+
+import collections
+import json
+from operator import mod
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+from github import Github
+
+__metaclass__ = type
 
 
 def get_webhooks(g, repo):
@@ -260,10 +266,10 @@ def delete_webhook(g, repo, url):
 def run_module():
     module_args = dict(
         state=dict(type="str", default="present"),
-        token=dict(type="str", default="No Token Provided."),
-        organization_name=dict(type="str", default=""),
-        enterprise_url=dict(type="str", default=""),
-        repo=dict(type="str", default="No Repo Provided."),
+        access_token=dict(type="str", required=True, no_log=True),
+        organization=dict(type="str", required=True),
+        api_url=dict(type="str", default=""),
+        repository=dict(type="str", required=True),
         url=dict(type="str", default=""),
         events=dict(type="list", elements="str"),
         content_type=dict(type="str", default="json"),
@@ -386,9 +392,9 @@ def run_module():
                         "config": {
                             "content_type": module.params['content_type'],
                             "insecure_ssl": "0",
-                            "url":  module.params['url']
+                            "url": module.params['url']
                         },
-                        "events":  module.params['events'],
+                        "events": module.params['events'],
                         "id": "<WEBHOOK_ID>",
                         "name": "web",
                         "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repo"]),
