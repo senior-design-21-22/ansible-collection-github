@@ -200,6 +200,8 @@ Examples
        organization: <ORGANIZATION NAME>
        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
        permission: <pull, push, or admin>
+       repository: <REPOSITORY NAME>
+       collaborator: <VALID GITHUB USERNAME>
        state: present
        
    - name: "Delete collaborator in enterprise GitHub account"
@@ -207,7 +209,7 @@ Examples
        access_token: <GITHUB TOKEN>
        organization: <ORGANIZATION NAME>
        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-       repository: "testing-repo-private"
+       repository: <REPOSITORY NAME>
        collaborator: <VALID GITHUB USERNAME>
        state: absent
 
