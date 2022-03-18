@@ -88,6 +88,11 @@ Parameters
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>api_url</b>
+  <!-- ENTERPRISE_URL -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>enterprise_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -112,6 +117,11 @@ Parameters
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
                     <b>state</b>                                                             <!-- PARAMETER -->
+  <!-- ORGANIZATION NAME-->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>organization_name</b>                                                                            <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -210,6 +220,87 @@ Parameters
                         <div>The provided content type will be the webhook's primary content type (either <div><code>json</code> <code>form</code>).</div>  <!-- COMMENTS -->
                 </td>
             </tr> 
+
+    <!-- ADD_EVENTS -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>add_events</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>When provided a list of events to add, the provided url of the webhook will recieve the additions.</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
+    <!-- REMOVE_EVENTS -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>remove_events</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div>listed in <code>events</code> </div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>When provided a list of events to remove, the provided url of the webhook will remove the events.</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
+    <!-- NEW_URL -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>new_url</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">list</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>Given a url, the current webhook will be update to the new url.</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
+    <!-- NEW_CONTENT_TYPE -->
+            <tr>
+                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-"></div>
+                    <b>new_content_type</b>                                                             <!-- PARAMETER -->
+                    <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>                                             <!-- TYPE -->
+                    </div>
+                </td>
+                <td>
+                        <div></div>      <!-- CHOICES/DEFAULTS -->
+                </td>
+                <td>
+                        <div>False</div>                                                                         <!-- REQUIRED -->
+                </td>
+                <td>
+                        <div>Given a content type, the current webhook will be update to the new content type.</div>  <!-- COMMENTS -->
+                </td>
+            </tr>
     <!-- END OF TABLE-->      
     </table>
     <br/>
@@ -243,6 +334,7 @@ Examples
         api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
         repository: "<REPOSITORY NAME>"
         url: <SCHEME("https://")><HOST("fakewebsite.com")><ENDPOINT("/path/end/here")>
+
 
 Return Values
 -------------
