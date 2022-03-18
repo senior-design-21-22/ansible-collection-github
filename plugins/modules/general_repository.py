@@ -26,23 +26,23 @@ description:
   - "A module that creates, modifies, or deletes a repository in an organization."
 
 options:
-    token:
+    access_token:
         description:
             - GitHub API token used to manage a repository a user has access.
         required: true
         type: str
-    enterprise_url:
+    api_url:
         description:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
               This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3/'.
         required: false
         type: str
-    organization_name:
+    organization:
         description:
           - The organization containing the repository being managed.
         required: true
         type: str
-    repo_name:
+    repository:
         description:
           - The name of the repository being managed.
         required: true
@@ -82,9 +82,9 @@ options:
           - Whether or not the repository will have a projects tab.
         required: false
         type: bool
-    team_id:
+    team_name:
         description:
-          - A team can be added through their ID number in the organization.
+          - A team can be added through their name in the organization.
         required: false
         type: int
     auto_init:
@@ -139,10 +139,10 @@ EXAMPLES = '''
 # Will create/manage repository
 - name: "Create repository within enterprise organization"
   ohioit.github.general_repository:
-    token: "12345"
-    organization_name: SSEP
-    enterprise_url: https://github.<ENTERPRISE DOMAIN>/api/v3
-    repo_name: brad-repo
+    access_token: "12345"
+    organization: SSEP
+    api_url: https://github.<ENTERPRISE DOMAIN>/api/v3
+    repository: brad-repo
     private: true
     description: "this is a test"
     homepage: "test homepage"
@@ -150,7 +150,7 @@ EXAMPLES = '''
     has_wiki: false
     has_downloads: false
     has_projects: false
-    team_id: 46
+    team_name: tyler-team
     auto_init: true
     license_template: gpl-3.0
     gitignore_template: "Haskell"
@@ -163,10 +163,10 @@ EXAMPLES = '''
 
 - name: "Delete repository within enterprise organization"
   ohioit.github.general_repository:
-    token: "12345"
-    organization_name: SSEP
-    enterprise_url: https://github.<ENTERPRISE DOMAIN>/api/v3
-    repo_name: brad-repo
+    access_token: "12345"
+    organization: SSEP
+    api_url: https://github.<ENTERPRISE DOMAIN>/api/v3
+    repository: brad-repo
     state: absent
 '''
 
@@ -277,17 +277,12 @@ repo.url:
     returned: If Repo provided is valid within the organization
 '''
 
-
-# def check_repo_name(g, organization, repo):
-#     org = g.get_organization("org-name")
-
-
 def run_module():
     module_args = dict(
         access_token=dict(type='str', default='No Token Provided.'),
         organization=dict(type='str', default=''),
         api_url=dict(type='str', default=''),
-        repository_name=dict(type='str', default=''),
+        repository=dict(type='str', default=''),
         team_name=dict(type='str', default=0),
         private=dict(type='bool', default=False),
         has_issues=dict(type='bool', default=True),
@@ -494,7 +489,7 @@ def run_module():
 
     try:
         repo = g.get_organization(
-            module.params['organization']).get_repo(module.params['repository_name'])
+            module.params['organization']).get_repo(module.params['repository'])
         initial = {
             "name": repo.name,
             "full_name": repo.full_name,
@@ -532,7 +527,7 @@ def run_module():
                     module.params['gitignore_template']
                 module.exit_json(changed=False, err=error_message, failed=True)
             repo = g.get_organization(module.params['organization']).get_repo(
-                module.params['repository_name'])
+                module.params['repository'])
             if repo:
                 if module.check_mode:
                     output_repo = repo
@@ -548,7 +543,7 @@ def run_module():
                     output_repo.allow_squash_merge = module.params["allow_squash_merge"]
                     output_repo.delete_branch_on_merge = module.params["delete_branch_on_merge"]
                 else:
-                    repo.edit(name=module.params['repository_name'],
+                    repo.edit(name=module.params['repository'],
                               description=module.params['description'],
                               homepage=module.params['homepage'],
                               private=module.params['private'],
@@ -569,18 +564,18 @@ def run_module():
                             noApiurl = str(module.params['api_url']).replace(
                                 "/api/v3", "")
                             clone_url = "%s/%s/%s.git" % (
-                                noApiurl, module.params['organization'], module.params['repository_name'])
+                                noApiurl, module.params['organization'], module.params['repository'])
                             url = "%s/repos/%s/%s" % (
-                                module.params['api_url'], module.params['organization'], module.params['repository_name'])
+                                module.params['api_url'], module.params['organization'], module.params['repository'])
                             hooks_url = "%s/hooks" % (url)
                         else:
                             clone_url = "https://github.com/%s/%s.git" % (
-                                module.params['organization'], module.params['repository_name'])
+                                module.params['organization'], module.params['repository'])
                             url = "https://github.com/api/v3/repos/%s/%s" % (
-                                module.params['api_url'], module.params['organization'], module.params['repository_name'])
+                                module.params['api_url'], module.params['organization'], module.params['repository'])
                             hooks_url = "%s/hooks" % (url)
                         full_name = "%s/%s" % (
-                            module.params['organization'], module.params['repository_name'])
+                            module.params['organization'], module.params['repository'])
                         output_repo = {
                             "allow_merge_commit": module.params['allow_merge_commit'],
                             "allow_rebase_merge": module.params['allow_rebase_merge'],
@@ -598,14 +593,14 @@ def run_module():
                             "homepage": module.params['homepage'],
                             "hooks_url": hooks_url,
                             "language": None,
-                            "name": module.params['repo_name'],
+                            "name": module.params['repository'],
                             "owner": module.params['organization_name'],
                             "private": module.params['private'],
                             "url": url
                         }
                     else:
                         g.get_organization(module.params['organization']).create_repo(
-                            module.params['repository_name'],
+                            module.params['repository'],
                             module.params['description'],
                             module.params['homepage'],
                             module.params['private'],
@@ -626,14 +621,14 @@ def run_module():
         try:
             if not module.check_mode:
                 repo = g.get_organization(module.params['organization']).get_repo(
-                    module.params['repository_name']).delete()
+                    module.params['repository']).delete()
 
         except Exception as e:
             ...
 
     try:
         repo = g.get_organization(
-            module.params['organization']).get_repo(module.params['repository_name'])
+            module.params['organization']).get_repo(module.params['repository'])
         output = {
             "name": repo.name,
             "full_name": repo.full_name,
