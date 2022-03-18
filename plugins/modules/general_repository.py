@@ -572,7 +572,7 @@ def run_module():
                             clone_url = "https://github.com/%s/%s.git" % (
                                 module.params['organization'], module.params['repository'])
                             url = "https://github.com/api/v3/repos/%s/%s" % (
-                                module.params['api_url'], module.params['organization'], module.params['repository'])
+                                module.params['organization'], module.params['repository'])
                             hooks_url = "%s/hooks" % (url)
                         full_name = "%s/%s" % (
                             module.params['organization'], module.params['repository'])
