@@ -48,6 +48,7 @@ def absent_branch_protection_check_mode():
     output = dict()
     return output
 
+
 def present_branch_protection_check_mode(initial, branch_protections, api_url, repository, organization, branch):
     if initial != {}:
         output = initial.copy()
@@ -61,7 +62,8 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             },
             "enforce_admins": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -73,39 +75,51 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
+                    "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                    "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                           organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
+                    "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
+                "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
                 "strict": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
+                "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
+                "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
+                "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
             },
-            "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection"
+            "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                   organization + "/" + repository + "/branches/" + branch + "/protection"
         }
-        
+
     output['enforce_admins']['enabled'] = branch_protections['enforce_admins']
-    output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews'] 
+    output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
     output['required_status_checks']['strict'] = branch_protections['strict']
     output['required_status_checks']['contexts'] = branch_protections['contexts']
     output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
@@ -113,72 +127,72 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     output['required_pull_request_reviews']['required_approving_review_count'] = branch_protections['required_approving_review_count']
 
     for team in branch_protections["dismissal_teams"]:
-        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) == None:
+        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) is None:
             new_team = {
-                        "description": "This is a team to test branch protection functionality",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                        "id": 0,
-                        "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
-                        "name": team,
-                        "node_id": "NodeID",
-                        "parent": None,
-                        "permission": "pull",
-                        "privacy": "closed",
-                        "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
-                        "slug": team,
-                        "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
-                    }
+                "description": "This is a team to test branch protection functionality",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                "id": 0,
+                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                "name": team,
+                "node_id": "NodeID",
+                "parent": None,
+                "permission": "pull",
+                "privacy": "closed",
+                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                "slug": team,
+                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+            }
             output['required_pull_request_reviews']['dismissal_restrictions']['teams'].append(new_team)
-    
+
     for team in output['required_pull_request_reviews']['dismissal_restrictions']['teams']:
         if team['name'] not in branch_protections['dismissal_teams']:
             output['required_pull_request_reviews']['dismissal_restrictions']['teams'].remove(team)
-            
-            
+
     for user in branch_protections["dismissal_users"]:
-        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['users'] if x["login"] == user), None) == None:
+        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['users'] if x["login"] == user), None) is None:
             new_user = {
-                        "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
-                        "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                        "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                        "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                        "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                        "gravatar_id": "",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                        "id": 000,
-                        "login": user,
-                        "node_id": "NodeID",
-                        "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                        "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                        "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
-                        "site_admin": False,
-                        "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
-                        "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
-                        "type": "User",
-                        "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
-                    }
+                "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
+                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": 000,
+                "login": user,
+                "node_id": "NodeID",
+                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                "site_admin": False,
+                "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
+                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                "type": "User",
+                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
+            }
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].append(new_user)
 
     for user in output['required_pull_request_reviews']['dismissal_restrictions']['users']:
         if user['login'] not in branch_protections['dismissal_users']:
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].remove(user)
-            
+
     for team in branch_protections["team_push_restrictions"]:
-        if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) == None:
-            new_team={
-                        "description": "This is a team to test branch protection functionality",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
-                        "id": 0,
-                        "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
-                        "name": team,
-                        "node_id": "NodeID",
-                        "parent": None,
-                        "permission": "pull",
-                        "privacy": "closed",
-                        "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
-                        "slug": team,
-                        "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
-                    }
+        if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) is None:
+            new_team = {
+                "description": "This is a team to test branch protection functionality",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
+                "id": 0,
+                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                "name": team,
+                "node_id": "NodeID",
+                "parent": None,
+                "permission": "pull",
+                "privacy": "closed",
+                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                "slug": team,
+                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+            }
             output['restrictions']['teams'].append(new_team)
 
     for team in output['restrictions']['teams']:
@@ -186,27 +200,27 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             output['restrictions']['teams'].remove(team)
 
     for user in branch_protections["user_push_restrictions"]:
-        if next((x for x in output['restrictions']['users'] if x["login"] == user), None) == None:
-            new_user ={
-                        "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
-                        "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                        "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                        "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                        "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                        "gravatar_id": "",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                        "id": 0,
-                        "login": user,
-                        "node_id": "NodeID",
-                        "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                        "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                        "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
-                        "site_admin": False,
-                        "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
-                        "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
-                        "type": "User",
-                        "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
-                    }
+        if next((x for x in output['restrictions']['users'] if x["login"] == user), None) is None:
+            new_user = {
+                "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
+                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": 0,
+                "login": user,
+                "node_id": "NodeID",
+                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                "site_admin": False,
+                "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
+                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                "type": "User",
+                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
+            }
             output['restrictions']['users'].append(new_user)
 
     for user in output['restrictions']['users']:
@@ -225,7 +239,7 @@ def present_branch_protections(g, repo, branch, branch_protections):
     output = g.copy()
     try:
         output['enforce_admins']['enabled'] = branch_protections['enforce_admins']
-        output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews'] 
+        output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
         output['required_status_checks']['strict'] = branch_protections['strict']
         output['required_status_checks']['contexts'] = branch_protections['contexts']
         output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
@@ -338,7 +352,14 @@ def run_module():
 
     if module.params["state"] == "present":
         if module.params['check_mode']:
-            output = present_branch_protection_check_mode(initial, module.params['branch_protections'], module.params['api_url'], module.params['repository'], module.params['organization'], module.params['branch'])
+            output = present_branch_protection_check_mode(
+                initial,
+                module.params['branch_protections'],
+                module.params['api_url'],
+                module.params['repository'],
+                module.params['organization'],
+                module.params['branch']
+            )
         else:
             output = present_branch_protections(initial, module.params['repository'], module.params['branch'], module.params['branch_protections'])
 
@@ -405,7 +426,7 @@ class TestBranchProtectionModule(unittest.TestCase):
             },
             "enforce_admins": {
                 "enabled": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/enforce_admins"
+                "url": "https://" + "api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -417,38 +438,41 @@ class TestBranchProtectionModule(unittest.TestCase):
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions",
+                    "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/" +
+                                 "test_branch_protected/protection/dismissal_restrictions/teams",
+                    "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/users"
+                    "users_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/" +
+                                 "test_branch_protected/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_pull_request_reviews"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_signatures"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks/contexts",
+                "contexts_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/" +
+                                "test_branch_protected/protection/required_status_checks/contexts",
                 "strict": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/apps",
+                "apps_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/teams",
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions",
+                "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/teams",
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/users"
+                "users_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/users"
             },
-            "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection"
+            "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection"
         }
         assert result == test
-        assert changed == False
+        assert changed is False
 
     def test_editing_branch_protection(self):
         set_module_args({
@@ -492,14 +516,18 @@ class TestBranchProtectionModule(unittest.TestCase):
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions/teams",
-                    "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions",
+                    "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/teams",
+                    "url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                           "branches/test_branch_protected/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions/users"
+                    "users_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_pull_request_reviews"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                       "branches/test_branch_protected/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
@@ -507,7 +535,8 @@ class TestBranchProtectionModule(unittest.TestCase):
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_status_checks/contexts",
+                "contexts_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                "branches/test_branch_protected/protection/required_status_checks/contexts",
                 "strict": False,
                 "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_status_checks"
             },
@@ -523,7 +552,7 @@ class TestBranchProtectionModule(unittest.TestCase):
             "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection"
         }
         assert result == test
-        assert changed == True
+        assert changed is True
 
     def test_remove_branch_protections(self):
         set_module_args({
@@ -548,7 +577,7 @@ class TestBranchProtectionModule(unittest.TestCase):
         test = {}
         result, changed = run_module()
         assert result == test
-        assert changed == True
+        assert changed is True
 
     def test_remove_branch_protections_from_branch_with_no_protections(self):
         set_module_args({
@@ -573,7 +602,7 @@ class TestBranchProtectionModule(unittest.TestCase):
         test = {}
         result, changed = run_module()
         assert result == test
-        assert changed == changed
+        assert changed is True
 
     def test_editing_branch_protection_with_same_protections_check_mode(self):
         set_module_args({
@@ -606,7 +635,7 @@ class TestBranchProtectionModule(unittest.TestCase):
             },
             "enforce_admins": {
                 "enabled": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/enforce_admins"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -618,38 +647,41 @@ class TestBranchProtectionModule(unittest.TestCase):
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions",
+                    "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/teams",
+                    "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/users"
+                    "users_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_pull_request_reviews"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_signatures"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks/contexts",
+                "contexts_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                "branches/test_branch_protected/protection/required_status_checks/contexts",
                 "strict": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/apps",
+                "apps_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/teams",
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions",
+                "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/teams",
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/users"
+                "users_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/users"
             },
-            "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection"
+            "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection"
         }
         assert result == test
-        assert changed == False
+        assert changed is False
 
     def test_editing_branch_protection_check_mode(self):
         set_module_args({
@@ -682,7 +714,7 @@ class TestBranchProtectionModule(unittest.TestCase):
             },
             "enforce_admins": {
                 "enabled": True,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/enforce_admins"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -694,40 +726,41 @@ class TestBranchProtectionModule(unittest.TestCase):
                 "dismiss_stale_reviews": True,
                 "dismissal_restrictions": {
                     "teams": ['test_team'],
-                    "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions",
+                    "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/teams",
+                    "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/dismissal_restrictions",
                     "users": ['test_user'],
-                    "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/dismissal_restrictions/users"
+                    "users_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                 "branches/test_branch_protected/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": True,
                 "required_approving_review_count": 100,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_pull_request_reviews"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_signatures"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": ['defaults'],
-                "contexts_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks/contexts",
+                "contexts_url": "https://api.github.com/repos/org_name/test_repo_protected/" +
+                                "branches/test_branch_protected/protection/required_status_checks/contexts",
                 "strict": True,
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/required_status_checks"
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/apps",
+                "apps_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/teams",
-                "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions",
+                "teams_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/teams",
+                "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection/restrictions/users"
+                "users_url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection/restrictions/users"
             },
-            "url": "https://" + "api.github.com" + "/repos/" + 'org_name/test_repo_protected' + "/branches/" + 'test_branch_protected' + "/protection"
+            "url": "https://api.github.com/repos/org_name/test_repo_protected/branches/test_branch_protected/protection"
         }
-        print(result, '\n')
-        print(test)
         assert result == test
-        assert changed == True
+        assert changed is True
 
     def test_remove_branch_protections_check_mode(self):
         set_module_args({
@@ -753,7 +786,7 @@ class TestBranchProtectionModule(unittest.TestCase):
         test = {}
         result, changed = run_module()
         assert result == test
-        assert changed == True
+        assert changed is True
 
     def test_remove_branch_protections_from_branch_with_no_protections_check_mode(self):
         set_module_args({
@@ -779,4 +812,4 @@ class TestBranchProtectionModule(unittest.TestCase):
         test = {}
         result, changed = run_module()
         assert result == test
-        assert changed == changed
+        assert changed is True
