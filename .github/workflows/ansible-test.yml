@@ -21,18 +21,18 @@ jobs:
           python-version: 3.9
 
       - name: Install Ansible
-        run: pip install ansible
+        run: pip install ansible==5.5
         
       - name: Install PyGithub
         run: pip install PyGithub
 
       - name: Perform sanity testing with ansible-test on module files
-        run: ansible-test sanity --python 3.9 --skip-test import plugins/modules/*
+        run: ansible-test sanity --python 3.9 --skip-test import --skip-test ansible-doc --skip-test validate-modules plugins/modules/*
           
       - name: Perform unit testing with ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
-          ansible-core-version: stable-2.11
+          ansible-core-version: stable-2.12
           pre-test-cmd: echo This runs before the ansible-test invocation
           python-version: 3.9
           target-python-version: 3.9
