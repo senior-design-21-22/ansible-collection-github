@@ -594,7 +594,7 @@ def run_module():
                             "hooks_url": hooks_url,
                             "language": None,
                             "name": module.params['repository'],
-                            "owner": module.params['organization_name'],
+                            "owner": module.params['organization'],
                             "private": module.params['private'],
                             "url": url
                         }
