@@ -44,18 +44,18 @@ pip install PyGithub
 ### Repository Information
 
 ```
-  - name: "List GitHub repositories within non-enterprise organization"
+  - name: "List GitHub repositories within a non-enterprise organization"
     ohioit.github.repository_information:
-      access_token: "<TOKEN>"
-      organization: "<ORGANIZATION NAME>"
+      token: "<API TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
     register: result
 
-  - name: "List GitHub repositories within enterprise organization"
+  - name: "List GitHub repositories within an enterprise organization"
     ohioit.github.repository_information:
-      access_token: "<TOKEN>"
-      organization: "<ORGANIZATION NAME>"
-      api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    register: result   
+      token: "<TOKEN>"
+      organization_name: "<ORGANIZATION NAME>"
+      enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+    register: result    
 ```
 ### Collaborator Information
 
