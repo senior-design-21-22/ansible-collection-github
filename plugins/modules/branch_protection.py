@@ -32,22 +32,22 @@ description:
   - "A module that allows the addition, deletion and modification of existing branch protections"
 
 options:
-    token:
+    access_token:
         description:
             - GitHub API token used to retrieve information about repositories to which a user has access.
         required: true
         type: str
-    enterprise_url:
+    api_url:
         description:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL. This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
-    organization_name:
+    organization:
         description:
           - The organization in which branch protections will be modified.
         required: true
         type: str
-    repo:
+    repository:
         description:
           - The repository in which branch protections will be modified.
         required: true
@@ -79,10 +79,10 @@ EXAMPLES = '''
 # Given an existing branch, create or modify current branch protections
 - name: "Modify branch protections to a branch"
   ohioit.github.branch_protection:
-    token: "12345"
-    organization_name: "SSEP"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "testing-repo-public"
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-public"
     branch: "tyler-branch"
     state: present
     branch_protections:
@@ -102,9 +102,9 @@ EXAMPLES = '''
 - name: "Remove all branch protections from a branch"
   ohioit.github.branch_protection:
     token: "12345"
-    organization_name: "SSEP"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "testing-repo-public"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-public"
     branch: "tyler-branch"
     state: absent
     register: result
