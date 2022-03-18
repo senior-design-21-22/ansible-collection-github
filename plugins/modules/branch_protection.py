@@ -32,22 +32,23 @@ description:
   - "A module that allows the addition, deletion and modification of existing branch protections"
 
 options:
-    token:
+    access_token:
         description:
             - GitHub API token used to retrieve information about repositories to which a user has access.
         required: true
         type: str
-    enterprise_url:
+    api_url:
         description:
-            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL. This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
+            - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
+              This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
         type: str
-    organization_name:
+    organization:
         description:
           - The organization in which branch protections will be modified.
         required: true
         type: str
-    repo:
+    repository:
         description:
           - The repository in which branch protections will be modified.
         required: true
@@ -79,10 +80,10 @@ EXAMPLES = '''
 # Given an existing branch, create or modify current branch protections
 - name: "Modify branch protections to a branch"
   ohioit.github.branch_protection:
-    token: "12345"
-    organization_name: "SSEP"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "testing-repo-public"
+    access_token: "12345"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-public"
     branch: "tyler-branch"
     state: present
     branch_protections:
@@ -102,9 +103,9 @@ EXAMPLES = '''
 - name: "Remove all branch protections from a branch"
   ohioit.github.branch_protection:
     token: "12345"
-    organization_name: "SSEP"
-    enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-    repo: "testing-repo-public"
+    organization: "SSEP"
+    api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+    repository: "testing-repo-public"
     branch: "tyler-branch"
     state: absent
     register: result
@@ -130,19 +131,22 @@ branch_protections.enforce_admins.enabled:
     description: Enforce all configured restrictions for administrators. Set to true to enforce required status checks for repository administrators.
     type: bool
     returned: If branch protections are present.
-    
+
 branch_protections.enforce_admins.url:
     description: API URL where to find the enforce_admins status
     type: str
     returned: If branch protections are present.
 
 branch_protections.required_conversation_resolution.enabled:
-    description: Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule. Set to false to disable.
+    description: Requires all conversations on code to be resolved before a pull request can be merged into a branch that matches this rule.
+                 Set to false to disable.
     type: bool
     returned: If branch protections are present.
 
 branch_protections.required_linear_history.enabled:
-    description: Enforces a linear commit Git history, which prevents anyone from pushing merge commits to a branch. Set to true to enforce a linear commit history. Set to false to disable a linear commit Git history. Your repository must allow squash merging or rebase merging before you can enable a linear commit history.
+    description: Enforces a linear commit Git history, which prevents anyone from pushing merge commits to a branch.
+                 Set to true to enforce a linear commit history. Set to false to disable a linear commit Git history.
+                 Your repository must allow squash merging or rebase merging before you can enable a linear commit history.
     type: bool
     returned: If branch protections are present.
 
@@ -269,6 +273,7 @@ def absent_branch_protection_check_mode():
     output = dict()
     return output
 
+
 def present_branch_protection_check_mode(initial, branch_protections, api_url, repository, organization, branch):
     if initial != {}:
         output = initial.copy()
@@ -282,7 +287,8 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             },
             "enforce_admins": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -294,39 +300,51 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
+                    "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                    "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                           organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
+                    "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
+                "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
                 "strict": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/S" + organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
+                "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
+                "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
+                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                       organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
+                "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
             },
-            "url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection"
+            "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                   organization + "/" + repository + "/branches/" + branch + "/protection"
         }
-        
+
     output['enforce_admins']['enabled'] = branch_protections['enforce_admins']
-    output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews'] 
+    output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
     output['required_status_checks']['strict'] = branch_protections['strict']
     output['required_status_checks']['contexts'] = branch_protections['contexts']
     output['required_pull_request_reviews']['dismiss_stale_reviews'] = branch_protections['dismiss_stale_reviews']
@@ -334,72 +352,72 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     output['required_pull_request_reviews']['required_approving_review_count'] = branch_protections['required_approving_review_count']
 
     for team in branch_protections["dismissal_teams"]:
-        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) == None:
+        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) is None:
             new_team = {
-                        "description": "This is a team to test branch protection functionality",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" + organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                        "id": 0,
-                        "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
-                        "name": team,
-                        "node_id": "NodeID",
-                        "parent": None,
-                        "permission": "pull",
-                        "privacy": "closed",
-                        "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
-                        "slug": team,
-                        "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
-                    }
+                "description": "This is a team to test branch protection functionality",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                "id": 0,
+                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                "name": team,
+                "node_id": "NodeID",
+                "parent": None,
+                "permission": "pull",
+                "privacy": "closed",
+                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                "slug": team,
+                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+            }
             output['required_pull_request_reviews']['dismissal_restrictions']['teams'].append(new_team)
-    
+
     for team in output['required_pull_request_reviews']['dismissal_restrictions']['teams']:
         if team['name'] not in branch_protections['dismissal_teams']:
             output['required_pull_request_reviews']['dismissal_restrictions']['teams'].remove(team)
-            
-            
+
     for user in branch_protections["dismissal_users"]:
-        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['users'] if x["login"] == user), None) == None:
+        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['users'] if x["login"] == user), None) is None:
             new_user = {
-                        "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
-                        "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                        "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                        "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                        "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                        "gravatar_id": "",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                        "id": 000,
-                        "login": user,
-                        "node_id": "NodeID",
-                        "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                        "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                        "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
-                        "site_admin": False,
-                        "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
-                        "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
-                        "type": "User",
-                        "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
-                    }
+                "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
+                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": 000,
+                "login": user,
+                "node_id": "NodeID",
+                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                "site_admin": False,
+                "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
+                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                "type": "User",
+                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
+            }
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].append(new_user)
 
     for user in output['required_pull_request_reviews']['dismissal_restrictions']['users']:
         if user['login'] not in branch_protections['dismissal_users']:
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].remove(user)
-            
+
     for team in branch_protections["team_push_restrictions"]:
-        if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) == None:
-            new_team={
-                        "description": "This is a team to test branch protection functionality",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
-                        "id": 0,
-                        "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
-                        "name": team,
-                        "node_id": "NodeID",
-                        "parent": None,
-                        "permission": "pull",
-                        "privacy": "closed",
-                        "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
-                        "slug": team,
-                        "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
-                    }
+        if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) is None:
+            new_team = {
+                "description": "This is a team to test branch protection functionality",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
+                "id": 0,
+                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                "name": team,
+                "node_id": "NodeID",
+                "parent": None,
+                "permission": "pull",
+                "privacy": "closed",
+                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                "slug": team,
+                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+            }
             output['restrictions']['teams'].append(new_team)
 
     for team in output['restrictions']['teams']:
@@ -407,27 +425,27 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             output['restrictions']['teams'].remove(team)
 
     for user in branch_protections["user_push_restrictions"]:
-        if next((x for x in output['restrictions']['users'] if x["login"] == user), None) == None:
-            new_user ={
-                        "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
-                        "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                        "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                        "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                        "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                        "gravatar_id": "",
-                        "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                        "id": 0,
-                        "login": user,
-                        "node_id": "NodeID",
-                        "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                        "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                        "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
-                        "site_admin": False,
-                        "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
-                        "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
-                        "type": "User",
-                        "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
-                    }
+        if next((x for x in output['restrictions']['users'] if x["login"] == user), None) is None:
+            new_user = {
+                "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
+                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                "gravatar_id": "",
+                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": 0,
+                "login": user,
+                "node_id": "NodeID",
+                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                "site_admin": False,
+                "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
+                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                "type": "User",
+                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
+            }
             output['restrictions']['users'].append(new_user)
 
     for user in output['restrictions']['users']:
@@ -472,11 +490,11 @@ def get_branch_protections(g, repo, branch, token):
 
 def run_module():
     module_args = dict(
-        token=dict(type='str', required=True, no_log=True),
-        organization_name=dict(
+        access_token=dict(type='str', required=True, no_log=True),
+        organization=dict(
             type='str', required=True),
-        enterprise_url=dict(type='str'),
-        repo=dict(type='str', required=True),
+        api_url=dict(type='str'),
+        repository=dict(type='str', required=True),
         branch=dict(type='str', required=True),
         branch_protections=dict(type='dict'),
         state=dict(type="str", default="present")
@@ -487,41 +505,47 @@ def run_module():
         supports_check_mode=True
     )
 
-    if(module.params['enterprise_url'] == ''):
-        g = Github(module.params['token'])
+    if(module.params['api_url'] == ''):
+        g = Github(module.params['access_token'])
     else:
-        g = Github(module.params['token'],
-                   base_url=module.params['enterprise_url'])
+        g = Github(module.params['access_token'],
+                   base_url=module.params['api_url'])
 
-    if len(module.params['repo']):
-        module.params['repo'] = module.params['organization_name'] + \
-            "/" + module.params['repo']
+    if len(module.params['repository']):
+        module.params['repository'] = module.params['organization'] + \
+            "/" + module.params['repository']
 
-    initial = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
+    initial = get_branch_protections(g, module.params['repository'], module.params['branch'], module.params['access_token'])
     output = dict()
     if not initial:
         initial = {}
 
     if module.params["state"] == "present":
         if module.check_mode:
-            output = present_branch_protection_check_mode(initial, module.params['branch_protections'], module.params['enterprise_url'], module.params['repo'], module.params['organization_name'], module.params['branch'])
+            output = present_branch_protection_check_mode(
+                initial,
+                module.params['branch_protections'],
+                module.params['api_url'],
+                module.params['repository'],
+                module.params['organization'],
+                module.params['branch']
+            )
         else:
-            present_branch_protections(g, module.params['repo'], module.params['branch'], module.params['branch_protections'])
+            present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])
 
     if module.params["state"] == "absent":
         if module.check_mode:
             output = absent_branch_protection_check_mode()
         else:
-            absent_branch_protection(g, module.params['repo'], module.params['branch'])
+            absent_branch_protection(g, module.params['repository'], module.params['branch'])
 
-    if module.check_mode == False:
-        output = get_branch_protections(g, module.params['repo'], module.params['branch'], module.params['token'])
+    if module.check_mode is False:
+        output = get_branch_protections(g, module.params['repository'], module.params['branch'], module.params['access_token'])
 
     result = dict(
         changed=initial != output,
         fact=''
     )
-
 
     module.exit_json(branch_protections=output, changed=initial != output)
 
