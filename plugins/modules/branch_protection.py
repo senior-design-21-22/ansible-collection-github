@@ -42,6 +42,7 @@ options:
             - If using a token from a GitHub Enterprise account, the user must pass an enterprise URL.
               This URL must be structured as 'https://github.<ENTERPRISE DOMAIN>/api/v3'.
         required: false
+        default: ''
         type: str
     organization:
         description:
@@ -287,8 +288,8 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             },
             "enforce_admins": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                       organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                    #    organization + "/" + repository + "/branches/" + branch + "/protection/enforce_admins"
             },
             "required_conversation_resolution": {
                 "enabled": False
@@ -300,44 +301,44 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
                 "dismiss_stale_reviews": False,
                 "dismissal_restrictions": {
                     "teams": [],
-                    "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                    "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                           organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
+                    # "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                #  organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                    # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                        #    organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions",
                     "users": [],
-                    "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                                 organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
+                    # "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                #  organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/users"
                 },
                 "require_code_owner_reviews": False,
                 "required_approving_review_count": 0,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                       organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                    #    organization + "/" + repository + "/branches/" + branch + "/protection/required_pull_request_reviews"
             },
             "required_signatures": {
                 "enabled": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                       organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                    #    organization + "/" + repository + "/branches/" + branch + "/protection/required_signatures"
             },
             "required_status_checks": {
                 "contexts": [],
-                "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                                organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
+                # "contexts_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                                # organization + "/" + repository + "/branches/" + branch + "/protection/required_status_checks/contexts",
                 "strict": False,
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                       organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                    #    organization + "SEP/" + repository + "/branches/" + branch + "/protection/required_status_checks"
             },
             "restrictions": {
                 "apps": [],
-                "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                            organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
+                # "apps_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            # organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/apps",
                 "teams": [],
-                "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
-                "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                       organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
+                # "teams_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            #  organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/teams",
+                # "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                    #    organization + "/" + repository + "/branches/" + branch + "/protection/restrictions",
                 "users": [],
-                "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                             organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
+                # "users_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            #  organization + "/" + repository + "/branches/" + branch + "/protection/restrictions/users"
             },
             "url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
                    organization + "/" + repository + "/branches/" + branch + "/protection"
@@ -354,19 +355,19 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     for team in branch_protections["dismissal_teams"]:
         if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) is None:
             new_team = {
-                "description": "This is a team to test branch protection functionality",
-                "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
-                            organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
-                "id": 0,
-                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                # "description": "This is a team to test branch protection functionality",
+                # "html_url": "https://" + (api_url if api_url else "github.com") + "/repos/" +
+                            # organization + "/" + repository + "/branches/" + branch + "/protection/dismissal_restrictions/teams",
+                "id": -1,
+                # "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
                 "name": team,
                 "node_id": "NodeID",
                 "parent": None,
                 "permission": "pull",
                 "privacy": "closed",
-                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                # "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
                 "slug": team,
-                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
             }
             output['required_pull_request_reviews']['dismissal_restrictions']['teams'].append(new_team)
 
@@ -377,24 +378,24 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     for user in branch_protections["dismissal_users"]:
         if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['users'] if x["login"] == user), None) is None:
             new_user = {
-                "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
-                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                "gravatar_id": "",
-                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                "id": 000,
+                # "avatar_url": "https://avatars." + (api_url if api_url else "github.com") + "/u/108?",
+                # "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                # "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                # "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                # "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                # "gravatar_id": "",
+                # "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": -1,
                 "login": user,
                 "node_id": "NodeID",
-                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                # "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                # "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                # "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
                 "site_admin": False,
-                "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
-                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                # "starred_url": "https://" + (api_url if api_url else "github.com") + "//users/" + user + "/starred{/owner}{/repo}",
+                # "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
                 "type": "User",
-                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
+                # "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user
             }
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].append(new_user)
 
@@ -405,18 +406,18 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     for team in branch_protections["team_push_restrictions"]:
         if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) is None:
             new_team = {
-                "description": "This is a team to test branch protection functionality",
-                "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
-                "id": 0,
-                "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
+                # "description": "This is a team to test branch protection functionality",
+                # "html_url": "https://" + (api_url if api_url else "github.com") + "/orgs/" + organization + "/teams/" + team,
+                "id": -1,
+                # "members_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/members{/member}",
                 "name": team,
                 "node_id": "NodeID",
                 "parent": None,
                 "permission": "pull",
                 "privacy": "closed",
-                "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
+                # "repositories_url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0/repos",
                 "slug": team,
-                "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
+                # "url": "https://" + (api_url if api_url else "github.com") + "/organizations/0/team/0"
             }
             output['restrictions']['teams'].append(new_team)
 
@@ -427,24 +428,24 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     for user in branch_protections["user_push_restrictions"]:
         if next((x for x in output['restrictions']['users'] if x["login"] == user), None) is None:
             new_user = {
-                "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
-                "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
-                "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
-                "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
-                "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
-                "gravatar_id": "",
-                "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
-                "id": 0,
+                # "avatar_url": "https://" + (api_url if api_url else "github.com") + "/u/0",
+                # "events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/events{/privacy}",
+                # "followers_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/followers",
+                # "following_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/following{/other_user}",
+                # "gists_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/gists{/gist_id}",
+                # "gravatar_id": "",
+                # "html_url": "https://" + (api_url if api_url else "github.com") + "/" + user,
+                "id": -1,
                 "login": user,
                 "node_id": "NodeID",
-                "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
-                "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
-                "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
+                # "organizations_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/orgs",
+                # "received_events_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/received_events",
+                # "repos_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/repos",
                 "site_admin": False,
-                "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
-                "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
+                # "starred_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/starred{/owner}{/repo}",
+                # "subscriptions_url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + "/subscriptions",
                 "type": "User",
-                "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
+                # "url": "https://" + (api_url if api_url else "github.com") + "/users/" + user + ""
             }
             output['restrictions']['users'].append(new_user)
 
@@ -482,6 +483,73 @@ def get_branch_protections(g, repo, branch, token):
         else:
             url = branch.protection_url
             output = requests.get(url, headers={'Authorization': 'Bearer ' + format(token)}).json()
+            output['enforce_admins'] = {
+                'enabled': output['enforce_admins']['enabled']
+            }
+            dismissal_team_list = list()
+            for team in output['required_pull_request_reviews']['dismissal_restrictions']['teams']:
+                team_info = {
+                    'id': team['id'],
+                    'name': team['name'],
+                    'node_id': team['node_id'],
+                    'permission': team['permission'],
+                    'privacy': team['privacy'],
+                    'slug': team['slug']
+                }
+                dismissal_team_list.append(team_info)
+            dismissal_user_list = list()
+            for user in output['required_pull_request_reviews']['dismissal_restrictions']['users']:
+                user_info = {
+                    'id': user['id'],
+                    'login': user['login'],
+                    'node_id': user['node_id'],
+                    'site_admin': user['site_admin'],
+                    'type': user['type']
+                }
+                dismissal_user_list.append(user_info)
+            restrictions_team_list = list()
+            for team in output['restrictions']['teams']:
+                team_info = {
+                    'id': team['id'],
+                    'name': team['name'],
+                    'node_id': team['node_id'],
+                    'permission': team['permission'],
+                    'privacy': team['privacy'],
+                    'slug': team['slug']
+                }
+                restrictions_team_list.append(team_info)
+            restrictions_user_list = list()
+            for user in output['restrictions']['users']:
+                user_info = {
+                    'id': user['id'],
+                    'login': user['login'],
+                    'node_id': user['node_id'],
+                    'site_admin': user['site_admin'],
+                    'type': user['type']
+                }
+                restrictions_user_list.append(user_info)
+            output['required_pull_request_reviews'] = {
+                'dismiss_stale_reviews': output['required_pull_request_reviews']['dismiss_stale_reviews'],
+                'dismissal_restrictions': {
+                    'teams': dismissal_team_list,
+                    'users': dismissal_user_list
+                },
+                'require_code_owner_reviews': output['required_pull_request_reviews']['require_code_owner_reviews'],
+                'required_approving_review_count': output['required_pull_request_reviews']['required_approving_review_count']
+            }
+            output['required_signatures'] = {
+                'enabled': output['required_signatures']['enabled']
+            }
+            output['required_status_checks'] = {
+                'checks': output['required_status_checks']['checks'],
+                'contexts': output['required_status_checks']['contexts'],
+                'strict': output['required_status_checks']['strict']
+            }
+            output['restrictions'] = {
+                'apps': output['restrictions']['apps'],
+                'teams': restrictions_team_list,
+                'users': restrictions_user_list
+            }
             return output
 
     except Exception as e:
@@ -493,7 +561,7 @@ def run_module():
         access_token=dict(type='str', required=True, no_log=True),
         organization=dict(
             type='str', required=True),
-        api_url=dict(type='str'),
+        api_url=dict(type='str', default=''),
         repository=dict(type='str', required=True),
         branch=dict(type='str', required=True),
         branch_protections=dict(type='dict'),
