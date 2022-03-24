@@ -407,6 +407,7 @@ def present_branch_protections(g, repo, branch, branch_protections):
                                user_push_restrictions=branch_protections["user_push_restrictions"],
                                team_push_restrictions=branch_protections["team_push_restrictions"])
 
+        return 1
     except Exception as e:
         return e
 
@@ -543,7 +544,9 @@ def run_module():
                 module.params['branch']
             )
         else:
-            present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])
+            result = present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])
+            if result != 1:
+                module.fail_json(changed=False, failed=True, msg=result)
 
     if module.params["state"] == "absent":
         if module.check_mode:
