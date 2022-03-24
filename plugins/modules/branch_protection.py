@@ -505,6 +505,13 @@ def run_module():
         supports_check_mode=True
     )
 
+    valid_states = ['present', 'absent']
+
+    if module.params['state'] not in valid_states:
+        module.fail_json(changed=False, failed=True, msg="Invalid state: " +
+                             module.params['state'] +
+                             ". State must be 'present' or 'absent'")
+
     if(module.params['api_url'] == ''):
         g = Github(module.params['access_token'])
     else:
