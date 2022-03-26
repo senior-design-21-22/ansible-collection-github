@@ -231,13 +231,13 @@ def present_collaborator_check_mode(g, repo, collaborator, permission, current_c
         permissions = {
             'admin': False,
             'pull': True,
-            'push': True,
-            'triage': True
+            'push': False,
+            'triage': False
         }
     else:
         permissions = {
             'admin': False,
-            'pull': False,
+            'pull': True,
             'push': True,
             'triage': True
         }
@@ -269,7 +269,7 @@ def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators)
     collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
     output_collaborators = current_collaborators.copy()
     if collaborator_position is not None:
-        output_collaborators.remove(collaborator_position)
+        output_collaborators.pop(collaborator_position)
 
     return output_collaborators
 
@@ -321,17 +321,20 @@ def run_module():
                     g, module.params['repository'], module.params['collaborator'], module.params['permission'], current_collaborators)
         elif module.params['permission'].lower() not in valid_permissions:
             module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
-                             module.params['collaborator'] +
+                             module.params['permission'] +
                              ". Permissions must be 'push' 'pull' or 'admin'")
 
-    if module.params['state'] == 'absent' and len(module.params['repository']):
+    elif module.params['state'] == 'absent' and len(module.params['repository']):
         if module.check_mode is False:
             absent_collaborator(
                 g, module.params['repository'], module.params['collaborator'])
         else:
             output = absent_collaborator_check_mode(
                 g, module.params['repository'], module.params['collaborator'], current_collaborators)
-
+    elif module.params['state'] not in ["absent", "present"]:
+        module.exit_json(changed=False, failed=True, msg="Invalid state: " +
+                             module.params['state'] +
+                             ". State must be 'present' or 'absent'")
     if module.check_mode is False:
         output = get_collaborators(g, module.params['repository'])
 
