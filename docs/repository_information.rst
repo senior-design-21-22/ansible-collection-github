@@ -40,7 +40,7 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>GitHub Token</b>
+                    <b>access_token</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -55,7 +55,7 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>org_name</b>
+                    <b>organization</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -70,7 +70,7 @@ Parameters
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>enterprise_url</b>
+                    <b>api_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -97,15 +97,15 @@ Examples
 
     - name: "List GitHub repositories within non-enterprise organization"
       ohioit.github.repository_information:
-        token: "<TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
+        access_token: "<TOKEN>"
+        organization: "<ORGANIZATION NAME>"
       register: result
  
     - name: "List GitHub repositories within enterprise organization"
       ohioit.github.repository_information:
-        token: "<TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
+        access_token: "<TOKEN>"
+        organization: "<ORGANIZATION NAME>"
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
       register: result
       
      
