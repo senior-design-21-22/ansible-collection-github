@@ -33,11 +33,11 @@ pip install PyGithub
 
 | Name                                                                                                                                             | Description                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| [repository_information](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/repository_information.rst) | Output repositories along with vital information from an (user specified) organization |
-| [collaborator_information](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/collaborator_information.rst) | View and manage repository collaborators |
-| [repository_webhooks](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/repository_webhooks.rst) | A module that manages a repository's webhooks |
-| [branch_protection](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/branch_protection.rst) | A module that allows the modification of branch protections. |
-| [general_repository](https://github.com/senior-design-21-22/ansible-collection-github/blob/development/docs/general_repository.rst) | A module that manages a repository in an organization. |
+| [repository_information](https://github.com/ohioit/ansible-collection-github/blob/main/docs/repository_information.rst) | Output repositories along with vital information from an (user specified) organization |
+| [collaborator_information](https://github.com/ohioit/ansible-collection-github/blob/main/docs/collaborator_information.rst) | View and manage repository collaborators |
+| [repository_webhooks](https://github.com/ohioit/ansible-collection-github/blob/main/docs/repository_webhooks.rst) | A module that manages a repository's webhooks |
+| [branch_protection](https://github.com/ohioit/ansible-collection-github/blob/main/docs/branch_protection.rst) | A module that allows the modification of branch protections. |
+| [general_repository](https://github.com/ohioit/ansible-collection-github/blob/main/docs/general_repository.rst) | A module that manages a repository in an organization. |
 
 ## Usage
 
@@ -62,31 +62,38 @@ pip install PyGithub
 ```
     - name: "Functions of Collaborator information module"
       ohioit.github.collaborator_information:
-        token: "<API TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
-        repos:
-          - "<REPO 1>"
-          - "<REPO 2>"
-          - "<REPO 3>"
-        collaborators_to_add:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-        check_collaborator:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-        collaborators_to_change:
-          <GITHUB USERNAME>: "<triage, pull, push or admin>"
-        collaborators_to_remove:
-          - "<GITHUB USERNAME>"   
+        access_token: "<API TOKEN>"
+        organization: "<ORGANIZATION NAME>"
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+        repository: "<REPOSITORY NAME>"
+        collaborator: "<VALID GITHUB USERNAME>"
+        permission: <pull, push, or admin>
+        state: <present or absent> 
+```
+### Webhook
+```
+    - name: "Add/Modify webhook to GitHub repository MOD 3"
+      ohioit.github.repository_webhooks:
+        state: <present or absent> 
+        access_token: "<API TOKEN>"
+        organization: "<ORGANIZATION NAME>"
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+        repository: "<REPOSITORY NAME>"
+        url: "<RECEIVING URL>"
+        events:
+          - "<LIST EVENT 1>"
+          - "<LIST EVENT 2>"
+        content_type: <json or form>
 ```
 ### Branch Protection
 
 ```
     - name: "Modify branch protections to a branch"
       ohioit.github.branch_protection:
-        token: "<API TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repo: "<REPO NAME>"
+        access_token: "<API TOKEN>"
+        organization: "<ORGANIZATION NAME>"
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+        repository: "<REPOSITORY NAME>"
         branch: "<BRANCH NAME>"
         state: "<present or absent>"
         branch_protections:
@@ -106,10 +113,10 @@ pip install PyGithub
 ```
     - name: "Create repository within enterprise organization"
       ohioit.github.general_repository:
-        token: "<API TOKEN>"
-        organization_name: "<ORGANIZATION NAME>"
-        enterprise_url: "https://github.<ENTERPRISE DOMAIN>/api/v3"
-        repo_name: <REPO NAME>
+        access_token: "<API TOKEN>"
+        organization: "<ORGANIZATION NAME>"
+        api_url: "https://github.<ENTERPRISE DOMAIN>/api/v3/"
+        repository: "<REPOSITORY NAME>"
         private: <true or false>
         description: "<DESCRIPTION OF REPOSITORY>"
         homepage: "<HOMEPAGE NAME>"
@@ -119,8 +126,8 @@ pip install PyGithub
         has_projects: <true or false>
         team_id: <INTEGER>
         auto_init: <true or false>
-        license_template: <LICENSING GUIDLINES example: gpl-3.0>
-        gitignore_template: "<SUPPPORTED PROGRAMMING LANGUAGE>"
+        license_template: "<LICENSING GUIDLINES example: gpl-3.0>"
+        gitignore_template: "<SUPPORTED PROGRAMMING LANGUAGE>"
         allow_squash_merge: <true or false>
         allow_merge_commit: <true or false>
         allow_rebase_merge: <true or false>

@@ -481,7 +481,7 @@ def get_branch_protections(g, repo, branch, token):
             return output
         else:
             url = branch.protection_url
-            output = requests.get(url, headers={'Authorization': 'Bearer {}'.format(token)}).json()
+            output = requests.get(url, headers={'Authorization': 'Bearer ' + format(token)}).json()
             return output
 
     except Exception as e:
