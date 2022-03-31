@@ -550,7 +550,9 @@ def run_module():
                 module.params['api_url'],
                 module.params['repository'],
                 module.params['organization'],
-                module.params['branch']
+                module.params['branch'],
+                g.get_organization(module.params['organization']),
+                module.params['access_token'],
             )
         else:
             result = present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])
