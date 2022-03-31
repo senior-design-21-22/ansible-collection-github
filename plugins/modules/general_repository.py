@@ -330,10 +330,10 @@ def run_module():
         module.params['organization'] + \
         '/' + module.params['repository']
 
-    req = requests.get(
+    initialReq = requests.get(
         getUrl, headers={'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token']})
 
-    if req.status_code == 404:  # repository does NOT exist
+    if initialReq.status_code == 404:  # repository does NOT exist
         if module.params['state'] == 'present':
             org = g.get_organization(module.params['organization'])
             for team in org.get_teams():
@@ -356,11 +356,6 @@ def run_module():
                         full_name = "%s/%s" % (
                             module.params['organization'], module.params['repository'])
 
-                        is_private = module.params['visibility']
-
-                        if module.params['visibility'] == 'internal' or module.params['visibility'] == 'private':
-                            is_private = True
-
                         output_repo = {
                             "allow_merge_commit": module.params['allow_merge_commit'],
                             "allow_rebase_merge": module.params['allow_rebase_merge'],
@@ -380,7 +375,7 @@ def run_module():
                             "language": None,
                             "name": module.params['repository'],
                             "owner": module.params['organization'],
-                            "private": is_private,
+                            "visibility": module.params['visibility'],
                             "url": url
                         }
                     else:
@@ -409,14 +404,14 @@ def run_module():
 
                         requests.post(
                             url, json=payload, headers={'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token']})
-    elif req.status_code == 200:  # Repository DOES exist
-        body = json.loads(req.text)
+    elif initialReq.status_code == 200:  # Repository DOES exist
+        body = json.loads(initialReq.text)
         initial = {
             "name": body['name'],
             "full_name": body['full_name'],
             "owner": body['owner']['login'],
             "description": body['description'],
-            "private": body['private'],
+            "visibility": body['visibility'],
             "archived": body['archived'],
             "language": body['language'],
             "url": body['url'],
@@ -437,7 +432,7 @@ def run_module():
         if module.params['state'] == 'present':
             if module.check_mode:
                 output_repo = initial.copy()
-                output_repo['private'] = module.params["visibility"]
+                output_repo['visibility'] = module.params["visibility"]
                 output_repo['description'] = module.params["description"]
                 output_repo['homepage'] = module.params["homepage"]
                 output_repo['has_issues'] = module.params["has_issues"]
@@ -495,7 +490,7 @@ def run_module():
             "full_name": body['full_name'],
             "owner": body['owner']['login'],
             "description": body['description'],
-            "private": body['private'],
+            "visibility": body['visibility'],
             "archived": body['archived'],
             "language": body['language'],
             "url": body['url'],
