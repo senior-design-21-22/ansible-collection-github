@@ -66,7 +66,7 @@ options:
         default: present
     branch_protections:
         description:
-          - The following elements will be modified or created upon the state being 'present'.
+          - The following elements will be modified or created upon the state being 'present'. When setting 'team and 'user' lists, the new values will be set.
         required: false
         type: dict
 

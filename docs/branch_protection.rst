@@ -228,7 +228,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>The list of status checks to require in order to merge into this branch.</div>  <!-- COMMENTS -->
+                        <div>The list of status checks to require in order to merge into this branch. This will set the contexts to exactly what is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- ENFORCE ADMINS -->
@@ -268,7 +268,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Specify which users can dismiss pull request reviews.</div>  <!-- COMMENTS -->
+                        <div>Specify which users can dismiss pull request reviews.  This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- DISMISSAL TEAMS -->
@@ -288,7 +288,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Specify which teams can dismiss pull request reviews.</div>  <!-- COMMENTS -->
+                        <div>Specify which teams can dismiss pull request reviews. This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- DISMISS STALE REVIEWS -->
@@ -368,7 +368,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories.</div>  <!-- COMMENTS -->
+                        <div>Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories. This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- TEAM PUSH RESTRICTIONS -->
@@ -388,7 +388,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories.</div>  <!-- COMMENTS -->
+                        <div>Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories. This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- END OF TABLE-->      
