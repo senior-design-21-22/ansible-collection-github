@@ -401,7 +401,6 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     return output
 
 
-
 def present_branch_protections(g, repo, branch, branch_protections):
     try:
         branch = g.get_repo(repo).get_branch(branch)
