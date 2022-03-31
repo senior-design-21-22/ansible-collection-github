@@ -446,18 +446,21 @@ def run_module():
 
         if module.params['state'] == 'present':
             if module.check_mode:
-                output_repo = initial.copy()
-                output_repo['visibility'] = module.params["visibility"]
-                output_repo['description'] = module.params["description"]
-                output_repo['homepage'] = module.params["homepage"]
-                output_repo['has_issues'] = module.params["has_issues"]
-                output_repo['has_wiki'] = module.params["has_wiki"]
-                output_repo['has_downloads'] = module.params["has_downloads"]
-                output_repo['has_projects'] = module.params["has_projects"]
-                output_repo['allow_merge_commit'] = module.params["allow_merge_commit"]
-                output_repo['allow_rebase_merge'] = module.params["allow_rebase_merge"]
-                output_repo['allow_squash_merge'] = module.params["allow_squash_merge"]
-                output_repo['delete_branch_on_merge'] = module.params["delete_branch_on_merge"]
+                org = g.get_organization(module.params['organization'])
+                for team in org.get_teams():
+                    if team.name == module.params['team_name']:
+                        output_repo = initial.copy()
+                        output_repo['visibility'] = module.params["visibility"]
+                        output_repo['description'] = module.params["description"]
+                        output_repo['homepage'] = module.params["homepage"]
+                        output_repo['has_issues'] = module.params["has_issues"]
+                        output_repo['has_wiki'] = module.params["has_wiki"]
+                        output_repo['has_downloads'] = module.params["has_downloads"]
+                        output_repo['has_projects'] = module.params["has_projects"]
+                        output_repo['allow_merge_commit'] = module.params["allow_merge_commit"]
+                        output_repo['allow_rebase_merge'] = module.params["allow_rebase_merge"]
+                        output_repo['allow_squash_merge'] = module.params["allow_squash_merge"]
+                        output_repo['delete_branch_on_merge'] = module.params["delete_branch_on_merge"]
             else:
                 org = g.get_organization(module.params['organization'])
                 for team in org.get_teams():
