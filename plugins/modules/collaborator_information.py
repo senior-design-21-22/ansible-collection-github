@@ -247,7 +247,7 @@ def present_collaborator_check_mode(g, repo, collaborator, permission, current_c
         # adding
         collaborator_to_add = {
             'login': collaborator,
-            'id': 000,
+            'id': -1,
             'type': 'User',
             'site_admin': True if permission == 'admin' else False,
             'permissions': permissions

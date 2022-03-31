@@ -38,11 +38,11 @@ Parameters
             <th>Choices/<font color="blue">Required</font></th>
             <th width="50%">Comments</th>
         </tr>
-  <!-- GITHUB TOKEN -->
+  <!-- ACCESS_TOKEN -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>token</b>
+                    <b>access_token</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -61,11 +61,11 @@ Parameters
                 </td>
             </tr>
 
-  <!-- ENTERPRISE_URL -->
+  <!-- API_URL -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>enterprise_url</b>
+                    <b>api_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -85,11 +85,11 @@ Parameters
                         <code>https://github.&ltENTERPRISE DOMAIN&gt/api/v3</code>
                 </td>
             </tr>
-  <!-- ORGANIZATION NAME-->
+  <!-- ORGANIZATION-->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>organization_name</b>                                                                            <!-- PARAMETER -->
+                    <b>organization</b>                                                                            <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -108,11 +108,11 @@ Parameters
                         <div>The organization in which branch protections will be modified.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- REPO -->
+    <!-- REPOSITORY -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>repo</b>                                                    <!-- PARAMETER -->
+                    <b>repository</b>                                                    <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -228,7 +228,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>The list of status checks to require in order to merge into this branch.</div>  <!-- COMMENTS -->
+                        <div>The list of status checks to require in order to merge into this branch. This will set the contexts to exactly what is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- ENFORCE ADMINS -->
@@ -268,7 +268,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Specify which users can dismiss pull request reviews.</div>  <!-- COMMENTS -->
+                        <div>Specify which users can dismiss pull request reviews.  This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- DISMISSAL TEAMS -->
@@ -288,7 +288,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Specify which teams can dismiss pull request reviews.</div>  <!-- COMMENTS -->
+                        <div>Specify which teams can dismiss pull request reviews. This will set the teams to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- DISMISS STALE REVIEWS -->
@@ -368,7 +368,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories.</div>  <!-- COMMENTS -->
+                        <div>Restrict who can push to the protected branch. User restrictions are only available for organization-owned repositories. This will set the users to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- TEAM PUSH RESTRICTIONS -->
@@ -388,7 +388,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories.</div>  <!-- COMMENTS -->
+                        <div>Restrict who can push to the protected branch. Team restrictions are only available for organization-owned repositories. This will set the teams to exactly who is in the list.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- END OF TABLE-->      

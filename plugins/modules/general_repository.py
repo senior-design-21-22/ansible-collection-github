@@ -294,10 +294,10 @@ import requests
 
 def run_module():
     module_args = dict(
-        access_token=dict(type='str', default='No Token Provided.'),
-        organization=dict(type='str', default=''),
+        access_token=dict(type='str', required=True, no_log=True),
+        organization=dict(type='str', required=True),
         api_url=dict(type='str', default=''),
-        repository=dict(type='str', default=''),
+        repository=dict(type='str', required=True),
         team_name=dict(type='str', default=0),
         visibility=dict(type='str', default='public'),
         has_issues=dict(type='bool', default=True),

@@ -66,7 +66,7 @@ options:
         default: present
     branch_protections:
         description:
-          - The following elements will be modified or created upon the state being 'present'.
+          - The following elements will be modified or created upon the state being 'present'. When setting 'team and 'user' lists, the new values will be set.
         required: false
         type: dict
 
@@ -549,7 +549,9 @@ def run_module():
                 module.params['api_url'],
                 module.params['repository'],
                 module.params['organization'],
-                module.params['branch']
+                module.params['branch'],
+                g.get_organization(module.params['organization']),
+                module.params['access_token'],
             )
         else:
             result = present_branch_protections(g, module.params['repository'], module.params['branch'], module.params['branch_protections'])

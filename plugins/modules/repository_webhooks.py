@@ -174,16 +174,6 @@ webhooks.<ELEMENT INDEX>.name:
     type: str
     returned: provided per webhook dictionary
 
-webhooks.<ELEMENT INDEX>.ping_url:
-    description: The url to ping the webhook.
-    type: str
-    returned: provided per webhook dictionary
-
-webhooks.<ELEMENT INDEX>.test_url:
-    description: The url to test the webhook.
-    type: str
-    returned: provided per webhook dictionary
-
 webhooks.<ELEMENT INDEX>.url:
     description: The url in which the webhook resides
     type: str
@@ -211,8 +201,6 @@ def get_webhooks(g, repo):
             "name": current_hook.name,
             "url": current_hook.url,
             "active": current_hook.active,
-            "test_url": current_hook.test_url,
-            "ping_url": current_hook.ping_url,
             "events": current_hook.events,
         }
         hooks.append(current_hook_dict)
@@ -368,14 +356,12 @@ def run_module():
                         "active": True,
                         "config": {
                             "content_type": module.params['content_type'],
-                            "insecure_ssl": "0",
+                            "insecure_ssl": "-1",
                             "url": module.params['url']
                         },
                         "events": module.params['events'],
-                        "id": "<WEBHOOK_ID>",
+                        "id": "-1",
                         "name": "web",
-                        "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repository"]),
-                        "test_url": "%s/%s/hooks/<WEBHOOK_ID>/test" % (urlBase, module.params["repository"]),
                         "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repository"])
                     })
             else:
