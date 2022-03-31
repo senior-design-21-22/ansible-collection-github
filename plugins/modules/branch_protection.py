@@ -62,8 +62,8 @@ options:
     state:
         description:
           - When provided 'present', the branch protection will either be created of modified. When provided 'absent', the branch protection will be deleted.
-        required: true
         type: str
+        default: present
     branch_protections:
         description:
           - The following elements will be modified or created upon the state being 'present'.
@@ -515,8 +515,8 @@ def run_module():
 
     if module.params['state'] not in valid_states:
         module.fail_json(changed=False, failed=True, msg="Invalid state: " +
-                             module.params['state'] +
-                             ". State must be 'present' or 'absent'")
+                         module.params['state'] +
+                         ". State must be 'present' or 'absent'")
 
     if(module.params['api_url'] == ''):
         g = Github(module.params['access_token'])
