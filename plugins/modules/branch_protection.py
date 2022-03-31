@@ -275,7 +275,7 @@ def absent_branch_protection_check_mode():
     return output
 
 
-def present_branch_protection_check_mode(initial, branch_protections, api_url, repository, organization, branch):
+def present_branch_protection_check_mode(initial, branch_protections, api_url, repository, organization, branch, org, token):
     if initial != {}:
         output = initial.copy()
     else:
@@ -329,16 +329,20 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
     output['required_pull_request_reviews']['required_approving_review_count'] = branch_protections['required_approving_review_count']
 
     for team in branch_protections["dismissal_teams"]:
-        if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) is None:
-            new_team = {
-                "id": -1,
-                "name": team,
-                "node_id": "NodeID",
-                "permission": "pull",
-                "privacy": "closed",
-                "slug": team,
-            }
-            output['required_pull_request_reviews']['dismissal_restrictions']['teams'].append(new_team)
+        for org_team in org.get_teams():
+            if org_team.name == team:
+                if next((x for x in output['required_pull_request_reviews']['dismissal_restrictions']['teams'] if x["name"] == team), None) is None:
+                    url = org.url + "/teams/" + team
+                    out = requests.get(url, headers={'Authorization': 'Bearer ' + format(token)}).json()
+                    new_team = {
+                        "id": org_team.id,
+                        "name": team,
+                        "node_id": out["node_id"],
+                        "permission": org_team.permission,
+                        "privacy": org_team.privacy,
+                        "slug": team,
+                    }
+                    output['required_pull_request_reviews']['dismissal_restrictions']['teams'].append(new_team)
 
     for team in output['required_pull_request_reviews']['dismissal_restrictions']['teams']:
         if team['name'] not in branch_protections['dismissal_teams']:
@@ -360,16 +364,20 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             output['required_pull_request_reviews']['dismissal_restrictions']['users'].remove(user)
 
     for team in branch_protections["team_push_restrictions"]:
-        if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) is None:
-            new_team = {
-                "id": -1,
-                "name": team,
-                "node_id": "NodeID",
-                "permission": "pull",
-                "privacy": "closed",
-                "slug": team,
-            }
-            output['restrictions']['teams'].append(new_team)
+        for org_team in org.get_teams():
+            if org_team.name == team:
+                if next((x for x in output['restrictions']['teams'] if x["name"] == team), None) is None:
+                    url = org.url + "/teams/" + team
+                    out = requests.get(url, headers={'Authorization': 'Bearer ' + format(token)}).json()
+                    new_team = {
+                        "id": org_team.id,
+                        "name": team,
+                        "node_id": out["node_id"],
+                        "permission": org_team.permission,
+                        "privacy": org_team.privacy,
+                        "slug": team,
+                    }
+                    output['restrictions']['teams'].append(new_team)
 
     for team in output['restrictions']['teams']:
         if team['name'] not in branch_protections['team_push_restrictions']:
@@ -391,6 +399,7 @@ def present_branch_protection_check_mode(initial, branch_protections, api_url, r
             output['restrictions']['users'].remove(user)
 
     return output
+
 
 
 def present_branch_protections(g, repo, branch, branch_protections):
