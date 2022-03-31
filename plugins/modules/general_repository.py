@@ -1,13 +1,12 @@
 #!/usr/bin/python
 
 from __future__ import absolute_import, division, print_function
-import collections
-from email.policy import default
 import json
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
 from numpy import outer
+import requests
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
@@ -285,7 +284,7 @@ def run_module():
         api_url=dict(type='str', default=''),
         repository=dict(type='str', default=''),
         team_name=dict(type='str', default=0),
-        private=dict(type='bool', default=False),
+        visibility=dict(type='str', default='public'),
         has_issues=dict(type='bool', default=True),
         has_wiki=dict(type='bool', default=True),
         auto_init=dict(type='bool', default=False),
@@ -303,16 +302,22 @@ def run_module():
     )
 
     valid_states = ["absent", "present"]
+    valid_visibilities = ['public', 'private', 'internal']
 
     module = AnsibleModule(
         argument_spec=module_args,
         supports_check_mode=True
     )
 
+    initial = {}
     output_repo = {}
 
     if module.params['state'] not in valid_states:
         error_message = 'Invalid state: ' + module.params['state']
+        module.exit_json(changed=False, err=error_message, failed=True)
+
+    if module.params['visibility'] not in valid_visibilities:
+        error_message = 'Invalid visibility: ' + module.params['visibility']
         module.exit_json(changed=False, err=error_message, failed=True)
 
     if module.params['api_url'] == '':
@@ -321,75 +326,15 @@ def run_module():
         g = Github(module.params['access_token'],
                    base_url=module.params['api_url'])
 
-    try:
-        repo = g.get_organization(
-            module.params['organization']).get_repo(module.params['repository'])
-        initial = {
-            "name": repo.name,
-            "full_name": repo.full_name,
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "archived": repo.archived,
-            "language": repo.language,
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url,
-            "allow_merge_commit": repo.allow_merge_commit,
-            "allow_rebase_merge": repo.allow_rebase_merge,
-            "allow_squash_merge": repo.allow_squash_merge,
-            "delete_branch_on_merge": repo.delete_branch_on_merge,
-            "has_issues": repo.has_issues,
-            "has_downloads": repo.has_downloads,
-            "has_wiki": repo.has_wiki,
-            "has_projects": repo.has_projects,
-            "homepage": repo.homepage
-        }
-    except Exception as e:
-        initial = {}
+    getUrl = module.params['api_url'] + '/repos/' + \
+        module.params['organization'] + \
+        '/' + module.params['repository']
 
-    if module.params['state'] == 'present':
-        try:
-            if module.params['license_template']:
-                error_message = 'Invalid license: ' + \
-                    module.params['license_template']
-                module.exit_json(changed=False, err=error_message, failed=True)
+    initialReq = requests.get(
+        getUrl, headers={'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token']})
 
-            if module.params['gitignore_template']:
-                error_message = 'Invalid gitignore template: ' + \
-                    module.params['gitignore_template']
-                module.exit_json(changed=False, err=error_message, failed=True)
-            repo = g.get_organization(module.params['organization']).get_repo(
-                module.params['repository'])
-            if repo:
-                if module.check_mode:
-                    output_repo = repo
-                    output_repo.private = module.params["private"]
-                    output_repo.description = module.params["description"]
-                    output_repo.homepage = module.params["homepage"]
-                    output_repo.has_issues = module.params["has_issues"]
-                    output_repo.has_wiki = module.params["has_wiki"]
-                    output_repo.has_downloads = module.params["has_downloads"]
-                    output_repo.has_projects = module.params["has_projects"]
-                    output_repo.allow_merge_commit = module.params["allow_merge_commit"]
-                    output_repo.allow_rebase_merge = module.params["allow_rebase_merge"]
-                    output_repo.allow_squash_merge = module.params["allow_squash_merge"]
-                    output_repo.delete_branch_on_merge = module.params["delete_branch_on_merge"]
-                else:
-                    repo.edit(name=module.params['repository'],
-                              description=module.params['description'],
-                              homepage=module.params['homepage'],
-                              private=module.params['private'],
-                              has_issues=module.params['has_issues'],
-                              has_projects=module.params['has_projects'],
-                              has_wiki=module.params['has_wiki'],
-                              has_downloads=module.params['has_downloads'],
-                              allow_squash_merge=module.params['allow_squash_merge'],
-                              allow_merge_commit=module.params['allow_merge_commit'],
-                              allow_rebase_merge=module.params['allow_rebase_merge'],
-                              delete_branch_on_merge=module.params['delete_branch_on_merge'])
-        except Exception as e:
+    if initialReq.status_code == 404:  # repository does NOT exist
+        if module.params['state'] == 'present':
             org = g.get_organization(module.params['organization'])
             for team in org.get_teams():
                 if team.name == module.params['team_name']:
@@ -410,6 +355,7 @@ def run_module():
                             hooks_url = "%s/hooks" % (url)
                         full_name = "%s/%s" % (
                             module.params['organization'], module.params['repository'])
+
                         output_repo = {
                             "allow_merge_commit": module.params['allow_merge_commit'],
                             "allow_rebase_merge": module.params['allow_rebase_merge'],
@@ -429,65 +375,138 @@ def run_module():
                             "language": None,
                             "name": module.params['repository'],
                             "owner": module.params['organization'],
-                            "private": module.params['private'],
+                            "visibility": module.params['visibility'],
                             "url": url
                         }
                     else:
-                        g.get_organization(module.params['organization']).create_repo(
-                            module.params['repository'],
-                            module.params['description'],
-                            module.params['homepage'],
-                            module.params['private'],
-                            module.params['has_issues'],
-                            module.params['has_wiki'],
-                            module.params['has_downloads'],
-                            module.params['has_projects'],
-                            team.id,
-                            module.params['auto_init'],
-                            module.params['license_template'],
-                            module.params['gitignore_template'],
-                            module.params['allow_squash_merge'],
-                            module.params['allow_merge_commit'],
-                            module.params['allow_rebase_merge'],
-                            module.params['delete_branch_on_merge']
-                        )
-    if module.params['state'] == 'absent':
-        try:
-            if not module.check_mode:
-                repo = g.get_organization(module.params['organization']).get_repo(
-                    module.params['repository']).delete()
+                        url = module.params['api_url'] + '/orgs/' + \
+                            module.params['organization'] + '/repos'
 
-        except Exception as e:
-            ...
+                        payload = {
+                            "name": module.params['repository'],
+                            "description": module.params['description'],
+                            "homepage": module.params['homepage'],
+                            "private": module.params['visibility'],
+                            "has_issues": module.params['has_issues'],
+                            "has_wiki": module.params['has_wiki'],
+                            "has_downloads": module.params['has_downloads'],
+                            "has_projects": module.params['has_projects'],
+                            "team_id": team.id,
+                            "visibility": module.params['visibility'],
+                            "auto_init": module.params['auto_init'],
+                            "license_template": module.params['license_template'],
+                            "gitignore_template": module.params['gitignore_template'],
+                            "allow_squash_merge": module.params['allow_squash_merge'],
+                            "allow_merge_commit": module.params['allow_merge_commit'],
+                            "allow_rebase_merge": module.params['allow_rebase_merge'],
+                            "delete_branch_on_merge": module.params['delete_branch_on_merge']
+                        }
 
-    try:
-        repo = g.get_organization(
-            module.params['organization']).get_repo(module.params['repository'])
-        output = {
-            "name": repo.name,
-            "full_name": repo.full_name,
-            "owner": repo.owner.login,
-            "description": repo.description,
-            "private": repo.private,
-            "archived": repo.archived,
-            "language": repo.language,
-            "url": repo.url,
-            "default_branch": repo.default_branch,
-            "hooks_url": repo.hooks_url,
-            "clone_url": repo.clone_url,
-            "allow_merge_commit": repo.allow_merge_commit,
-            "allow_rebase_merge": repo.allow_rebase_merge,
-            "allow_squash_merge": repo.allow_squash_merge,
-            "delete_branch_on_merge": repo.delete_branch_on_merge,
-            "has_issues": repo.has_issues,
-            "has_downloads": repo.has_downloads,
-            "has_wiki": repo.has_wiki,
-            "has_projects": repo.has_projects,
-            "homepage": repo.homepage
+                        requests.post(
+                            url, json=payload, headers={'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token']})
+    elif initialReq.status_code == 200:  # Repository DOES exist
+        body = json.loads(initialReq.text)
+        initial = {
+            "name": body['name'],
+            "full_name": body['full_name'],
+            "owner": body['owner']['login'],
+            "description": body['description'],
+            "visibility": body['visibility'],
+            "archived": body['archived'],
+            "language": body['language'],
+            "url": body['url'],
+            "default_branch": body['default_branch'],
+            "hooks_url": body['hooks_url'],
+            "clone_url": body['clone_url'],
+            "allow_merge_commit": body['allow_merge_commit'],
+            "allow_rebase_merge": body['allow_rebase_merge'],
+            "allow_squash_merge": body['allow_squash_merge'],
+            "delete_branch_on_merge": body['delete_branch_on_merge'],
+            "has_issues": body['has_issues'],
+            "has_downloads": body['has_downloads'],
+            "has_wiki": body['has_wiki'],
+            "has_projects": body['has_projects'],
+            "homepage": body['homepage']
         }
-    except Exception as e:
-        output = {}
 
+        if module.params['state'] == 'present':
+            if module.check_mode:
+                output_repo = initial.copy()
+                output_repo['visibility'] = module.params["visibility"]
+                output_repo['description'] = module.params["description"]
+                output_repo['homepage'] = module.params["homepage"]
+                output_repo['has_issues'] = module.params["has_issues"]
+                output_repo['has_wiki'] = module.params["has_wiki"]
+                output_repo['has_downloads'] = module.params["has_downloads"]
+                output_repo['has_projects'] = module.params["has_projects"]
+                output_repo['allow_merge_commit'] = module.params["allow_merge_commit"]
+                output_repo['allow_rebase_merge'] = module.params["allow_rebase_merge"]
+                output_repo['allow_squash_merge'] = module.params["allow_squash_merge"]
+                output_repo['delete_branch_on_merge'] = module.params["delete_branch_on_merge"]
+            else:
+                org = g.get_organization(module.params['organization'])
+                for team in org.get_teams():
+                    if team.name == module.params['team_name']:
+                        url = module.params['api_url'] + '/repos/' + \
+                            module.params['organization'] + \
+                            '/' + module.params['repository']
+                        payload = {
+                            "name": module.params['repository'],
+                            "description": module.params['description'],
+                            "homepage": module.params['homepage'],
+                            "has_issues": module.params['has_issues'],
+                            "has_wiki": module.params['has_wiki'],
+                            "has_downloads": module.params['has_downloads'],
+                            "has_projects": module.params['has_projects'],
+                            "team_id": team.id,
+                            "visibility": module.params['visibility'],
+                            "auto_init": module.params['auto_init'],
+                            "license_template": module.params['license_template'],
+                            "gitignore_template": module.params['gitignore_template'],
+                            "allow_squash_merge": module.params['allow_squash_merge'],
+                            "allow_merge_commit": module.params['allow_merge_commit'],
+                            "allow_rebase_merge": module.params['allow_rebase_merge'],
+                            "delete_branch_on_merge": module.params['delete_branch_on_merge']
+                        }
+                        requests.patch(url, json=payload, headers={
+                            'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token'], 'Accept': 'application/vnd.github.v3+json'})
+        elif module.params['state'] == 'absent':
+            if not module.check_mode:
+                g.get_organization(module.params['organization']).get_repo(
+                    module.params['repository']).delete()
+            else:
+                output_repo = {}
+
+    finalReq = requests.get(
+        getUrl, headers={'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token']})
+
+    if finalReq.status_code == 404:
+        output = {}
+    else:
+        body = json.loads(finalReq.text)
+
+        output = {
+            "name": body['name'],
+            "full_name": body['full_name'],
+            "owner": body['owner']['login'],
+            "description": body['description'],
+            "visibility": body['visibility'],
+            "archived": body['archived'],
+            "language": body['language'],
+            "url": body['url'],
+            "default_branch": body['default_branch'],
+            "hooks_url": body['hooks_url'],
+            "clone_url": body['clone_url'],
+            "allow_merge_commit": body['allow_merge_commit'],
+            "allow_rebase_merge": body['allow_rebase_merge'],
+            "allow_squash_merge": body['allow_squash_merge'],
+            "delete_branch_on_merge": body['delete_branch_on_merge'],
+            "has_issues": body['has_issues'],
+            "has_downloads": body['has_downloads'],
+            "has_wiki": body['has_wiki'],
+            "has_projects": body['has_projects'],
+            "homepage": body['homepage']
+        }
     if module.check_mode:
         module.exit_json(repo=output_repo, changed=initial != output_repo)
     else:
