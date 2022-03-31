@@ -518,41 +518,7 @@ Common return values are documented `here <https://docs.ansible.com/ansible/late
                             <div>Name of the webhook</div>
                 </td>
             </tr>
-            
-  <!-- WEBHOOKS.<ELEMENT INDEX>.PING_URL -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>webhooks.&ltELEMENT INDEX&gt.ping_url</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">str</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>The URL to ping the webhook</div>
-                </td>
-            </tr>
-            
-  <!-- WEBHOOKS.<ELEMENT INDEX>.TEST_URL -->
-            <tr>
-                <td colspan="2">
-                    <div class="ansibleOptionAnchor" id="return-"></div>
-                    <b>webhooks.&ltELEMENT INDEX&gt.test_url</b>                                         <!-- HOW TO ACCESS RETURNED -->
-                    <a class="ansibleOptionLink" href="#return-" title="Permalink to this return value"></a>
-                    <div style="font-size: small">
-                      <span style="color: purple">str</span>                                               <!-- TYPE -->
-                    </div>
-                </td>
-                <td>provided per webhook dictionary</td>                                                                    <!-- WHEN IS IT RETURNED -->
-                <td>
-                                                                                                                        <!--DESCRIPTION-->
-                            <div>The url to test the webhook.</div>
-                </td>
-            </tr>
-            
+
   <!-- WEBHOOKS.<ELEMENT INDEX>.URL -->
             <tr>
                 <td colspan="2">
