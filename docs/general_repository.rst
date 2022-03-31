@@ -38,11 +38,11 @@ Parameters
             <th>Choices/<font color="blue">Required</font></th>
             <th width="50%">Comments</th>
         </tr>
-  <!-- GITHUB TOKEN -->
+  <!-- ACCESS TOKEN -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>token</b>
+                    <b>access_token</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -61,11 +61,11 @@ Parameters
                 </td>
             </tr>
 
-  <!-- ENTERPRISE_URL -->
+  <!-- API_URL -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>enterprise_url</b>
+                    <b>api_url</b>
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
@@ -85,11 +85,11 @@ Parameters
                         <code>https://github.&ltENTERPRISE DOMAIN&gt/api/v3</code>
                 </td>
             </tr>
-  <!-- ORGANIZATION NAME-->
+  <!-- ORGANIZATION-->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>organization_name</b>                                                                            <!-- PARAMETER -->
+                    <b>organization</b>                                                                            <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -108,11 +108,11 @@ Parameters
                         <div>The organization containing the repository being managed.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- REPO -->
+    <!-- REPOSITORY -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>repo</b>                                                    <!-- PARAMETER -->
+                    <b>repository</b>                                                    <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>                                             <!-- TYPE -->
@@ -272,11 +272,11 @@ Parameters
                         <div>Whether or not the repository will have a projects tab.</div>  <!-- COMMENTS -->
                 </td>
             </tr>
-    <!-- TEAM_ID -->
+    <!-- TEAM_NAME -->
             <tr>
                 <td colspan="1">
                     <div class="ansibleOptionAnchor" id="parameter-"></div>
-                    <b>team_id</b>                                                             <!-- PARAMETER -->
+                    <b>team_name</b>                                                             <!-- PARAMETER -->
                     <a class="ansibleOptionLink" href="#parameter-" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">int</span>                                             <!-- TYPE -->
@@ -289,7 +289,7 @@ Parameters
                         <div>False</div>                                                                         <!-- REQUIRED -->
                 </td>
                 <td>
-                        <div>A team can be added through their ID number in the organization.</div>  <!-- COMMENTS -->
+                        <div>A team can be added through their name in the organization. This is required for the state: <code>PRESENT</code></div>  <!-- COMMENTS -->
                 </td>
             </tr>
     <!-- AUTO INIT -->
