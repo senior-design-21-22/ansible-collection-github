@@ -94,7 +94,7 @@ options:
         type: bool
     license_template:
         description:
-          - License restrictions put on the repository. Example- 'gpl-3.0'
+          - License restrictions put on the repository. These can be found at 'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository'
         required: false
         type: str
     gitignore_template:
