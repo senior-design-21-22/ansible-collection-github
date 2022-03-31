@@ -1,12 +1,19 @@
 #!/usr/bin/python
 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from __future__ import absolute_import, division, print_function
-import json
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
-from numpy import outer
-import requests
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
@@ -93,7 +100,8 @@ options:
         type: bool
     license_template:
         description:
-          - License restrictions put on the repository. These can be found at 'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository'
+          - License restrictions put on the repository. These can be found at
+            'https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository'
         required: false
         type: str
     gitignore_template:
@@ -275,6 +283,13 @@ repo.url:
     type: str
     returned: If Repo provided is valid within the organization
 '''
+
+import json
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.common.text.converters import jsonify
+from github import Github
+from numpy import outer
+import requests
 
 
 def run_module():
@@ -469,7 +484,8 @@ def run_module():
                             "delete_branch_on_merge": module.params['delete_branch_on_merge']
                         }
                         requests.patch(url, json=payload, headers={
-                            'Content-type': 'application/json', 'Authorization': 'Bearer ' + module.params['access_token'], 'Accept': 'application/vnd.github.v3+json'})
+                            'Content-type': 'application/json', 'Authorization': 'Bearer ' +
+                                            module.params['access_token'], 'Accept': 'application/vnd.github.v3+json'})
         elif module.params['state'] == 'absent':
             if not module.check_mode:
                 g.get_organization(module.params['organization']).get_repo(
