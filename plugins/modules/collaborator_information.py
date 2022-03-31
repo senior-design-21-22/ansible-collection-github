@@ -333,8 +333,8 @@ def run_module():
                 g, module.params['repository'], module.params['collaborator'], current_collaborators)
     elif module.params['state'] not in ["absent", "present"]:
         module.exit_json(changed=False, failed=True, msg="Invalid state: " +
-                             module.params['state'] +
-                             ". State must be 'present' or 'absent'")
+                         module.params['state'] +
+                         ". State must be 'present' or 'absent'")
     if module.check_mode is False:
         output = get_collaborators(g, module.params['repository'])
 
