@@ -24,7 +24,7 @@ jobs:
         run: pip install ansible==5.5
         
       - name: Install PyGithub
-        run: pip install PyGithub
+        run: pip install PyGithub=1.55
 
       - name: Perform sanity testing with ansible-test on module files
         run: ansible-test sanity --python 3.9 --skip-test import --skip-test ansible-doc --skip-test validate-modules plugins/modules/*
