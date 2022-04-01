@@ -29,7 +29,7 @@ module: repository_webhooks
 short_description: A module that manages webhooks
 
 description:
-  - "A module that manages a repository's webhooks by adding, deleting, and editing."
+  - "A module that manages a repository's webhooks."
 
 options:
     access_token:
@@ -50,7 +50,7 @@ options:
         type: str
     repository:
         description:
-          - The provided repository will have its webhook modified or deleted.
+          - The provided repository for which webhooks are being managed.
         required: true
         type: str
     url:
@@ -85,7 +85,7 @@ options:
         default: json
     state:
         description:
-          - Tells the program if the webhook should exist or not in the repository. Can be either "present" or "absent"
+          - Specifies if the webhook should exist or not in the repository. Can be either "present" or "absent".
         required: False
         type: str
         default: present
