@@ -228,14 +228,14 @@ class TestRepositoryInformationModule(unittest.TestCase):
     def test_fail_access_token(self):
         set_module_args({'access_token': 'bad_token',
                          'organization': 'one_repo_org',
-                         'api_url': 'good_url'})
+                         'api_url': ''})
         result = run_module()
         assert result == []
 
     def test_module_return_empty_repo_api_url(self):
-        set_module_args({'access_token': 'token',
+        set_module_args({'access_token': 'empty token',
                          'organization': 'no_repo_org',
-                         'api_url': 'good_url'})
+                         'api_url': ''})
         result = run_module()
         test = []
         assert result == test
