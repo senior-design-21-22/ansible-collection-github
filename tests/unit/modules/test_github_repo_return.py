@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function)
-__metaclass__ = type
-
 from ansible.module_utils import basic
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils._text import to_bytes
@@ -50,16 +47,16 @@ class Repository:
 
 class Organization:
     def __init__(self):
-        self.login = "login"
-        self.id = 1
-        self.node_id = -1
-        self.url = "https://api.github.com/orgs/github"
-        self.repos_url = "https://api.github.com/orgs/github/repos"
-        self.description = "A great organization"
-        self.name = "github"
-        self.type = "Organization"
+        self.login = None
+        self.id = None
+        self.node_id = None
+        self.url = None
+        self.repos_url = None
+        self.description = None
+        self.name = None
+        self.type = None
 
-    def __init__(self, name):
+    def __init__(self, name='default'):
         self.name = name
         self.login = "login"
         self.id = 1
@@ -86,9 +83,12 @@ class Github:
         self.base_url = base_url
 
     def get_organization(self, organization):
+        organization_output = Organization()
+
         if self.access_token == 'token':
-            organization = Organization(name=organization)
-        return organization
+            organization_output = Organization(name=organization)
+
+        return organization_output
 
 
 def set_module_args(args):
@@ -216,168 +216,26 @@ class TestRepositoryInformationModule(unittest.TestCase):
         ]
 
         output = run_module()
-        print(output)
         assert test == output
 
-    # def test_module_pass_when_required_args_fulfilled_correctly(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'None'})
-    #     result = run_module()
-    #     assert result == []
-    #     self.assertRaises(AnsibleExitJson)
+    def test_fail_api_call(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'one_repo_org',
+                         'api_url': 'bad_url'})
+        result = run_module()
+        assert result == []
 
-    # def test_module_return_one_repo_no_api_url(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'one_repo_org'})
-    #     result = run_module()
-    #     test = [
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'https://github.com/one_repo_org/testing-repo-private.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'one_repo_org/testing-repo-private',
-    #             "hooks_url": 'https://github.com/repos/one_repo_org/testing-repo-private/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-private",
-    #             "owner": 'one_repo_org',
-    #             "private": True,
-    #             "url": 'https://github.com/repos/one_repo_org/testing-repo-private'
-    #         }
-    #     ]
-    #     assert result == test
+    def test_fail_access_token(self):
+        set_module_args({'access_token': 'bad_token',
+                         'organization': 'one_repo_org',
+                         'api_url': 'good_url'})
+        result = run_module()
+        assert result == []
 
-    # def test_module_return_multiple_repo_no_api_url(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'multiple_repo_org'})
-    #     result = run_module()
-    #     test = [
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'https://github.com/multiple_repo_org/testing-repo-private.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'multiple_repo_org/testing-repo-private',
-    #             "hooks_url": 'https://github.com/repos/multiple_repo_org/testing-repo-private/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-private",
-    #             "owner": 'multiple_repo_org',
-    #             "private": True,
-    #             "url": 'https://github.com/repos/multiple_repo_org/testing-repo-private'
-    #         },
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'https://github.com/multiple_repo_org/testing-repo-internal.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'multiple_repo_org/testing-repo-internal',
-    #             "hooks_url": 'https://github.com/repos/multiple_repo_org/testing-repo-internal/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-internal",
-    #             "owner": 'multiple_repo_org',
-    #             "private": True,
-    #             "url": 'https://github.com/repos/multiple_repo_org/testing-repo-internal'
-    #         }
-    #     ]
-    #     assert result == test
-
-    # def test_module_api_url_entered_as_empty(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'one_repo_org',
-    #                      'api_url': ''})
-    #     result = run_module()
-    #     test = [
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'https://github.com/one_repo_org/testing-repo-private.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'one_repo_org/testing-repo-private',
-    #             "hooks_url": 'https://github.com/repos/one_repo_org/testing-repo-private/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-private",
-    #             "owner": 'one_repo_org',
-    #             "private": True,
-    #             "url": 'https://github.com/repos/one_repo_org/testing-repo-private'
-    #         }
-    #     ]
-    #     assert result == test
-
-    # def test_fail_api_call(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'one_repo_org',
-    #                      'api_url': 'bad_url'})
-    #     result = run_module()
-    #     assert result == 'bad_url'
-
-    # def test_fail_access_token(self):
-    #     set_module_args({'access_token': 'bad_token',
-    #                      'organization': 'one_repo_org',
-    #                      'api_url': 'good_url'})
-    #     result = run_module()
-    #     assert result == 'bad_token'
-
-    # def test_module_return_multiple_repo_api_url(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'multiple_repo_org',
-    #                      'api_url': 'good_url'})
-    #     result = run_module()
-    #     test = [
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'good_url/multiple_repo_org/testing-repo-private.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'multiple_repo_org/testing-repo-private',
-    #             "hooks_url": 'good_url/repos/multiple_repo_org/testing-repo-private/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-private",
-    #             "owner": 'multiple_repo_org',
-    #             "private": True,
-    #             "url": 'good_url/repos/multiple_repo_org/testing-repo-private'
-    #         },
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'good_url/multiple_repo_org/testing-repo-internal.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'multiple_repo_org/testing-repo-internal',
-    #             "hooks_url": 'good_url/repos/multiple_repo_org/testing-repo-internal/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-internal",
-    #             "owner": 'multiple_repo_org',
-    #             "private": True,
-    #             "url": 'good_url/repos/multiple_repo_org/testing-repo-internal'
-    #         }
-    #     ]
-    #     assert result == test
-
-    # def test_module_return_one_repo_api_url(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'one_repo_org',
-    #                      'api_url': 'good_url'})
-    #     result = run_module()
-    #     test = [
-    #         {
-    #             "archived": False,
-    #             "clone_url": 'good_url/one_repo_org/testing-repo-private.git',
-    #             "default_branch": "main",
-    #             "description": None,
-    #             "full_name": 'one_repo_org/testing-repo-private',
-    #             "hooks_url": 'good_url/repos/one_repo_org/testing-repo-private/hooks',
-    #             "language": None,
-    #             "name": "testing-repo-private",
-    #             "owner": 'one_repo_org',
-    #             "private": True,
-    #             "url": 'good_url/repos/one_repo_org/testing-repo-private'
-    #         }
-    #     ]
-    #     assert result == test
-
-    # def test_module_return_empty_repo_api_url(self):
-    #     set_module_args({'access_token': 'token',
-    #                      'organization': 'no_repo_org',
-    #                      'api_url': 'good_url'})
-    #     result = run_module()
-    #     test = []
-    #     assert result == test
+    def test_module_return_empty_repo_api_url(self):
+        set_module_args({'access_token': 'token',
+                         'organization': 'no_repo_org',
+                         'api_url': 'good_url'})
+        result = run_module()
+        test = []
+        assert result == test
