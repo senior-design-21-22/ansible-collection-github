@@ -73,6 +73,10 @@ class Organization:
                 Repository(name='Hello-World'),
                 Repository(name='Goodbye-Chat')
             ]
+        elif self.name == 'Cloud':
+            repositories = [
+                Repository(name='Cloud_repo')
+            ]
 
         return repositories
 
@@ -86,6 +90,9 @@ class Github:
         organization_output = Organization()
 
         if self.access_token == 'token':
+            organization_output = Organization(name=organization)
+
+        if self.access_token == 'token' and self.base_url == 'api_url':
             organization_output = Organization(name=organization)
 
         return organization_output
@@ -214,7 +221,7 @@ class TestRepositoryInformationModule(unittest.TestCase):
                 'is_template': False
             }
         ]
-
+        
         output = run_module()
         assert test == output
 
@@ -239,3 +246,28 @@ class TestRepositoryInformationModule(unittest.TestCase):
         result = run_module()
         test = []
         assert result == test
+
+    def test_module_return_repo_cloud_org(self):
+        set_module_args({
+            'access_token': 'token',
+            'organization': 'Cloud',
+            'api_url': 'api_url'
+        })
+        test = [
+            {
+                "name": 'Cloud_repo',
+                "full_name": 'github/Cloud_repo',
+                "owner": 'github',
+                "description": "",
+                "private": True,
+                "archived": False,
+                "language": None,
+                "url": "https://api.github.com/orgs/github/repos/Cloud_repo",
+                "default_branch": 'main',
+                "hooks_url": 'https://api.github.com/github/repos/Cloud_repo/hooks',
+                "clone_url": 'https://api.github.com/github/Cloud_repo.git'
+            }
+        ]
+
+        output = run_module()
+        assert test == output
