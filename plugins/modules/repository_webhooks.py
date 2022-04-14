@@ -204,7 +204,6 @@ def get_webhooks(g, repo):
     hooks = []
     current_hook_dict = {}
     for current_hook in g.get_repo(repo).get_hooks():
-        current_hook_dict = {}
         current_hook_dict = {
             "id": current_hook.id,
             "config": current_hook.config,
@@ -221,7 +220,7 @@ def get_webhooks(g, repo):
     return output
 
 
-def create_webhook(g, repo, events, url, content_type):
+def create_or_update_webhook(g, repo, events, url, content_type):
 
     config = {"url": url, "content_type": content_type if content_type else "json"}
 
@@ -317,6 +316,19 @@ def run_module():
         error_message = "Invalid action: " + module.params["state"]
         module.exit_json(changed=False, err=error_message, failed=True)
 
+    if module.params["events"]:
+        for event in module.params["events"]:
+            if event not in valid_events:
+                error_message = "Invalid event name: " + event
+                module.exit_json(
+                    changed=False, err=error_message, failed=True)
+
+    if module.params["content_type"] not in valid_content_types:
+        error_message = "Invalid content type: " + \
+            module.params["content_type"]
+        module.exit_json(
+            changed=False, err=error_message, failed=True)
+
     if module.params["api_url"] == "":
         g = Github(module.params["access_token"])
     else:
@@ -331,13 +343,6 @@ def run_module():
     initial = get_webhooks(g, module.params["repository"])
 
     if module.params["url"]:
-        if module.params["events"]:
-            for event in module.params["events"]:
-                if event not in valid_events:
-                    error_message = "Invalid event name: " + event
-                    module.exit_json(
-                        changed=False, err=error_message, failed=True)
-
         if module.params["state"].lower() == "absent":
             if module.check_mode:
                 for hooks in initial:
@@ -347,11 +352,6 @@ def run_module():
             else:
                 delete_webhook(g, module.params["repository"], module.params["url"])
         elif module.params["state"].lower() == "present":
-            if module.params["content_type"] not in valid_content_types:
-                error_message = "Invalid content type: " + \
-                    module.params["content_type"]
-                module.exit_json(
-                    changed=False, err=error_message, failed=True)
             if module.check_mode:
                 found = False
                 for hooks in initial:
@@ -379,7 +379,7 @@ def run_module():
                         "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repository"])
                     })
             else:
-                create_webhook(
+                create_or_update_webhook(
                     g,
                     module.params["repository"],
                     module.params["events"],
