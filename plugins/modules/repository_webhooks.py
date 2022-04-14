@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, division, print_function
-
 
 ANSIBLE_METADATA = {
     "metadata_version": "1.0",
@@ -196,8 +194,6 @@ from operator import mod
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.common.text.converters import jsonify
 from github import Github
-
-__metaclass__ = type
 
 
 def get_webhooks(g, repo):
