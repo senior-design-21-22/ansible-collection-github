@@ -27,7 +27,7 @@ jobs:
         run: pip install PyGithub
 
       - name: Perform sanity testing with ansible-test on module files
-        run: ansible-test sanity --python 3.9 --skip-test import --skip-test ansible-doc --skip-test validate-modules plugins/modules/*
+        run: ansible-test sanity --python 3.9 --skip-test import --skip-test ansible-doc --skip-test validate-modules --skip-test future-import-boilerplate --skip-test metaclass-boilerplate plugins/modules/*
           
       - name: Perform unit testing with ansible-test
         uses: ansible-community/ansible-test-gh-action@release/v1
