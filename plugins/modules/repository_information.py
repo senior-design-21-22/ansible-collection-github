@@ -14,6 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import absolute_import, division, print_function
+from github import Github
+from ansible.module_utils.basic import AnsibleModule
 
 
 ANSIBLE_METADATA = {
@@ -157,10 +159,6 @@ repos.<ELEMENT INDEX>.is_template:
     type: bool
     returned: only if organization contains a repository and is not a part of an enterprise account
 '''
-
-from ansible.module_utils.basic import AnsibleModule
-from github import Github
-__metaclass__ = type
 
 
 def run_module():
