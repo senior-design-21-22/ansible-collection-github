@@ -13,9 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, division, print_function
 
-
+import copy
+import collections
+from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+import json
 ANSIBLE_METADATA = {
     'metadata_version': '1.0',
     'status': ['preview'],
@@ -35,7 +39,7 @@ description:
 options:
     access_token:
         description:
-            - GitHub API token used to retrieve information about collaborators in repositories a user has access.
+            - GitHub API token used to retrieve information about collaborators in repositories to which a user has access.
         required: true
         type: str
 
@@ -49,7 +53,7 @@ options:
 
     organization:
         description:
-            - The organization whose repository's collaborators will be modified.
+            - The organization whose repository's collaborators will be managed.
         required: true
         type: str
 
@@ -119,12 +123,12 @@ collaborators:
 collaborators['<ORG NAME>/<REPO NAME>']:
     description: List contains dicts of each collaborator's information (that are in that repository).
     type: list
-    returned: if at least one collaborator is within repository
+    returned: if at least one collaborator is contained within repository
 
 collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>:
     description: This index provides access to a dictionary containing information about a single collaborator.
     type: dict
-    returned: if at least one collaborator is within repository
+    returned: if at least one collaborator is contained within repository
 
 collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.id:
     description: Collaborator's id number.
@@ -176,14 +180,6 @@ collaborators['<ORG NAME>/<REPO NAME>'].<INDEX>.type:
 '''
 
 
-import collections
-from github import Github
-from ansible.module_utils.common.text.converters import jsonify
-from ansible.module_utils.basic import AnsibleModule
-import json
-__metaclass__ = type
-
-
 def present_collaborator(g, repo, collaborator, permission):
     r = g.get_repo(repo)
     r.add_to_collaborators(collaborator, permission=permission)
@@ -195,7 +191,7 @@ def absent_collaborator(g, repo, collaborator):
 
 
 def get_collaborators(g, repo):
-    dict_repo = list()
+    repos = list()
     collab_output = dict()
     collaborators = g.get_repo(
         repo).get_collaborators(affiliation="direct")
@@ -212,37 +208,38 @@ def get_collaborators(g, repo):
         }
         collab_output['permissions'] = permissions
 
-        dict_repo.append(collab_output.copy())
+        repos.append(collab_output.copy())
 
-    return dict_repo
+    return repos
 
 
-def present_collaborator_check_mode(g, repo, collaborator, permission, current_collaborators):
-    collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
+def present_collaborator_check_mode(collaborator, permission, current_collaborators):
+    output_collaborators = copy.deepcopy(current_collaborators)
+    collaborator_position = next((position for position, output_collaborators in enumerate(
+        output_collaborators) if output_collaborators["login"] == collaborator), None)
     permissions = {}
     if permission == 'admin':
         permissions = {
-            'admin': True,
-            'pull': True,
+            'triage': True,
             'push': True,
-            'triage': True
+            'pull': True,
+            'admin': True,
         }
     elif permission == 'pull':
         permissions = {
-            'admin': False,
-            'pull': True,
+            'triage': False,
             'push': False,
-            'triage': False
+            'pull': True,
+            'admin': False,
         }
     else:
         permissions = {
-            'admin': False,
-            'pull': True,
+            'triage': True,
             'push': True,
-            'triage': True
+            'pull': True,
+            'admin': False,
         }
 
-    output_collaborators = current_collaborators.copy()
     if collaborator_position is None:
         # adding
         collaborator_to_add = {
@@ -250,23 +247,24 @@ def present_collaborator_check_mode(g, repo, collaborator, permission, current_c
             'id': -1,
             'type': 'User',
             'site_admin': True if permission == 'admin' else False,
-            'permissions': permissions
+            'permissions': permissions.copy()
         }
         output_collaborators.append(collaborator_to_add)
 
     else:
         # changing
-        for current_collaborator in output_collaborators:
-            if collaborator == current_collaborator['login']:
-                current_collaborator['permissions'] = permissions
-                if permission == 'admin':
-                    current_collaborator['site_admin'] = True
+        if collaborator == output_collaborators[collaborator_position]['login']:
+            output_collaborators[collaborator_position]['permissions'] = permissions.copy(
+            )
+            if permission == 'admin':
+                output_collaborators[collaborator_position]['site_admin'] = True
 
     return output_collaborators
 
 
-def absent_collaborator_check_mode(g, repo, collaborator, current_collaborators):
-    collaborator_position = next((i for i, x in enumerate(current_collaborators) if x["login"] == collaborator), None)
+def absent_collaborator_check_mode(collaborator, current_collaborators):
+    collaborator_position = next((position for position, current_collaborator in enumerate(
+        current_collaborators) if current_collaborator["login"] == collaborator), None)
     output_collaborators = current_collaborators.copy()
     if collaborator_position is not None:
         output_collaborators.pop(collaborator_position)
@@ -311,34 +309,36 @@ def run_module():
 
     output = []
 
-    if module.params['state'] == 'present':
-        if len(module.params['collaborator']) and len(module.params['repository']) and module.params['permission'].lower() in valid_permissions:
-            if module.check_mode is False:
-                present_collaborator(
-                    g, module.params['repository'], module.params['collaborator'], module.params['permission'])
-            else:
-                output = present_collaborator_check_mode(
-                    g, module.params['repository'], module.params['collaborator'], module.params['permission'], current_collaborators)
-        elif module.params['permission'].lower() not in valid_permissions:
-            module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
-                             module.params['permission'] +
-                             ". Permissions must be 'push' 'pull' or 'admin'")
-
-    elif module.params['state'] == 'absent' and len(module.params['repository']):
-        if module.check_mode is False:
-            absent_collaborator(
-                g, module.params['repository'], module.params['collaborator'])
-        else:
-            output = absent_collaborator_check_mode(
-                g, module.params['repository'], module.params['collaborator'], current_collaborators)
-    elif module.params['state'] not in ["absent", "present"]:
+    if module.params['state'] not in ["absent", "present"]:
         module.exit_json(changed=False, failed=True, msg="Invalid state: " +
                          module.params['state'] +
                          ". State must be 'present' or 'absent'")
+    else:
+        if module.params['state'] == 'present':
+            if module.params['permission'].lower() in valid_permissions:
+                if module.check_mode is False:
+                    present_collaborator(
+                        g, module.params['repository'], module.params['collaborator'], module.params['permission'])
+                else:
+                    output = present_collaborator_check_mode(
+                        module.params['collaborator'], module.params['permission'], current_collaborators.copy())
+            else:
+                module.exit_json(changed=False, failed=True, msg="Invalid permission: " +
+                                 module.params['permission'] +
+                                 ". Permissions must be 'push' 'pull' or 'admin'")
+
+        elif module.params['state'] == 'absent':
+            if module.check_mode is False:
+                absent_collaborator(
+                    g, module.params['repository'], module.params['collaborator'])
+            else:
+                output = absent_collaborator_check_mode(
+                    module.params['collaborator'], current_collaborators)
     if module.check_mode is False:
         output = get_collaborators(g, module.params['repository'])
 
-    module.exit_json(changed=json.dumps(current_collaborators) != json.dumps(output), collaborators=output)
+    module.exit_json(changed=json.dumps(current_collaborators)
+                     != json.dumps(output), collaborators=output)
 
 
 def main():

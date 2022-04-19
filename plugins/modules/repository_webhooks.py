@@ -13,9 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import absolute_import, division, print_function
 
-
+from github import Github
+from ansible.module_utils.common.text.converters import jsonify
+from ansible.module_utils.basic import AnsibleModule
+from operator import mod
+import json
+import collections
 ANSIBLE_METADATA = {
     "metadata_version": "1.0",
     "status": ["preview"],
@@ -29,7 +33,7 @@ module: repository_webhooks
 short_description: A module that manages webhooks
 
 description:
-  - "A module that manages a repository's webhooks by adding, deleting, and editing."
+  - "A module that manages a repository's webhooks."
 
 options:
     access_token:
@@ -50,7 +54,7 @@ options:
         type: str
     repository:
         description:
-          - The provided repository will have its webhook modified or deleted.
+          - The provided repository for which webhooks are being managed.
         required: true
         type: str
     url:
@@ -85,7 +89,7 @@ options:
         default: json
     state:
         description:
-          - Tells the program if the webhook should exist or not in the repository. Can be either "present" or "absent"
+          - Specifies if the webhook should exist or not in the repository. Can be either "present" or "absent".
         required: False
         type: str
         default: present
@@ -174,33 +178,35 @@ webhooks.<ELEMENT INDEX>.name:
     type: str
     returned: provided per webhook dictionary
 
+webhooks.<ELEMENT INDEX>.ping_url:
+    description: The url to ping the webhook.
+    type: str
+    returned: provided per webhook dictionary
+
+webhooks.<ELEMENT INDEX>.test_url:
+    description: The url to test the webhook.
+    type: str
+    returned: provided per webhook dictionary
+
 webhooks.<ELEMENT INDEX>.url:
     description: The url in which the webhook resides
     type: str
     returned: provided per webhook dictionary
 """
 
-import collections
-import json
-from operator import mod
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.common.text.converters import jsonify
-from github import Github
-
-__metaclass__ = type
-
 
 def get_webhooks(g, repo):
     hooks = []
     current_hook_dict = {}
     for current_hook in g.get_repo(repo).get_hooks():
-        current_hook_dict = {}
         current_hook_dict = {
             "id": current_hook.id,
             "config": current_hook.config,
             "name": current_hook.name,
             "url": current_hook.url,
             "active": current_hook.active,
+            "test_url": current_hook.test_url,
+            "ping_url": current_hook.ping_url,
             "events": current_hook.events,
         }
         hooks.append(current_hook_dict)
@@ -209,7 +215,7 @@ def get_webhooks(g, repo):
     return output
 
 
-def create_webhook(g, repo, events, url, content_type):
+def create_or_update_webhook(g, repo, events, url, content_type):
 
     config = {"url": url, "content_type": content_type if content_type else "json"}
 
@@ -305,6 +311,19 @@ def run_module():
         error_message = "Invalid action: " + module.params["state"]
         module.exit_json(changed=False, err=error_message, failed=True)
 
+    if module.params["events"]:
+        for event in module.params["events"]:
+            if event not in valid_events:
+                error_message = "Invalid event name: " + event
+                module.exit_json(
+                    changed=False, err=error_message, failed=True)
+
+    if module.params["content_type"] not in valid_content_types:
+        error_message = "Invalid content type: " + \
+            module.params["content_type"]
+        module.exit_json(
+            changed=False, err=error_message, failed=True)
+
     if module.params["api_url"] == "":
         g = Github(module.params["access_token"])
     else:
@@ -319,13 +338,6 @@ def run_module():
     initial = get_webhooks(g, module.params["repository"])
 
     if module.params["url"]:
-        if module.params["events"]:
-            for event in module.params["events"]:
-                if event not in valid_events:
-                    error_message = "Invalid event name: " + event
-                    module.exit_json(
-                        changed=False, err=error_message, failed=True)
-
         if module.params["state"].lower() == "absent":
             if module.check_mode:
                 for hooks in initial:
@@ -333,13 +345,9 @@ def run_module():
                         initial.remove(hooks)
 
             else:
-                delete_webhook(g, module.params["repository"], module.params["url"])
+                delete_webhook(
+                    g, module.params["repository"], module.params["url"])
         elif module.params["state"].lower() == "present":
-            if module.params["content_type"] not in valid_content_types:
-                error_message = "Invalid content type: " + \
-                    module.params["content_type"]
-                module.exit_json(
-                    changed=False, err=error_message, failed=True)
             if module.check_mode:
                 found = False
                 for hooks in initial:
@@ -356,16 +364,18 @@ def run_module():
                         "active": True,
                         "config": {
                             "content_type": module.params['content_type'],
-                            "insecure_ssl": "-1",
+                            "insecure_ssl": "0",
                             "url": module.params['url']
                         },
                         "events": module.params['events'],
-                        "id": "-1",
+                        "id": "<WEBHOOK_ID>",
                         "name": "web",
+                        "ping_url": "%s/%s/hooks/<WEBHOOK_ID>/pings" % (urlBase, module.params["repository"]),
+                        "test_url": "%s/%s/hooks/<WEBHOOK_ID>/test" % (urlBase, module.params["repository"]),
                         "url": "%s/%s/hooks/<WEBHOOK_ID>" % (urlBase, module.params["repository"])
                     })
             else:
-                create_webhook(
+                create_or_update_webhook(
                     g,
                     module.params["repository"],
                     module.params["events"],

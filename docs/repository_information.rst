@@ -17,7 +17,7 @@ Version added: 0.0.1
 
 Synopsis
 --------
-- Retrieve Github organization repository information in the form of list of dictionaries to further use in other modules.
+- Retrieve GitHub organization repository information in the form of a list of dictionaries.
 
 
 
@@ -49,7 +49,7 @@ Parameters
                 <td>
                 </td>
                 <td>
-                        <div>Token used to authenticate with the Github Rest API.</div>
+                        <div>Token used to authenticate with the GitHub Rest API.</div>
                 </td>
             </tr>
             <tr>

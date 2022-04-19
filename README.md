@@ -60,7 +60,7 @@ pip install PyGithub
 ### Collaborator Information
 
 ```
-    - name: "Functions of Collaborator information module"
+    - name: "List the collaborators of a repository"
       ohioit.github.collaborator_information:
         access_token: "<API TOKEN>"
         organization: "<ORGANIZATION NAME>"
@@ -72,7 +72,7 @@ pip install PyGithub
 ```
 ### Webhook
 ```
-    - name: "Add/Modify webhook to GitHub repository MOD 3"
+    - name: "Manage webhooks of a GitHub repository"
       ohioit.github.repository_webhooks:
         state: <present or absent> 
         access_token: "<API TOKEN>"
@@ -88,7 +88,7 @@ pip install PyGithub
 ### Branch Protection
 
 ```
-    - name: "Modify branch protections to a branch"
+    - name: "Manage the branch protections rules of a branch"
       ohioit.github.branch_protection:
         access_token: "<API TOKEN>"
         organization: "<ORGANIZATION NAME>"
@@ -111,7 +111,7 @@ pip install PyGithub
 ### General Repository
 
 ```
-    - name: "Create repository within enterprise organization"
+    - name: "Manage a repository within an enterprise organization"
       ohioit.github.general_repository:
         access_token: "<API TOKEN>"
         organization: "<ORGANIZATION NAME>"
